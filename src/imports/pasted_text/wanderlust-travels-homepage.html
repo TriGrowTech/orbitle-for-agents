@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderlust Travels – Curated Journeys by Expert Agents</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0d1b2e;--blue:#2563eb;--blue-light:#3b82f6;--blue-dark:#1d4ed8;--bg:#f0f4fa;--white:#ffffff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--gold:#f59e0b;--green:#10b981;--red:#ef4444;--card-shadow:0 4px 24px rgba(13,27,46,0.10);--card-shadow-hover:0 12px 40px rgba(37,99,235,0.18);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+/* TOPBAR */
+.topbar{background:var(--navy);color:#94a3b8;font-size:12.5px;padding:7px 0;}
+.topbar-inner{max-width:1240px;margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.topbar-left{display:flex;gap:20px;align-items:center;}
+.topbar-left a,.topbar-right a{color:#94a3b8;text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .2s;}
+.topbar-left a:hover,.topbar-right a:hover{color:#fff;}
+.topbar-right{display:flex;gap:16px;align-items:center;}
+.topbar-badge{background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
+
+/* NAVBAR */
+.navbar{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(13,27,46,0.07);}
+.nav-inner{max-width:1240px;margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:66px;gap:24px;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--navy));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;}
+.nav-logo-text{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.4px;}
+.nav-logo-text span{color:var(--blue);}
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none;flex:1;justify-content:center;}
+.nav-links a{text-decoration:none;color:var(--text);font-size:14px;font-weight:500;padding:8px 12px;border-radius:8px;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.nav-links a:hover{background:var(--bg);color:var(--blue);}
+.has-dropdown{position:relative;}
+.has-dropdown .dropdown{display:none;position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1px solid var(--border);border-radius:12px;min-width:190px;padding:8px;box-shadow:var(--card-shadow);z-index:200;}
+.has-dropdown:hover .dropdown{display:block;}
+.dropdown a{display:block !important;padding:9px 14px !important;border-radius:8px;font-size:13.5px !important;}
+.dropdown a:hover{background:var(--bg) !important;}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:inherit;text-decoration:none;}
+.btn-ghost{background:transparent;color:var(--text);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue);}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-dark);box-shadow:0 4px 16px rgba(37,99,235,.35);transform:translateY(-1px);}
+.btn-sm{padding:7px 14px;font-size:13px;border-radius:8px;}
+.btn-wa{background:#25D366;color:#fff;}
+.btn-wa:hover{background:#1ebe5a;}
+
+/* HERO */
+.hero{background:linear-gradient(160deg,var(--navy) 0%,#1a3a5c 55%,#1e4a78 100%);min-height:580px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:60px 0 40px;}
+.hero-bg-pattern{position:absolute;inset:0;background-image:radial-gradient(circle at 20% 80%,rgba(37,99,235,.18) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(37,99,235,.12) 0%,transparent 50%);pointer-events:none;}
+.hero-dots{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:30px 30px;pointer-events:none;}
+.hero-inner{max-width:1240px;margin:auto;padding:0 24px;position:relative;z-index:2;text-align:center;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,.25);border:1px solid rgba(37,99,235,.4);color:#93c5fd;font-size:13px;font-weight:600;padding:6px 16px;border-radius:20px;margin-bottom:22px;backdrop-filter:blur(8px);}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(36px,5vw,60px);color:#fff;line-height:1.15;margin-bottom:16px;}
+.hero h1 em{font-style:italic;color:#93c5fd;}
+.hero p{color:#94a3b8;font-size:17px;max-width:560px;margin:0 auto 36px;line-height:1.7;}
+.hero-stats{display:flex;justify-content:center;gap:40px;margin-top:32px;flex-wrap:wrap;}
+.hero-stat{text-align:center;}
+.hero-stat-num{font-size:26px;font-weight:800;color:#fff;display:block;letter-spacing:-.5px;}
+.hero-stat-label{font-size:12px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:.8px;}
+
+/* SEARCH BAR */
+.search-wrap{background:var(--white);border-radius:20px;box-shadow:0 8px 40px rgba(13,27,46,.25);padding:24px 28px;max-width:900px;margin:0 auto;position:relative;z-index:5;}
+.search-tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1.5px solid var(--border);}
+.search-tab{padding:8px 18px 12px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all .2s;display:flex;align-items:center;gap:6px;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;white-space:nowrap;}
+.search-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.search-fields{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr auto;gap:12px;align-items:end;}
+.search-field{display:flex;flex-direction:column;gap:5px;}
+.search-field label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;}
+.search-field input,.search-field select{height:46px;border:1.5px solid var(--border);border-radius:10px;padding:0 14px;font-size:14px;font-family:inherit;color:var(--text);background:var(--bg);transition:border .2s;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;}
+.search-field input:focus,.search-field select:focus{border-color:var(--blue);background:#fff;}
+.search-btn{height:46px;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:0 24px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:inherit;white-space:nowrap;transition:all .2s;}
+.search-btn:hover{background:var(--blue-dark);transform:translateY(-1px);}
+
+/* AD RIBBON */
+.ad-ribbon{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;position:relative;}
+.ad-ribbon-track{display:flex;animation:ribbonScroll 28s linear infinite;width:max-content;}
+.ad-ribbon:hover .ad-ribbon-track{animation-play-state:paused;}
+@keyframes ribbonScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.ad-card{display:flex;align-items:center;gap:14px;padding:13px 28px;border-right:1px solid var(--border);flex-shrink:0;cursor:pointer;transition:background .2s;}
+.ad-card:hover{background:var(--bg);}
+.ad-card-img{width:54px;height:38px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#0d1b2e);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.ad-card-title{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;}
+.ad-card-sub{font-size:11.5px;color:var(--muted);white-space:nowrap;}
+.ad-card-price{font-size:13px;font-weight:800;color:var(--blue);white-space:nowrap;}
+.ad-ribbon-badge{position:absolute;left:0;top:0;bottom:0;width:80px;background:linear-gradient(to right,var(--white) 60%,transparent);z-index:2;display:flex;align-items:center;padding-left:16px;pointer-events:none;}
+.ad-ribbon-badge span{font-size:10px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:1px;transform:rotate(-90deg);white-space:nowrap;display:block;}
+.ad-ribbon-fade-right{position:absolute;right:0;top:0;bottom:0;width:60px;background:linear-gradient(to left,var(--white) 40%,transparent);pointer-events:none;z-index:2;}
+
+/* SECTIONS */
+section{padding:64px 0;}
+.section-inner{max-width:1240px;margin:auto;padding:0 24px;}
+.section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px;}
+.section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.section-label::before{content:'';width:18px;height:2px;background:var(--blue);display:inline-block;border-radius:2px;}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(24px,3.5vw,34px);font-weight:700;color:var(--navy);line-height:1.2;}
+.section-title em{font-style:italic;color:var(--blue);}
+.section-sub{font-size:15px;color:var(--muted);margin-top:6px;max-width:460px;}
+.view-all{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--blue);text-decoration:none;white-space:nowrap;transition:gap .2s;}
+.view-all:hover{gap:10px;}
+
+/* PACKAGE CARD */
+.packages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;}
+.pkg-card{background:var(--white);border-radius:16px;overflow:hidden;box-shadow:var(--card-shadow);transition:all .3s;display:flex;flex-direction:column;cursor:pointer;position:relative;}
+.pkg-card:hover{transform:translateY(-5px);box-shadow:var(--card-shadow-hover);}
+.pkg-img{height:200px;position:relative;overflow:hidden;}
+.pkg-img-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:60px;transition:transform .4s;}
+.pkg-card:hover .pkg-img-bg{transform:scale(1.06);}
+.pkg-badge{position:absolute;top:12px;left:12px;background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px;}
+.pkg-badge.hot{background:var(--red);}
+.pkg-badge.new{background:var(--green);}
+.pkg-badge.sale{background:var(--gold);color:var(--navy);}
+.pkg-wishlist{position:absolute;top:12px;right:12px;width:34px;height:34px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:all .2s;}
+.pkg-wishlist:hover{transform:scale(1.1);background:#fff;}
+.pkg-body{padding:18px 18px 14px;flex:1;display:flex;flex-direction:column;gap:8px;}
+.pkg-location{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;font-weight:500;}
+.pkg-title{font-size:16px;font-weight:700;color:var(--navy);line-height:1.35;}
+.pkg-meta{display:flex;gap:14px;font-size:12.5px;color:var(--muted);}
+.pkg-rating{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text);font-weight:600;}
+.stars{color:var(--gold);}
+.pkg-footer{padding:12px 18px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.pkg-price-wrap{display:flex;flex-direction:column;gap:1px;}
+.pkg-price-label{font-size:11px;color:var(--muted);font-weight:500;}
+.pkg-price{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.5px;display:flex;align-items:baseline;gap:4px;}
+.pkg-price span{font-size:13px;font-weight:500;color:var(--muted);}
+.pkg-price-old{font-size:12px;color:var(--muted);text-decoration:line-through;}
+.pkg-actions{display:flex;gap:7px;}
+
+/* THEMES */
+.themes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;}
+.theme-card{background:var(--white);border-radius:14px;padding:22px 14px 18px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .25s;box-shadow:0 2px 8px rgba(13,27,46,.06);}
+.theme-card:hover,.theme-card.active{border-color:var(--blue);background:#eff6ff;transform:translateY(-3px);}
+.theme-icon{font-size:34px;margin-bottom:10px;display:block;}
+.theme-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.theme-count{font-size:11.5px;color:var(--muted);}
+
+/* PLAN FORM */
+.plan-section{background:linear-gradient(135deg,var(--navy) 0%,#1a3a5c 100%);}
+.plan-wrap{display:grid;grid-template-columns:1fr 1.4fr;gap:60px;align-items:center;}
+.plan-left{color:#fff;}
+.plan-left .section-label{color:#93c5fd;}
+.plan-left .section-label::before{background:#93c5fd;}
+.plan-left .section-title{color:#fff;}
+.plan-left .section-title em{color:#93c5fd;}
+.plan-left p{color:#94a3b8;font-size:15px;line-height:1.7;margin-top:14px;}
+.plan-feature{display:flex;align-items:flex-start;gap:12px;margin-top:22px;}
+.plan-feature-icon{width:40px;height:40px;background:rgba(37,99,235,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.plan-feature h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
+.plan-feature p{font-size:13px;color:#64748b;margin-top:0;}
+.plan-form{background:var(--white);border-radius:20px;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.plan-form h3{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+.plan-form>p{font-size:13.5px;color:var(--muted);margin-bottom:22px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.6px;}
+.form-group input,.form-group select,.form-group textarea{border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:border .2s;appearance:none;-webkit-appearance:none;}
+.form-group textarea{resize:vertical;min-height:90px;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue);background:#fff;}
+.form-submit{width:100%;margin-top:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
+.form-submit:hover{background:var(--blue-dark);transform:translateY(-1px);box-shadow:0 8px 24px rgba(37,99,235,.35);}
+
+/* TRUST */
+.trust-section{background:linear-gradient(160deg,var(--bg) 0%,#dbeafe 100%);}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.trust-card{background:var(--white);border-radius:16px;padding:28px 22px;text-align:center;box-shadow:var(--card-shadow);transition:all .3s;border:1.5px solid transparent;}
+.trust-card:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:var(--card-shadow-hover);}
+.trust-icon{width:60px;height:60px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;}
+.trust-card h4{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+.trust-card p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+.trust-num{font-size:28px;font-weight:800;color:var(--blue);margin-bottom:4px;letter-spacing:-.5px;}
+
+/* FAQ */
+.faq-section{background:var(--bg);}
+.faq-wrap{display:grid;grid-template-columns:1fr 1.6fr;gap:60px;align-items:start;}
+.faq-list{display:flex;flex-direction:column;gap:12px;}
+.faq-item{background:var(--white);border-radius:12px;border:1.5px solid var(--border);overflow:hidden;transition:border-color .2s;}
+.faq-item.open{border-color:var(--blue);}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;font-size:14.5px;font-weight:700;color:var(--navy);cursor:pointer;gap:12px;}
+.faq-chevron{width:26px;height:26px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;transition:transform .3s,background .2s;}
+.faq-item.open .faq-chevron{transform:rotate(180deg);background:#dbeafe;}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .2s;font-size:14px;color:var(--muted);line-height:1.7;padding:0 20px;}
+.faq-item.open .faq-a{max-height:300px;padding:0 20px 18px;}
+
+/* FOOTER */
+.footer{background:var(--navy);color:#94a3b8;padding:56px 0 0;}
+.footer-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:40px;max-width:1240px;margin:auto;padding:0 24px;}
+.footer-brand p{font-size:14px;line-height:1.7;color:#64748b;max-width:300px;margin-top:14px;}
+.footer-socials{display:flex;gap:10px;margin-top:20px;}
+.social-icon{width:36px;height:36px;background:rgba(255,255,255,.07);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all .2s;text-decoration:none;color:#94a3b8;}
+.social-icon:hover{background:var(--blue);color:#fff;}
+.footer-col h5{font-size:13px;font-weight:800;color:#fff;margin-bottom:18px;text-transform:uppercase;letter-spacing:.8px;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.footer-col ul a{color:#64748b;text-decoration:none;font-size:14px;transition:color .2s;display:flex;align-items:center;gap:6px;}
+.footer-col ul a:hover{color:#fff;}
+.footer-bottom{max-width:1240px;margin:40px auto 0;padding:18px 24px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-bottom p{font-size:13px;color:#475569;}
+.footer-bottom-links{display:flex;gap:20px;}
+.footer-bottom-links a{color:#475569;text-decoration:none;font-size:13px;transition:color .2s;}
+.footer-bottom-links a:hover{color:#fff;}
+
+/* PACKAGE DETAIL */
+.pkg-detail-page{display:none;position:fixed;inset:0;z-index:500;background:var(--bg);overflow-y:auto;}
+.pkg-detail-page.open{display:block;}
+.pkg-detail-topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.back-btn{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;background:none;border:none;font-family:inherit;padding:8px 14px;border-radius:8px;transition:all .2s;}
+.back-btn:hover{background:var(--bg);color:var(--blue);}
+.pkg-detail-content{max-width:1100px;margin:0 auto;padding:32px 24px 60px;}
+.pkg-detail-hero{border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#1e3a5f,#0d1b2e);height:340px;display:flex;align-items:center;justify-content:center;font-size:100px;margin-bottom:28px;position:relative;}
+.pkg-detail-badges{position:absolute;top:20px;left:20px;display:flex;gap:8px;}
+.pkg-detail-grid{display:grid;grid-template-columns:1fr 340px;gap:28px;align-items:start;}
+.pkg-detail-main{display:flex;flex-direction:column;gap:24px;}
+.pkg-detail-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--navy);}
+.pkg-detail-meta{display:flex;flex-wrap:wrap;gap:20px;padding:16px 20px;background:var(--white);border-radius:14px;border:1px solid var(--border);}
+.pkg-detail-meta-item{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--text);}
+.pkg-detail-meta-item strong{font-weight:700;color:var(--navy);}
+.detail-block{background:var(--white);border-radius:14px;padding:22px;border:1px solid var(--border);}
+.detail-block h3{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.itinerary-day{padding:12px 0;border-bottom:1px solid var(--border);display:flex;gap:16px;}
+.itinerary-day:last-child{border-bottom:none;}
+.day-num{width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.day-info h5{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.day-info p{font-size:13.5px;color:var(--muted);line-height:1.6;}
+.incl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.incl-item{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text);padding:8px 0;}
+.incl-item.yes::before{content:'✓';color:var(--green);font-weight:800;}
+.incl-item.no{color:var(--muted);}
+.incl-item.no::before{content:'✕';color:var(--red);font-weight:800;}
+.pkg-sidebar{display:flex;flex-direction:column;gap:16px;}
+.book-card{background:var(--white);border-radius:16px;padding:24px;box-shadow:var(--card-shadow);border:1px solid var(--border);position:sticky;top:90px;}
+.book-price{font-size:32px;font-weight:800;color:var(--navy);letter-spacing:-.5px;}
+.book-price-sub{font-size:13px;color:var(--muted);margin-bottom:18px;}
+.book-price-old{font-size:14px;color:var(--muted);text-decoration:line-through;margin-bottom:4px;}
+.book-price-save{font-size:12px;background:#d1fae5;color:#065f46;font-weight:700;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:14px;}
+.book-divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.book-contact{background:var(--white);border-radius:16px;padding:20px;border:1px solid var(--border);}
+.agent-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.agent-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--navy));color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.agent-name{font-size:14px;font-weight:700;color:var(--navy);}
+.agent-tag{font-size:12px;color:var(--muted);}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#eff6ff;color:var(--blue);border:1px solid #bfdbfe;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px;}
+
+@media(max-width:900px){.nav-links{display:none;}.trust-grid{grid-template-columns:repeat(2,1fr);}.plan-wrap{grid-template-columns:1fr;}.plan-left{display:none;}.faq-wrap{grid-template-columns:1fr;}.footer-grid{grid-template-columns:1fr 1fr;}.pkg-detail-grid{grid-template-columns:1fr;}.book-card{position:static;}}
+@media(max-width:600px){.search-fields{grid-template-columns:1fr;}.trust-grid{grid-template-columns:1fr 1fr;}.footer-grid{grid-template-columns:1fr;}.hero h1{font-size:30px;}.form-grid{grid-template-columns:1fr;}.incl-grid{grid-template-columns:1fr;}.topbar-left{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <a href="#">📞 +91 98765 43210</a>
+      <a href="#">✉️ hello@wanderlust.in</a>
+      <a href="#">🕐 Mon–Sat, 9AM–7PM</a>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-badge">⚡ Best Price Guarantee</span>
+      <a href="#">🌐 English / ₹ INR</a>
+      <a href="#">Become an Agent</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">✈</div>
+      <div class="nav-logo-text">Wander<span>lust</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">🏠 Home</a></li>
+      <li class="has-dropdown"><a href="#">🗺 Destinations ▾</a>
+        <div class="dropdown"><a href="#">🇮🇳 India</a><a href="#">🌏 South Asia</a><a href="#">🌍 Europe</a><a href="#">🌎 Americas</a><a href="#">🌐 World Tours</a></div>
+      </li>
+      <li class="has-dropdown"><a href="#">📦 Packages ▾</a>
+        <div class="dropdown"><a href="#">🔥 Trending</a><a href="#">🏡 Domestic</a><a href="#">✈️ International</a><a href="#">🍯 Honeymoon</a><a href="#">👨‍👩‍👧 Family Tours</a></div>
+      </li>
+      <li><a href="#">🛳 Cruises</a></li>
+      <li><a href="#">🏨 Hotels</a></li>
+      <li><a href="#">📝 Blog</a></li>
+      <li><a href="#">📞 Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn btn-ghost btn-sm">❤ Wishlist</button>
+      <button class="btn btn-primary btn-sm">Get Free Quote</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-pattern"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">🌟 Trusted by 12,000+ Happy Travellers</div>
+    <h1>Discover Your Next<br><em>Dream Journey</em></h1>
+    <p>Hand-crafted travel packages by verified local experts. Every trip planned to perfection — guaranteed memories, zero stress.</p>
+
+    <!-- SEARCH BAR -->
+    <div class="search-wrap">
+      <div class="search-tabs">
+        <button class="search-tab active">✈ Packages</button>
+        <button class="search-tab">🏨 Hotels</button>
+        <button class="search-tab">🚌 Day Tours</button>
+        <button class="search-tab">🛳 Cruises</button>
+        <button class="search-tab">🎒 Custom Trip</button>
+      </div>
+      <div class="search-fields">
+        <div class="search-field"><label>📍 Destination</label><input type="text" placeholder="Where do you want to go?"></div>
+        <div class="search-field"><label>📅 Departure Date</label><input type="date"></div>
+        <div class="search-field"><label>⏳ Duration</label><select><option>Any Duration</option><option>1–3 Days</option><option>4–6 Days</option><option>7–10 Days</option><option>10+ Days</option></select></div>
+        <div class="search-field"><label>👥 Travellers</label><select><option>2 Adults</option><option>1 Adult</option><option>2 Adults + 1 Child</option><option>2 Adults + 2 Children</option><option>Group (6+)</option></select></div>
+        <button class="search-btn">🔍 Search</button>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="hero-stat-num">500+</span><span class="hero-stat-label">Packages</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">12K+</span><span class="hero-stat-label">Happy Clients</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">80+</span><span class="hero-stat-label">Destinations</span></div>
+      <div class="hero-stat"><span class="hero-stat-num">4.9★</span><span class="hero-stat-label">Avg Rating</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- AD CAROUSEL RIBBON -->
+<div class="ad-ribbon">
+  <div class="ad-ribbon-badge"><span>HOT DEALS</span></div>
+  <div class="ad-ribbon-track">
+    <div class="ad-card"><div class="ad-card-img">🏔</div><div><div class="ad-card-title">Manali Winter Escape</div><div class="ad-card-sub">5 Nights · Dec–Jan</div></div><div class="ad-card-price">₹12,999/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🌴</div><div><div class="ad-card-title">Maldives Honeymoon</div><div class="ad-card-sub">4 Nights · All Incl.</div></div><div class="ad-card-price">₹68,999/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🗼</div><div><div class="ad-card-title">Europe 10 Countries</div><div class="ad-card-sub">15 Days · Premium</div></div><div class="ad-card-price">₹1,89,000/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🏝</div><div><div class="ad-card-title">Andaman Bliss</div><div class="ad-card-sub">6 Nights · Beach Resort</div></div><div class="ad-card-price">₹24,500/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🕌</div><div><div class="ad-card-title">Dubai Luxury</div><div class="ad-card-sub">5 Nights · 5★ Hotel</div></div><div class="ad-card-price">₹54,000/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🌺</div><div><div class="ad-card-title">Bali Romance</div><div class="ad-card-sub">6 Nights · Villa Stay</div></div><div class="ad-card-price">₹42,999/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">⛩</div><div><div class="ad-card-title">Japan Cherry Blossom</div><div class="ad-card-sub">8 Days · Spring Special</div></div><div class="ad-card-price">₹1,25,000/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🏜</div><div><div class="ad-card-title">Rajasthan Royal Tour</div><div class="ad-card-sub">7 Nights · Heritage Hotels</div></div><div class="ad-card-price">₹28,000/pp</div></div>
+    <!-- Duplicate for infinite scroll -->
+    <div class="ad-card"><div class="ad-card-img">🏔</div><div><div class="ad-card-title">Manali Winter Escape</div><div class="ad-card-sub">5 Nights · Dec–Jan</div></div><div class="ad-card-price">₹12,999/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🌴</div><div><div class="ad-card-title">Maldives Honeymoon</div><div class="ad-card-sub">4 Nights · All Incl.</div></div><div class="ad-card-price">₹68,999/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🗼</div><div><div class="ad-card-title">Europe 10 Countries</div><div class="ad-card-sub">15 Days · Premium</div></div><div class="ad-card-price">₹1,89,000/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🏝</div><div><div class="ad-card-title">Andaman Bliss</div><div class="ad-card-sub">6 Nights · Beach Resort</div></div><div class="ad-card-price">₹24,500/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🕌</div><div><div class="ad-card-title">Dubai Luxury</div><div class="ad-card-sub">5 Nights · 5★ Hotel</div></div><div class="ad-card-price">₹54,000/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🌺</div><div><div class="ad-card-title">Bali Romance</div><div class="ad-card-sub">6 Nights · Villa Stay</div></div><div class="ad-card-price">₹42,999/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">⛩</div><div><div class="ad-card-title">Japan Cherry Blossom</div><div class="ad-card-sub">8 Days · Spring Special</div></div><div class="ad-card-price">₹1,25,000/pp</div></div>
+    <div class="ad-card"><div class="ad-card-img">🏜</div><div><div class="ad-card-title">Rajasthan Royal Tour</div><div class="ad-card-sub">7 Nights · Heritage Hotels</div></div><div class="ad-card-price">₹28,000/pp</div></div>
+  </div>
+  <div class="ad-ribbon-fade-right"></div>
+</div>
+
+<!-- TRAVEL THEMES -->
+<section style="background:var(--white);padding:48px 0;">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><div class="section-label">Browse by Theme</div><div class="section-title">What Kind of Traveller <em>Are You?</em></div></div>
+      <a href="#" class="view-all">All Themes →</a>
+    </div>
+    <div class="themes-grid">
+      <div class="theme-card active"><span class="theme-icon">🏖</span><div class="theme-name">Beach & Sun</div><div class="theme-count">84 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🏔</span><div class="theme-name">Mountains</div><div class="theme-count">63 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🍯</span><div class="theme-name">Honeymoon</div><div class="theme-count">52 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">👨‍👩‍👧</span><div class="theme-name">Family Fun</div><div class="theme-count">71 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🎒</span><div class="theme-name">Backpacking</div><div class="theme-count">38 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🏛</span><div class="theme-name">Heritage</div><div class="theme-count">45 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🌿</span><div class="theme-name">Wellness</div><div class="theme-count">29 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🎿</span><div class="theme-name">Adventure</div><div class="theme-count">57 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🍽</span><div class="theme-name">Food Tours</div><div class="theme-count">33 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">📸</span><div class="theme-name">Photography</div><div class="theme-count">22 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🙏</span><div class="theme-name">Pilgrimage</div><div class="theme-count">41 packages</div></div>
+      <div class="theme-card"><span class="theme-icon">🛳</span><div class="theme-name">Cruises</div><div class="theme-count">18 packages</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRENDING PACKAGES -->
+<section style="background:var(--white);border-top:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><div class="section-label">🔥 What's Hot</div><div class="section-title">Trending <em>Right Now</em></div><div class="section-sub">Packages everyone's booking this month</div></div>
+      <a href="#" class="view-all">View All Trending →</a>
+    </div>
+    <div class="packages-grid" id="trendingGrid"></div>
+  </div>
+</section>
+
+<!-- DOMESTIC PACKAGES -->
+<section style="background:var(--bg);">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><div class="section-label">🇮🇳 Explore India</div><div class="section-title">Best <em>Domestic</em> Packages</div><div class="section-sub">Handpicked tours across India's most beautiful destinations</div></div>
+      <a href="#" class="view-all">All India Packages →</a>
+    </div>
+    <div class="packages-grid" id="domesticGrid"></div>
+  </div>
+</section>
+
+<!-- INTERNATIONAL PACKAGES -->
+<section style="background:var(--white);">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><div class="section-label">🌍 Go Global</div><div class="section-title">Top <em>International</em> Destinations</div><div class="section-sub">Premium international holidays crafted by local experts</div></div>
+      <a href="#" class="view-all">All International →</a>
+    </div>
+    <div class="packages-grid" id="intlGrid"></div>
+  </div>
+</section>
+
+<!-- PLAN A TOUR FORM -->
+<section class="plan-section">
+  <div class="section-inner">
+    <div class="plan-wrap">
+      <div class="plan-left">
+        <div class="section-label">Plan Your Trip</div>
+        <div class="section-title">Let Our Experts <em>Design</em> Your Journey</div>
+        <p>Tell us your dream trip — we'll assign a dedicated travel expert to craft the perfect itinerary, handle all bookings, and be your travel companion 24/7.</p>
+        <div class="plan-feature"><div class="plan-feature-icon">⚡</div><div><h4>Reply Within 2 Hours</h4><p>Our experts respond fast with a custom quote — no waiting, no generic replies.</p></div></div>
+        <div class="plan-feature"><div class="plan-feature-icon">🔒</div><div><h4>100% Secure & Verified</h4><p>All agents on our platform are background-verified and insured.</p></div></div>
+        <div class="plan-feature"><div class="plan-feature-icon">💰</div><div><h4>Best Price Guarantee</h4><p>We'll match or beat any comparable quote, no questions asked.</p></div></div>
+      </div>
+      <div class="plan-form">
+        <h3>📋 Plan My Tour</h3>
+        <p>Fill in your details — it's free and takes under 2 minutes.</p>
+        <div class="form-grid">
+          <div class="form-group"><label>Your Name</label><input type="text" placeholder="Rahul Sharma"></div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" placeholder="+91 98765 43210"></div>
+          <div class="form-group"><label>Email Address</label><input type="email" placeholder="rahul@email.com"></div>
+          <div class="form-group"><label>Destination</label><input type="text" placeholder="Where do you want to go?"></div>
+          <div class="form-group"><label>Travel Date</label><input type="date"></div>
+          <div class="form-group"><label>No. of Travellers</label><select><option>1 Person</option><option>2 People</option><option>3–5 People</option><option>6–10 People</option><option>10+ (Group)</option></select></div>
+          <div class="form-group"><label>Budget (per person)</label><select><option>Under ₹15,000</option><option>₹15,000 – ₹30,000</option><option>₹30,000 – ₹60,000</option><option>₹60,000 – ₹1,00,000</option><option>₹1,00,000+</option></select></div>
+          <div class="form-group"><label>Trip Type</label><select><option>Honeymoon</option><option>Family Vacation</option><option>Adventure</option><option>Solo Travel</option><option>Corporate Trip</option><option>Pilgrimage</option></select></div>
+          <div class="form-group full"><label>Special Requirements</label><textarea placeholder="Any specific preferences, dietary needs, mobility requirements, anniversaries, or dream experiences..."></textarea></div>
+        </div>
+        <button class="form-submit">🚀 Get My Free Custom Itinerary</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY TRUST US — 8 BLOCKS (4+4) -->
+<section class="trust-section">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div class="section-label" style="justify-content:center;">Why 12,000+ Travellers Trust Us</div>
+      <div class="section-title">Your Trust is Our <em>Foundation</em></div>
+      <div class="section-sub" style="margin:10px auto 0;text-align:center;">We don't just sell trips — we build lifelong travel relationships.</div>
+    </div>
+    <div class="trust-grid">
+      <div class="trust-card"><div class="trust-icon">✅</div><div class="trust-num">100%</div><h4>Verified Agents Only</h4><p>Every agent is KYC-verified, licensed, and background-checked before onboarding.</p></div>
+      <div class="trust-card"><div class="trust-icon">🔒</div><div class="trust-num">₹0</div><h4>Zero Hidden Charges</h4><p>What you see is what you pay. No surprise fees at checkout or during the trip — ever.</p></div>
+      <div class="trust-card"><div class="trust-icon">⭐</div><div class="trust-num">4.9★</div><h4>12,000+ Reviews</h4><p>Real reviews from real travellers. We display every review without filtering, always.</p></div>
+      <div class="trust-card"><div class="trust-icon">📞</div><div class="trust-num">24/7</div><h4>Round-the-Clock Support</h4><p>Emergencies don't follow office hours. Our team is available every hour, every day.</p></div>
+      <div class="trust-card"><div class="trust-icon">💰</div><div class="trust-num">Best</div><h4>Price Match Guarantee</h4><p>Found a better price for the same trip? Show us and we'll match it, no questions asked.</p></div>
+      <div class="trust-card"><div class="trust-icon">🛡</div><div class="trust-num">100%</div><h4>Safe Payments</h4><p>PCI-DSS compliant gateways. Your card data is never stored on our servers, period.</p></div>
+      <div class="trust-card"><div class="trust-icon">🔄</div><div class="trust-num">Free</div><h4>Flexible Cancellations</h4><p>Cancel or reschedule without penalties up to 30 days before departure on eligible trips.</p></div>
+      <div class="trust-card"><div class="trust-icon">🤝</div><div class="trust-num">10yr+</div><h4>Decade of Excellence</h4><p>Over 10 years in travel with a proven track record of creating unforgettable memories.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="section-inner">
+    <div class="faq-wrap">
+      <div>
+        <div class="section-label">Common Questions</div>
+        <div class="section-title">Everything You <em>Need to Know</em></div>
+        <p style="color:var(--muted);font-size:15px;margin-top:14px;line-height:1.7;">Can't find the answer you're looking for? Our team is happy to help any time.</p>
+        <div style="margin-top:28px;display:flex;flex-direction:column;gap:12px;">
+          <a href="#" class="btn btn-primary">💬 Chat with Us Now</a>
+          <a href="#" class="btn btn-ghost">📞 Call: +91 98765 43210</a>
+        </div>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item open"><div class="faq-q" onclick="toggleFaq(this)">How do I book a package on Wanderlust? <span class="faq-chevron">▼</span></div><div class="faq-a">Simply search for your destination, browse available packages, and click "Book Now" or "Enquire." You can also fill out our Plan a Tour form and a dedicated expert will reach out within 2 hours with a custom quote.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Are all travel agents on this platform verified? <span class="faq-chevron">▼</span></div><div class="faq-a">Yes, every agent undergoes a thorough verification process including identity checks, travel license verification, and a background check before being approved on the platform.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I customise an existing package? <span class="faq-chevron">▼</span></div><div class="faq-a">Absolutely! Every package can be customised. Just click "Customise This Trip" on any package page and tell us your preferences — hotels, activities, travel dates, dietary needs — and the agent will adapt it.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What is your cancellation and refund policy? <span class="faq-chevron">▼</span></div><div class="faq-a">Cancellation policies vary by package. Most packages offer full refunds up to 30 days before departure, partial refunds between 30–15 days, and no refund within 15 days. Always check the specific policy on the package detail page.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is it safe to pay online through your platform? <span class="faq-chevron">▼</span></div><div class="faq-a">Yes. All payments are processed through PCI-DSS Level 1 compliant gateways. We support UPI, credit/debit cards, net banking, and EMI options. Your card details are never stored on our servers.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do packages include flights? <span class="faq-chevron">▼</span></div><div class="faq-a">This varies by package. Each package clearly states what's included in the Inclusions section on the detail page. Some packages offer optional flight add-ons or you can request a custom package with flights.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How can I become a travel agent on Wanderlust? <span class="faq-chevron">▼</span></div><div class="faq-a">Click "Become an Agent" in the top bar or footer. You'll be directed to our Orbitle for Agents platform where you can register, submit documents, and start listing packages within 24 hours of approval.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="filter:brightness(2);">
+        <div class="nav-logo-icon">✈</div>
+        <div class="nav-logo-text" style="color:#fff;">Wander<span style="color:#93c5fd;">lust</span></div>
+      </a>
+      <p>India's most trusted travel marketplace connecting travellers with verified local travel experts since 2014.</p>
+      <div class="footer-socials">
+        <a class="social-icon" href="#">📘</a>
+        <a class="social-icon" href="#">📷</a>
+        <a class="social-icon" href="#">🐦</a>
+        <a class="social-icon" href="#">▶️</a>
+        <a class="social-icon" href="#">💼</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Quick Links</h5>
+      <ul>
+        <li><a href="#">🏠 Home</a></li><li><a href="#">📦 All Packages</a></li><li><a href="#">🔥 Trending Tours</a></li><li><a href="#">🏡 Domestic Tours</a></li><li><a href="#">✈️ International Tours</a></li><li><a href="#">📝 Travel Blog</a></li><li><a href="#">📞 Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Top Destinations</h5>
+      <ul>
+        <li><a href="#">🏔 Manali & Spiti</a></li><li><a href="#">🏖 Goa & Beaches</a></li><li><a href="#">🏝 Andaman Islands</a></li><li><a href="#">🌴 Kerala Backwaters</a></li><li><a href="#">🕌 Dubai</a></li><li><a href="#">🌺 Bali</a></li><li><a href="#">🗼 Europe Tour</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Support</h5>
+      <ul>
+        <li><a href="#">❓ FAQs</a></li><li><a href="#">📋 Booking Guide</a></li><li><a href="#">🔄 Cancellation Policy</a></li><li><a href="#">🛡 Privacy Policy</a></li><li><a href="#">📄 Terms & Conditions</a></li><li><a href="#">🤝 Become an Agent</a></li><li><a href="#">💼 Partner with Us</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Wanderlust Travels. Powered by <strong style="color:#3b82f6;">Orbitle</strong> — A TrigrowTech Product.</p>
+    <div class="footer-bottom-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Sitemap</a></div>
+  </div>
+</footer>
+
+<!-- PACKAGE DETAIL PAGE -->
+<div class="pkg-detail-page" id="pkgDetailPage">
+  <div class="pkg-detail-topbar">
+    <button class="back-btn" onclick="closeDetail()">← Back to Packages</button>
+    <div style="flex:1;min-width:0;overflow:hidden;"><div style="font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Home › International › Southeast Asia › <strong>Bali Romance Package</strong></div></div>
+    <div style="display:flex;gap:10px;flex-shrink:0;">
+      <button class="btn btn-ghost btn-sm">❤ Save</button>
+      <button class="btn btn-wa btn-sm" onclick="shareWA()">💬 Share on WhatsApp</button>
+    </div>
+  </div>
+  <div class="pkg-detail-content">
+    <div class="pkg-detail-hero">🌺
+      <div class="pkg-detail-badges"><span class="pkg-badge hot">🔥 Bestseller</span><span class="pkg-badge sale">20% OFF</span></div>
+    </div>
+    <div class="pkg-detail-grid">
+      <div class="pkg-detail-main">
+        <div>
+          <div class="pkg-location" style="font-size:13px;margin-bottom:8px;">📍 Bali, Indonesia</div>
+          <div class="pkg-detail-title">Bali Romance — Private Villa Escape</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap;">
+            <div class="pkg-rating"><span class="stars">★★★★★</span> 4.9 <span style="color:var(--muted);font-weight:400;">(214 reviews)</span></div>
+            <span class="chip">✈ Flights Optional</span>
+            <span class="chip">🏨 4★ Villa Resort</span>
+            <span class="chip">🍽 Breakfast Included</span>
+          </div>
+        </div>
+        <div class="pkg-detail-meta">
+          <div class="pkg-detail-meta-item">⏳ <strong>6 Nights / 7 Days</strong></div>
+          <div class="pkg-detail-meta-item">👥 <strong>2 Adults</strong></div>
+          <div class="pkg-detail-meta-item">🏨 <strong>Private Villa</strong></div>
+          <div class="pkg-detail-meta-item">📅 <strong>Flexible Dates</strong></div>
+          <div class="pkg-detail-meta-item">🚐 <strong>Airport Transfers</strong></div>
+          <div class="pkg-detail-meta-item">🧾 <strong>Visa on Arrival</strong></div>
+        </div>
+        <div class="detail-block">
+          <h3>📖 About This Package</h3>
+          <p style="font-size:14px;color:var(--muted);line-height:1.8;">Experience the magic of Bali with your partner in a private infinity-pool villa. This meticulously crafted romance package blends Ubud's spiritual serenity with Seminyak's beachside luxury. Every detail — from candle-lit dinners to couple's spa rituals — is thoughtfully arranged so you can focus on creating memories.</p>
+        </div>
+        <div class="detail-block">
+          <h3>🗓 Day-by-Day Itinerary</h3>
+          <div class="itinerary-day"><div class="day-num">1</div><div class="day-info"><h5>Arrival & Villa Check-In</h5><p>Airport welcome, transfer to private villa. Evening: sunset cocktails at Tanah Lot Temple with personal butler service.</p></div></div>
+          <div class="itinerary-day"><div class="day-num">2</div><div class="day-info"><h5>Ubud Spiritual Journey</h5><p>Tegalalang Rice Terrace walk, Tirta Empul Temple blessing, couples' Balinese massage at a cliffside spa, candlelit jungle dinner.</p></div></div>
+          <div class="itinerary-day"><div class="day-num">3</div><div class="day-info"><h5>Mount Batur Sunrise Trek</h5><p>Pre-dawn guided trek to Mount Batur's crater for a breathtaking sunrise. Return for champagne breakfast at your villa.</p></div></div>
+          <div class="itinerary-day"><div class="day-num">4</div><div class="day-info"><h5>Beach & Watersports</h5><p>Full day at Nusa Dua beach — snorkelling, jet-ski, sunset parasailing. Private beachside dinner under the stars.</p></div></div>
+          <div class="itinerary-day"><div class="day-num">5</div><div class="day-info"><h5>Seminyak Leisure Day</h5><p>Shopping at Seminyak boutiques, La Lucciola beach club afternoon, rooftop cocktails at Ku De Ta at sunset.</p></div></div>
+          <div class="itinerary-day"><div class="day-num">6</div><div class="day-info"><h5>Nusa Penida Island Day Trip</h5><p>Speed boat to Nusa Penida, Kelingking Beach cliff hike, Angel's Billabong natural pool, return for farewell dinner.</p></div></div>
+          <div class="itinerary-day"><div class="day-num">7</div><div class="day-info"><h5>Departure Day</h5><p>Leisurely breakfast at your villa, last-minute shopping, airport transfer. Safe travels!</p></div></div>
+        </div>
+        <div class="detail-block">
+          <h3>✅ Inclusions & Exclusions</h3>
+          <div class="incl-grid">
+            <div class="incl-item yes">6 nights private villa accommodation</div>
+            <div class="incl-item yes">Daily breakfast for 2</div>
+            <div class="incl-item yes">Airport & inter-hotel transfers</div>
+            <div class="incl-item yes">Dedicated local guide</div>
+            <div class="incl-item yes">Mount Batur sunrise trek</div>
+            <div class="incl-item yes">Nusa Penida day trip</div>
+            <div class="incl-item yes">Couple's spa session (1 hr)</div>
+            <div class="incl-item yes">Welcome flower bath & honeymoon setup</div>
+            <div class="incl-item no">International flights</div>
+            <div class="incl-item no">Travel insurance</div>
+            <div class="incl-item no">Personal shopping expenses</div>
+            <div class="incl-item no">Alcoholic beverages</div>
+          </div>
+        </div>
+      </div>
+      <div class="pkg-sidebar">
+        <div class="book-card">
+          <div class="book-price-old">₹53,749 / person</div>
+          <div class="book-price">₹42,999 <span style="font-size:16px;font-weight:500;color:var(--muted);">/ person</span></div>
+          <div class="book-price-sub">For 2 adults · 6 Nights</div>
+          <div class="book-price-save">You save ₹10,750 (20% OFF)</div>
+          <button class="form-submit" style="margin-top:0;">Book This Package</button>
+          <hr class="book-divider">
+          <button class="btn btn-wa" style="width:100%;justify-content:center;gap:7px;margin-bottom:8px;" onclick="shareWA()">💬 Enquire on WhatsApp</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">📞 Request a Call Back</button>
+          <hr class="book-divider">
+          <div style="font-size:12px;color:var(--muted);text-align:center;">🔒 Secure Payment &nbsp;·&nbsp; 🔄 Free Cancellation</div>
+        </div>
+        <div class="book-contact">
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:12px;">Your Travel Expert</div>
+          <div class="agent-row">
+            <div class="agent-avatar">P</div>
+            <div><div class="agent-name">Priya Malhotra</div><div class="agent-tag">⭐ 4.97 · 312 trips planned · Bali Specialist</div></div>
+          </div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;">Hi! I'm Priya, a Bali specialist with 8 years of experience. I've personally visited every resort in this package — message me for a custom itinerary!</div>
+          <button class="btn btn-wa" style="width:100%;justify-content:center;" onclick="shareWA()">💬 Message Priya on WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const trendingPkgs=[
+  {emoji:'🌺',title:'Bali Romance Package',location:'Bali, Indonesia',nights:'6N/7D',type:'Honeymoon',price:'₹42,999',original:'₹53,749',badge:'hot',badgeText:'Bestseller',rating:4.9,reviews:214},
+  {emoji:'🕌',title:'Dubai Luxe Getaway',location:'Dubai, UAE',nights:'5N/6D',type:'Luxury',price:'₹54,000',original:'₹62,500',badge:'sale',badgeText:'15% OFF',rating:4.8,reviews:183},
+  {emoji:'🏔',title:'Manali Snow Adventure',location:'Himachal Pradesh',nights:'5N/6D',type:'Adventure',price:'₹12,999',original:'',badge:'new',badgeText:'New',rating:4.7,reviews:96},
+  {emoji:'⛩',title:'Japan Cherry Blossom',location:'Tokyo & Kyoto',nights:'8N/9D',type:'Cultural',price:'₹1,25,000',original:'₹1,40,000',badge:'',badgeText:'',rating:5.0,reviews:62},
+];
+const domesticPkgs=[
+  {emoji:'🌴',title:'Kerala Backwaters Escape',location:'Kerala, India',nights:'4N/5D',type:'Family',price:'₹18,500',original:'',badge:'',badgeText:'',rating:4.8,reviews:201},
+  {emoji:'🏝',title:'Andaman Island Bliss',location:'Port Blair & Havelock',nights:'6N/7D',type:'Beach',price:'₹24,500',original:'₹29,000',badge:'sale',badgeText:'Flash Sale',rating:4.9,reviews:174},
+  {emoji:'🏜',title:'Royal Rajasthan Tour',location:'Jaipur · Jodhpur · Udaipur',nights:'7N/8D',type:'Heritage',price:'₹28,000',original:'',badge:'',badgeText:'',rating:4.7,reviews:319},
+  {emoji:'🏔',title:'Leh Ladakh Expedition',location:'Leh, Jammu & Kashmir',nights:'7N/8D',type:'Adventure',price:'₹35,000',original:'',badge:'hot',badgeText:'Popular',rating:4.9,reviews:256},
+];
+const intlPkgs=[
+  {emoji:'🗼',title:'Europe 10 Countries',location:'Paris · Rome · Prague & more',nights:'15N/16D',type:'Premium',price:'₹1,89,000',original:'₹2,15,000',badge:'sale',badgeText:'12% OFF',rating:4.8,reviews:88},
+  {emoji:'🌴',title:'Maldives Overwater Villa',location:'Maldives',nights:'4N/5D',type:'Luxury',price:'₹68,999',original:'',badge:'hot',badgeText:'Top Pick',rating:5.0,reviews:143},
+  {emoji:'🌏',title:'Singapore & Malaysia',location:'Singapore · KL · Penang',nights:'6N/7D',type:'Family',price:'₹52,000',original:'₹60,000',badge:'',badgeText:'',rating:4.7,reviews:197},
+  {emoji:'🌸',title:'Thailand Explorer',location:'Bangkok · Phuket · Chiang Mai',nights:'7N/8D',type:'Adventure',price:'₹38,500',original:'',badge:'new',badgeText:'New Route',rating:4.8,reviews:77},
+];
+
+function makeCard(pkg,i){
+  const bg=['linear-gradient(135deg,#1e3a5f,#0d1b2e)','linear-gradient(135deg,#1a4a3a,#0d2e1b)','linear-gradient(135deg,#3a1e1e,#2e0d0d)','linear-gradient(135deg,#2e2a0d,#1b1a0d)'];
+  return`<div class="pkg-card" onclick="openDetail()">
+    <div class="pkg-img">
+      <div class="pkg-img-bg" style="background:${bg[i%4]};">${pkg.emoji}</div>
+      ${pkg.badge?`<span class="pkg-badge ${pkg.badge}">${pkg.badgeText}</span>`:''}
+      <button class="pkg-wishlist" onclick="event.stopPropagation();toggleWish(this)">♡</button>
+    </div>
+    <div class="pkg-body">
+      <div class="pkg-location">📍 ${pkg.location}</div>
+      <div class="pkg-title">${pkg.title}</div>
+      <div class="pkg-meta"><span>🌙 ${pkg.nights}</span><span>🏷 ${pkg.type}</span></div>
+      <div class="pkg-rating"><span class="stars">★★★★★</span> ${pkg.rating} <span style="color:var(--muted);font-weight:400;">(${pkg.reviews})</span></div>
+    </div>
+    <div class="pkg-footer">
+      <div class="pkg-price-wrap">
+        <div class="pkg-price-label">Starting from</div>
+        ${pkg.original?`<div class="pkg-price-old">${pkg.original}</div>`:'<div style="height:16px"></div>'}
+        <div class="pkg-price">${pkg.price} <span>/ pp</span></div>
+      </div>
+      <div class="pkg-actions">
+        <button class="btn btn-wa btn-sm" onclick="event.stopPropagation();shareWA('${pkg.title}')">💬</button>
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openDetail()">View →</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+document.getElementById('trendingGrid').innerHTML=trendingPkgs.map(makeCard).join('');
+document.getElementById('domesticGrid').innerHTML=domesticPkgs.map(makeCard).join('');
+document.getElementById('intlGrid').innerHTML=intlPkgs.map(makeCard).join('');
+
+function toggleFaq(el){
+  const item=el.closest('.faq-item');
+  document.querySelectorAll('.faq-item').forEach(i=>{if(i!==item)i.classList.remove('open');});
+  item.classList.toggle('open');
+}
+document.querySelectorAll('.search-tab').forEach(t=>{
+  t.addEventListener('click',()=>{document.querySelectorAll('.search-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');});
+});
+document.querySelectorAll('.theme-card').forEach(c=>{
+  c.addEventListener('click',()=>{document.querySelectorAll('.theme-card').forEach(x=>x.classList.remove('active'));c.classList.add('active');});
+});
+function openDetail(){document.getElementById('pkgDetailPage').classList.add('open');document.body.style.overflow='hidden';document.getElementById('pkgDetailPage').scrollTop=0;}
+function closeDetail(){document.getElementById('pkgDetailPage').classList.remove('open');document.body.style.overflow='';}
+function shareWA(title){const t=title||'Bali Romance Package';const m=encodeURIComponent(`Hi! I'm interested in the "${t}" package on Wanderlust Travels. Can you share more details? 🌏`);window.open(`https://wa.me/919876543210?text=${m}`,'_blank');}
+function toggleWish(btn){btn.textContent=btn.textContent==='♡'?'♥':'♡';btn.style.color=btn.textContent==='♥'?'#ef4444':'';}
+</script>
+</body>
+</html>

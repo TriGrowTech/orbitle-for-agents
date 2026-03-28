@@ -1,0 +1,188 @@
+import { useState } from 'react';
+import { Upload, Palette } from 'lucide-react';
+
+interface BrandSetupProps {
+  onNext: () => void;
+  onSkip: () => void;
+}
+
+export function BrandSetup({ onNext, onSkip }: BrandSetupProps) {
+  const [brandColor, setBrandColor] = useState('#3B82F6');
+  const [tagline, setTagline] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+
+  const popularColors = [
+    { name: 'Royal Blue', color: '#3B82F6' },
+    { name: 'Purple', color: '#9333EA' },
+    { name: 'Emerald', color: '#10B981' },
+    { name: 'Orange', color: '#F97316' },
+    { name: 'Pink', color: '#EC4899' },
+    { name: 'Teal', color: '#14B8A6' },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Form Section */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Let's set up your brand 🎨</h2>
+          <p className="text-gray-600">This will make your website uniquely yours</p>
+        </div>
+
+        {/* Logo upload */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Upload Logo
+          </label>
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-50 hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer">
+              <Upload className="w-8 h-8 text-gray-400" />
+            </div>
+            <div>
+              <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm">
+                Choose File
+              </button>
+              <p className="text-xs text-gray-500 mt-2">PNG, JPG up to 2MB</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Brand Color */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Brand Color
+          </label>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={brandColor}
+                onChange={(e) => setBrandColor(e.target.value)}
+                className="w-16 h-12 rounded-lg border-2 border-gray-200 cursor-pointer"
+              />
+              <input
+                type="text"
+                value={brandColor}
+                onChange={(e) => setBrandColor(e.target.value)}
+                className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono text-sm"
+              />
+            </div>
+
+            {/* Quick color picker */}
+            <div className="flex flex-wrap gap-2">
+              {popularColors.map((colorOption) => (
+                <button
+                  key={colorOption.color}
+                  onClick={() => setBrandColor(colorOption.color)}
+                  className={`group relative px-4 py-2 rounded-lg border-2 transition-all ${
+                    brandColor === colorOption.color
+                      ? 'border-gray-900 shadow-md'
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                  style={{ backgroundColor: colorOption.color }}
+                >
+                  <span className="text-xs font-semibold text-white drop-shadow-md">
+                    {colorOption.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Tagline */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Business Tagline
+          </label>
+          <input
+            type="text"
+            value={tagline}
+            onChange={(e) => setTagline(e.target.value)}
+            placeholder="e.g., Creating Memories, One Journey at a Time"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+        </div>
+
+        {/* WhatsApp */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            WhatsApp Number
+          </label>
+          <input
+            type="tel"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+            placeholder="e.g., +91 98765 43210"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+          <p className="text-xs text-gray-500 mt-1">Customers will contact you on this number</p>
+        </div>
+      </div>
+
+      {/* Live Preview Section */}
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+          <span className="text-xs font-semibold text-gray-600">LIVE PREVIEW</span>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          {/* Simulated website header */}
+          <div
+            className="p-6 text-white transition-all duration-300"
+            style={{ backgroundColor: brandColor }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">Your Business Name</h3>
+                  {tagline && <p className="text-sm text-white/80">{tagline}</p>}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold">Discover Amazing Destinations</h1>
+              <p className="text-white/90">Plan your perfect getaway with us</p>
+            </div>
+          </div>
+
+          {/* Simulated content */}
+          <div className="p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {[1, 2].map((i) => (
+                <div key={i} className="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+
+          {/* WhatsApp button preview */}
+          {whatsapp && (
+            <div className="px-6 pb-6">
+              <button
+                className="w-full py-3 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
+                style={{ backgroundColor: brandColor }}
+              >
+                📱 WhatsApp: {whatsapp}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-blue-900">
+            <strong>✨ Live Preview:</strong> Your website updates in real-time as you make changes!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

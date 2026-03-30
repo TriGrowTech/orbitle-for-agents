@@ -4,9 +4,11 @@ import { Globe, Check, AlertCircle, Gift } from 'lucide-react';
 interface DomainSetupProps {
   onNext: () => void;
   onSkip: () => void;
+  brandData?: any;
+  setBrandData?: any;
 }
 
-export function DomainSetup({ onNext, onSkip }: DomainSetupProps) {
+export function DomainSetup({ onNext, onSkip, brandData }: DomainSetupProps) {
   const [domainName, setDomainName] = useState('');
 
   return (
@@ -66,20 +68,87 @@ export function DomainSetup({ onNext, onSkip }: DomainSetupProps) {
                 value={domainName}
                 onChange={(e) => setDomainName(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                 placeholder="saratravels"
-                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-lg font-semibold"
+                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-semibold"
               />
-              <span className="text-lg text-gray-600 font-semibold">.com</span>
+              <span className="text-gray-600 font-semibold">.orbitle.in</span>
             </div>
             <p className="text-xs text-gray-500 mt-2">
-              Example: If your business is "Sara Travels", use "saratravels.com"
+              Example: If your business is "Sara Travels", use "saratravels"
             </p>
           </div>
 
           {domainName && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 animate-fadeIn">
-              <p className="text-sm font-semibold text-blue-900 mb-2">Your domain will be:</p>
-              <div className="px-4 py-3 bg-white rounded-lg border border-blue-200">
-                <p className="text-xl font-bold text-blue-600">www.{domainName}.com</p>
+            <div className="animate-fadeIn mt-6">
+              <h4 className="font-semibold text-gray-900 mb-2">Live Website Preview</h4>
+              <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm bg-white">
+                {/* Browser Header */}
+                <div className="bg-gray-100 border-b border-gray-200 px-4 py-2 flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                  </div>
+                  <div className="mx-auto bg-white rounded-md px-3 py-1 text-xs text-center text-gray-500 shadow-sm border border-gray-200 w-2/3 truncate">
+                    https://{domainName}.orbitle.in
+                  </div>
+                </div>
+                {/* Iframe Preview */}
+                <div className="bg-gray-50 w-full h-[350px] relative">
+                  <iframe 
+                    title="Website Preview"
+                    srcDoc={`
+                      <html>
+                        <head>
+                          <style>
+                            body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #333; }
+                            .hero { 
+                              background: ${brandData?.theme === 'red' ? 'linear-gradient(135deg, #7f1d1d, #b91c1c)' : brandData?.theme === 'cyan' ? 'linear-gradient(135deg, #164e63, #0e7490)' : 'linear-gradient(135deg, #1e3a8a, #3b82f6)'}; 
+                              color: white; padding: 60px 20px; text-align: center; 
+                            }
+                            .nav { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+                            .nav .logo { font-weight: bold; font-size: 18px; color: ${brandData?.theme === 'red' ? '#b91c1c' : brandData?.theme === 'cyan' ? '#0e7490' : '#1e3a8a'}; display: flex; align-items: center; gap: 8px; }
+                            .nav .logo span { display: inline-block; width: 24px; height: 24px; background: currentColor; border-radius: 4px; opacity: 0.1; }
+                            .hero h1 { margin: 0; font-size: 28px; line-height: 1.2; }
+                            .hero p { margin: 10px 0 0; opacity: 0.9; font-size: 16px; }
+                            .content { padding: 30px 20px; text-align: center; }
+                            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; margin: 0 auto; }
+                            .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+                            .card-img { height: 100px; background: #e2e8f0; border-radius: 6px; margin-bottom: 12px; }
+                            .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: white; color: #111; border-radius: 20px; font-weight: bold; text-decoration: none; font-size: 14px; }
+                          </style>
+                        </head>
+                        <body>
+                          <div class="nav">
+                            <div class="logo"><span></span> ${brandData?.name || 'Your Brand'}</div>
+                            <div style="font-size: 14px; color: #666;">Home &nbsp;&nbsp; Packages</div>
+                          </div>
+                          <div class="hero">
+                            <h1>Explore the World with ${brandData?.name || 'Us'}</h1>
+                            <p>${brandData?.tagline || 'Your Next Adventure Awaits'}</p>
+                            <a href="#" class="btn">View Tour Packages</a>
+                          </div>
+                          <div class="content">
+                            <h2 style="margin: 0 0 20px;">Top Destinations</h2>
+                            <div class="grid">
+                              <div class="card">
+                                <div class="card-img"></div>
+                                <h4 style="margin: 0;">Dubai Special</h4>
+                                <p style="margin: 5px 0 0; font-size: 12px; color: #666;">5 Days / 4 Nights</p>
+                              </div>
+                              <div class="card">
+                                <div class="card-img"></div>
+                                <h4 style="margin: 0;">Bali Escape</h4>
+                                <p style="margin: 5px 0 0; font-size: 12px; color: #666;">6 Days / 5 Nights</p>
+                              </div>
+                            </div>
+                          </div>
+                        </body>
+                      </html>
+                    `}
+                    className="w-full h-full border-none"
+                  />
+                  <div className="absolute inset-0 border border-gray-900/5 pointer-events-none rounded-b-xl"></div>
+                </div>
               </div>
             </div>
           )}

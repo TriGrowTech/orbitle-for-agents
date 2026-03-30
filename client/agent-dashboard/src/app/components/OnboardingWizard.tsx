@@ -18,6 +18,12 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const navigate = useNavigate();
 
+  const [brandData, setBrandData] = useState({
+    theme: 'navy',
+    name: 'Your Business Name',
+    tagline: 'Creating Memories, One Journey at a Time'
+  });
+
   const steps = [
     { id: 1, title: 'Your Brand', subtitle: 'Logo & Colors', icon: '🎨', component: BrandSetup },
     { id: 2, title: 'Domain', subtitle: 'Website URL', icon: '🌐', component: DomainSetup },
@@ -139,7 +145,7 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
 
         {/* Step content — scrollable only if needed */}
         <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(14px, 2.5vh, 24px) clamp(16px, 3vw, 28px)' }}>
-          <CurrentStepComponent onNext={handleNext} onSkip={handleSkip} />
+          <CurrentStepComponent onNext={handleNext} onSkip={handleSkip} brandData={brandData} setBrandData={setBrandData} />
         </div>
 
         {/* Footer */}

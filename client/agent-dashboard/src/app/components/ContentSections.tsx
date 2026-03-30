@@ -92,17 +92,26 @@ function TravelThemesTable() {
               <Upload className="w-3.5 h-3.5" /> Change Image
             </button>
 
-            <button
-              onClick={() => toggleActive(theme.id)}
-              className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full transition-all w-fit ${
-                theme.active
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-              }`}
-            >
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${theme.active ? 'bg-green-500' : 'bg-gray-400'}`} />
-              {theme.active ? 'Active' : 'Inactive'}
-            </button>
+            <div className="flex items-center gap-2 w-fit">
+              <span className={`text-xs font-semibold ${theme.active ? 'text-blue-600' : 'text-gray-500'}`}>
+                {theme.active ? 'Active' : 'Inactive'}
+              </span>
+              <button
+                onClick={() => toggleActive(theme.id)}
+                className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  theme.active ? 'bg-blue-500' : 'bg-gray-200'
+                }`}
+                role="switch"
+                aria-checked={theme.active}
+              >
+                <span className="sr-only">Toggle Active</span>
+                <span
+                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    theme.active ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
 
             <div className="flex justify-end">
               <button

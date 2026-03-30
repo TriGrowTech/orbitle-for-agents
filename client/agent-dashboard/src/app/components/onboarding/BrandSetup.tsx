@@ -4,21 +4,20 @@ import { Upload, Palette } from 'lucide-react';
 interface BrandSetupProps {
   onNext: () => void;
   onSkip: () => void;
+  brandData?: any;
+  setBrandData?: any;
 }
 
-export function BrandSetup({ onNext, onSkip }: BrandSetupProps) {
-  const [brandColor, setBrandColor] = useState('#3B82F6');
-  const [tagline, setTagline] = useState('');
+export function BrandSetup({ onNext, onSkip, brandData, setBrandData }: BrandSetupProps) {
   const [whatsapp, setWhatsapp] = useState('');
 
-  const popularColors = [
-    { name: 'Royal Blue', color: '#3B82F6' },
-    { name: 'Purple', color: '#9333EA' },
-    { name: 'Emerald', color: '#10B981' },
-    { name: 'Orange', color: '#F97316' },
-    { name: 'Pink', color: '#EC4899' },
-    { name: 'Teal', color: '#14B8A6' },
+  const themes = [
+    { id: 'navy', name: 'Navy', color: '#1e3a8a' },
+    { id: 'red', name: 'Red', color: '#b91c1c' },
+    { id: 'cyan', name: 'Cyan', color: '#0e7490' },
   ];
+
+  const currentThemeColor = themes.find(t => t.id === brandData?.theme)?.color || '#1e3a8a';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -47,46 +46,42 @@ export function BrandSetup({ onNext, onSkip }: BrandSetupProps) {
           </div>
         </div>
 
-        {/* Brand Color */}
+        {/* Brand Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Brand Color
+            Business Name
           </label>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={brandColor}
-                onChange={(e) => setBrandColor(e.target.value)}
-                className="w-16 h-12 rounded-lg border-2 border-gray-200 cursor-pointer"
-              />
-              <input
-                type="text"
-                value={brandColor}
-                onChange={(e) => setBrandColor(e.target.value)}
-                className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono text-sm"
-              />
-            </div>
+          <input
+            type="text"
+            value={brandData?.name || ''}
+            onChange={(e) => setBrandData({...brandData, name: e.target.value})}
+            placeholder="e.g., Sara Travels"
+            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+        </div>
 
-            {/* Quick color picker */}
-            <div className="flex flex-wrap gap-2">
-              {popularColors.map((colorOption) => (
-                <button
-                  key={colorOption.color}
-                  onClick={() => setBrandColor(colorOption.color)}
-                  className={`group relative px-4 py-2 rounded-lg border-2 transition-all ${
-                    brandColor === colorOption.color
-                      ? 'border-gray-900 shadow-md'
-                      : 'border-gray-200 hover:border-gray-400'
-                  }`}
-                  style={{ backgroundColor: colorOption.color }}
-                >
-                  <span className="text-xs font-semibold text-white drop-shadow-md">
-                    {colorOption.name}
-                  </span>
-                </button>
-              ))}
-            </div>
+        {/* Brand Theme */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Website Theme
+          </label>
+          <div className="flex gap-4">
+            {themes.map((theme) => (
+              <button
+                key={theme.id}
+                onClick={() => setBrandData({...brandData, theme: theme.id})}
+                className={`flex-1 py-3 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+                  brandData?.theme === theme.id
+                    ? 'border-gray-900 shadow-md ring-2 ring-gray-900/20'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="w-8 h-8 rounded-full shadow-sm" style={{ backgroundColor: theme.color }}></div>
+                <span className="text-sm font-semibold text-gray-700">
+                  {theme.name}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -97,8 +92,8 @@ export function BrandSetup({ onNext, onSkip }: BrandSetupProps) {
           </label>
           <input
             type="text"
-            value={tagline}
-            onChange={(e) => setTagline(e.target.value)}
+            value={brandData?.tagline || ''}
+            onChange={(e) => setBrandData({...brandData, tagline: e.target.value})}
             placeholder="e.g., Creating Memories, One Journey at a Time"
             className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
@@ -131,7 +126,7 @@ export function BrandSetup({ onNext, onSkip }: BrandSetupProps) {
           {/* Simulated website header */}
           <div
             className="p-6 text-white transition-all duration-300"
-            style={{ backgroundColor: brandColor }}
+            style={{ backgroundColor: currentThemeColor }}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -139,8 +134,8 @@ export function BrandSetup({ onNext, onSkip }: BrandSetupProps) {
                   <Upload className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">Your Business Name</h3>
-                  {tagline && <p className="text-sm text-white/80">{tagline}</p>}
+                  <h3 className="font-bold text-lg">{brandData?.name || 'Your Business Name'}</h3>
+                  {brandData?.tagline && <p className="text-sm text-white/80">{brandData.tagline}</p>}
                 </div>
               </div>
             </div>
@@ -169,7 +164,7 @@ export function BrandSetup({ onNext, onSkip }: BrandSetupProps) {
             <div className="px-6 pb-6">
               <button
                 className="w-full py-3 text-white rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
-                style={{ backgroundColor: brandColor }}
+                style={{ backgroundColor: currentThemeColor }}
               >
                 📱 WhatsApp: {whatsapp}
               </button>

@@ -141,8 +141,8 @@ export function AdminLayout() {
             <div className="flex items-center gap-2.5">
               <img src={orbitleLogo} alt="Orbitle" className="w-7 h-7" />
               <div>
-                <h1 className="text-base font-bold text-gray-900">Orbitle</h1>
-                <p className="text-[9px] text-gray-500">Admin Dashboard</p>
+                <h2 className="text-sm font-bold text-gray-900">Rahul's Dashboard</h2>
+                
               </div>
             </div>
             <button
@@ -204,7 +204,7 @@ export function AdminLayout() {
                     >
                       <div className="flex items-center gap-3">
                         <Settings className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Admin & Operations</span>
+                        <span >Admin & Operations</span>
                       </div>
                       <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                     </button>

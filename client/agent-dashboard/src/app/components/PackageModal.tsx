@@ -14,18 +14,18 @@ interface ItineraryDay {
 }
 
 export function PackageModal({ isOpen, onClose }: PackageModalProps) {
-  const [originalPrice, setOriginalPrice]     = useState('');
+  const [originalPrice, setOriginalPrice] = useState('');
   const [discountedPrice, setDiscountedPrice] = useState('');
-  const [selectedBadges, setSelectedBadges]   = useState<string[]>([]);
-  const [hasOffer, setHasOffer]               = useState(false);
-  const [isTrending, setIsTrending]           = useState(false);
-  const [itineraryDays, setItineraryDays]     = useState<ItineraryDay[]>([]);
-  const [imagePreview, setImagePreview]       = useState<string | null>(null);
-  const [dragging, setDragging]               = useState(false);
-  const fileRef                               = useRef<HTMLInputElement>(null);
+  const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
+  const [hasOffer, setHasOffer] = useState(false);
+  const [isTrending, setIsTrending] = useState(false);
+  const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const calculateDiscount = () => {
-    const original   = parseFloat(originalPrice.replace(/[^0-9.]/g, ''));
+    const original = parseFloat(originalPrice.replace(/[^0-9.]/g, ''));
     const discounted = parseFloat(discountedPrice.replace(/[^0-9.]/g, ''));
     if (original && discounted && original > discounted)
       return ((original - discounted) / original * 100).toFixed(0);
@@ -33,12 +33,12 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
   };
 
   const availableBadges = [
-    { id: 'bestseller',    label: 'Bestseller',     color: 'from-yellow-500 to-orange-500' },
-    { id: 'hot',           label: 'Hot Deal',       color: 'from-red-500 to-pink-500'      },
-    { id: 'new',           label: 'New',            color: 'from-green-500 to-emerald-500' },
-    { id: 'limited',       label: 'Limited Time',   color: 'from-purple-500 to-indigo-500' },
-    { id: 'premium',       label: 'Premium',        color: 'from-gray-700 to-gray-900'     },
-    { id: 'familyFriendly',label: 'Family Friendly',color: 'from-pink-500 to-rose-500'     },
+    { id: 'bestseller', label: 'Bestseller', color: 'from-yellow-500 to-orange-500' },
+    { id: 'hot', label: 'Hot Deal', color: 'from-red-500 to-pink-500' },
+    { id: 'new', label: 'New', color: 'from-green-500 to-emerald-500' },
+    { id: 'limited', label: 'Limited Time', color: 'from-purple-500 to-indigo-500' },
+    { id: 'premium', label: 'Premium', color: 'from-gray-700 to-gray-900' },
+    { id: 'familyFriendly', label: 'Family Friendly', color: 'from-pink-500 to-rose-500' },
   ];
 
   const toggleBadge = (id: string) =>
@@ -157,9 +157,8 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
                 </div>
               ) : (
                 <label
-                  className={`flex flex-col items-center justify-center gap-2 h-[calc(100%-1.5rem)] min-h-[220px] border-2 border-dashed rounded cursor-pointer transition-colors ${
-                    dragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
-                  }`}
+                  className={`flex flex-col items-center justify-center gap-2 h-[calc(100%-1.5rem)] min-h-[220px] border-2 border-dashed rounded cursor-pointer transition-colors ${dragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                    }`}
                   onDragOver={e => { e.preventDefault(); setDragging(true); }}
                   onDragLeave={() => setDragging(false)}
                   onDrop={e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) handleImageFile(f); }}
@@ -300,11 +299,10 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
             <div className="flex flex-wrap gap-2">
               {availableBadges.map(badge => (
                 <button key={badge.id} onClick={() => toggleBadge(badge.id)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded transition-all ${
-                    selectedBadges.includes(badge.id)
-                      ? `bg-gradient-to-r ${badge.color} text-white shadow ring-2 ring-offset-1 ring-purple-400`
-                      : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-purple-300'
-                  }`}>
+                  className={`px-3 py-1.5 text-xs font-semibold rounded transition-all ${selectedBadges.includes(badge.id)
+                    ? `bg-gradient-to-r ${badge.color} text-white shadow ring-2 ring-offset-1 ring-purple-400`
+                    : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-purple-300'
+                    }`}>
                   {badge.label}{selectedBadges.includes(badge.id) && ' ✓'}
                 </button>
               ))}

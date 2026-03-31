@@ -20,6 +20,7 @@ export function BrandSetup({ onNext, onSkip, brandData, setBrandData }: BrandSet
   const currentThemeColor = themes.find(t => t.id === brandData?.theme)?.color || '#1e3a8a';
 
   return (
+
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Form Section */}
       <div className="space-y-6">
@@ -54,7 +55,7 @@ export function BrandSetup({ onNext, onSkip, brandData, setBrandData }: BrandSet
           <input
             type="text"
             value={brandData?.name || ''}
-            onChange={(e) => setBrandData({...brandData, name: e.target.value})}
+            onChange={(e) => setBrandData({ ...brandData, name: e.target.value })}
             placeholder="e.g., Sara Travels"
             className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
@@ -69,12 +70,11 @@ export function BrandSetup({ onNext, onSkip, brandData, setBrandData }: BrandSet
             {themes.map((theme) => (
               <button
                 key={theme.id}
-                onClick={() => setBrandData({...brandData, theme: theme.id})}
-                className={`flex-1 py-3 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
-                  brandData?.theme === theme.id
+                onClick={() => setBrandData({ ...brandData, theme: theme.id })}
+                className={`flex-1 py-3 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${brandData?.theme === theme.id
                     ? 'border-gray-900 shadow-md ring-2 ring-gray-900/20'
                     : 'border-gray-200 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <div className="w-8 h-8 rounded-full shadow-sm" style={{ backgroundColor: theme.color }}></div>
                 <span className="text-sm font-semibold text-gray-700">
@@ -93,7 +93,7 @@ export function BrandSetup({ onNext, onSkip, brandData, setBrandData }: BrandSet
           <input
             type="text"
             value={brandData?.tagline || ''}
-            onChange={(e) => setBrandData({...brandData, tagline: e.target.value})}
+            onChange={(e) => setBrandData({ ...brandData, tagline: e.target.value })}
             placeholder="e.g., Creating Memories, One Journey at a Time"
             className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />

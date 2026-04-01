@@ -33,7 +33,7 @@ import { Footer } from './Footer';
 import orbitleLogo from "../../assets/orbitle-logo.png";
 
 const globalNavItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Leads & Enquiries', href: '/leads', icon: Users },
   { name: 'Revenue Analytics', href: '/revenue', icon: BarChart2 },
   { name: 'Package Catalog', href: '/packages', icon: Package },

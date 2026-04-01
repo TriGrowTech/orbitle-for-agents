@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { TrendingUp, MessageCircle, Package, Users, ArrowUpRight, ArrowDownRight, Clock, Zap, Copy, CheckCircle, Globe, IndianRupee } from 'lucide-react';
-import { WelcomeScreen } from './WelcomeScreen';
-import { OnboardingWizard } from './OnboardingWizard';
 import { useCRMContext } from '../context/CRMContext';
 
 const topPackages = [
@@ -24,8 +22,6 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { leadsData, leadStatuses, dealValues } = useCRMContext();
   
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const subdomainLink = "saratravels.orbitle.in";
@@ -45,34 +41,14 @@ export function Dashboard() {
   ];
 
   useEffect(() => {
-    // Check if this is first time user (in real app, this would check localStorage or API)
-    const isFirstTime = localStorage.getItem('orbitle_onboarding_complete') !== 'true';
-    
-    if (isFirstTime) {
-      setShowWelcome(true);
+    // If onboarding is not complete, redirect to onboarding page
+    if (localStorage.getItem('orbitle_onboarding_complete') !== 'true') {
+      navigate('/onboarding', { replace: true });
     }
-  }, []);
-
-  const handleStartOnboarding = () => {
-    setShowWelcome(false);
-    setShowOnboarding(true);
-  };
-
-  const handleCompleteOnboarding = () => {
-    setShowOnboarding(false);
-    localStorage.setItem('orbitle_onboarding_complete', 'true');
-  };
+  }, [navigate]);
 
   return (
-    <>
-      {/* Welcome Screen */}
-      <WelcomeScreen isOpen={showWelcome} onStart={handleStartOnboarding} />
-
-      {/* Onboarding Wizard */}
-      <OnboardingWizard isOpen={showOnboarding} onComplete={handleCompleteOnboarding} />
-
-      {/* Dashboard Content */}
-      <div className="space-y-4">
+    <div className="space-y-4">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -219,6 +195,6 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-    </>
+
   );
 }

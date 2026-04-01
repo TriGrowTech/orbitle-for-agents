@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { WelcomeScreen } from './WelcomeScreen';
-import { OnboardingWizard } from './OnboardingWizard';
+import { WelcomeScreen } from '../components/WelcomeScreen';
+import { OnboardingWizard } from '../components/OnboardingWizard';
 
 export function OnboardingPage() {
   const navigate = useNavigate();

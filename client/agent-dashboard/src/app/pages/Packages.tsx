@@ -1,6 +1,6 @@
 import { Plus, Search, Edit, Trash2, Eye, TrendingUp, MapPin, Clock, Tag, ImageOff } from 'lucide-react';
 import { useState } from 'react';
-import { PackageModal } from './PackageModal';
+import { PackageModal } from '../components/PackageModal';
 
 interface Badge {
   label: string;

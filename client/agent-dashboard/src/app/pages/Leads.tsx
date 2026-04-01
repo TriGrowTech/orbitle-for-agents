@@ -20,10 +20,10 @@ import {
   Inbox, Bell, IndianRupee, TrendingUp, Plus,
 } from 'lucide-react';
 
-import { useCRMContext, Lead, PackageLead } from '../../context/CRMContext';
-import { STATUS_CONFIG, SOURCE_CONFIG, ALL_STATUSES, ALL_SOURCES } from './leadConfig';
-import { renderLeadCard } from './LeadCard';
-import { ManualEntryModal, ConversionModal, ManualFormData } from './LeadModals';
+import { useCRMContext, Lead, PackageLead } from '../context/CRMContext';
+import { STATUS_CONFIG, SOURCE_CONFIG, ALL_STATUSES, ALL_SOURCES } from '../components/leads/leadConfig';
+import { renderLeadCard } from '../components/leads/LeadCard';
+import { ManualEntryModal, ConversionModal, ManualFormData } from '../components/leads/LeadModals';
 
 export function Leads() {
   const navigate = useNavigate();

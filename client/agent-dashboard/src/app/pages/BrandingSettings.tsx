@@ -1,5 +1,5 @@
 import { Upload, Globe, Palette, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube, Save } from 'lucide-react';
-import { ThemeManagement } from './ThemeManagement';
+import { ThemeManagement } from '../components/ThemeManagement';
 
 export function BrandingSettings() {
   return (

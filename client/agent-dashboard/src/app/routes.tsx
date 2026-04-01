@@ -1,19 +1,19 @@
 import React from 'react';
 import { createBrowserRouter, Navigate } from "react-router";
-import { AdminLayout } from "./components/AdminLayout";
-import { Dashboard } from "./components/Dashboard";
-import { BrandingSettings } from "./components/BrandingSettings";
-import { Packages } from "./components/Packages";
-import { Leads } from "./components/leadmanagement/Leads";
-import { Banners } from "./components/Banners";
-import { ContentSections } from "./components/ContentSections";
-import { Testimonials } from "./components/Testimonials";
-import { SEOAnalytics } from "./components/SEOAnalytics";
-import { Pricing } from "./components/Pricing";
-import { LegalPages } from "./components/LegalPages";
-import { Profile } from "./components/Profile";
-import { RevenueAnalytics } from "./components/RevenueAnalytics";
-import { OnboardingPage } from "./components/OnboardingPage";
+import { AdminLayout } from "./layouts/AdminLayout";
+import { Dashboard } from "./pages/Dashboard";
+import { BrandingSettings } from "./pages/BrandingSettings";
+import { Packages } from "./pages/Packages";
+import { Leads } from "./pages/Leads";
+import { Banners } from "./pages/Banners";
+import { ContentSections } from "./pages/ContentSections";
+import { Testimonials } from "./pages/Testimonials";
+import { SEOAnalytics } from "./pages/SEOAnalytics";
+import { Pricing } from "./pages/Pricing";
+import { LegalPages } from "./pages/LegalPages";
+import { Profile } from "./pages/Profile";
+import { RevenueAnalytics } from "./pages/RevenueAnalytics";
+import { OnboardingPage } from "./pages/OnboardingPage";
 
 export const router = createBrowserRouter([
   {

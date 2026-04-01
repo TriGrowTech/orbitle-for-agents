@@ -1,4 +1,6 @@
 import { Plus, Upload, Star, Edit, Trash2 } from 'lucide-react';
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
 
 const mockTestimonials = [
   {
@@ -63,10 +65,10 @@ export function Testimonials() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Customer Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     defaultValue={testimonial.name}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
                   />
                 </div>
 
@@ -74,10 +76,10 @@ export function Testimonials() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Destination
                   </label>
-                  <input
+                  <Input
                     type="text"
                     defaultValue={testimonial.destination}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
                   />
                 </div>
 
@@ -108,7 +110,7 @@ export function Testimonials() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Review Text
                   </label>
-                  <textarea
+                  <Textarea
                     rows={6}
                     defaultValue={testimonial.review}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

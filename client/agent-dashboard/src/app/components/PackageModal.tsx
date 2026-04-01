@@ -1,5 +1,8 @@
 import { X, Tag, Award, TrendingUp, Plus, Trash2, Calendar, CheckCircle2, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Textarea } from "./ui/textarea";
 import { TagEntryField } from './package/TagEntryField';
 import { CustomCategoryModal } from './package/CustomCategoryModal';
 import { ImageUploadSlot } from './package/ImageUploadSlot';
@@ -104,38 +107,45 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
               <div className="flex-1 space-y-3 min-w-0">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Package Name</label>
-                  <input type="text" placeholder="e.g., Bali Paradise – 7D/6N" className={inp} />
+                  <Input type="text" placeholder="e.g., Bali Paradise – 7D/6N" className={inp + " h-auto"} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Destination</label>
-                  <input type="text" placeholder="e.g., Bali, Indonesia" className={inp} />
+                  <Input type="text" placeholder="e.g., Bali, Indonesia" className={inp + " h-auto"} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Duration</label>
-                  <input type="text" placeholder="e.g., 7 Days / 6 Nights" className={inp} />
+                  <Input type="text" placeholder="e.g., 7 Days / 6 Nights" className={inp + " h-auto"} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
-                    <select className={inp + ' font-medium'}>
-                      <option value="">Select Category</option>
-                      <option value="domestic">Domestic</option>
-                      <option value="international">International</option>
-                    </select>
+                    <Select>
+                      <SelectTrigger className={inp + ' font-medium h-[42px]'}>
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="domestic">Domestic</SelectItem>
+                        <SelectItem value="international">International</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
-                    <select value={selectedType}
-                      onChange={e => { if (e.target.value === '__custom__') { setShowTypeModal(true); } else { setSelectedType(e.target.value); } }}
-                      className={inp + ' font-medium'}>
-                      <option value="">Select Type</option>
-                      <option value="beach">Beach</option>
-                      <option value="mountain">Mountain</option>
-                      <option value="pilgrimage">Pilgrimage</option>
-                      <option value="honeymoon">Honeymoon</option>
-                      {customTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                      <option value="__custom__">+ Add Custom…</option>
-                    </select>
+                    <Select value={selectedType}
+                      onValueChange={val => { if (val === '__custom__') { setShowTypeModal(true); } else { setSelectedType(val); } }}>
+                      <SelectTrigger className={inp + ' font-medium h-[42px]'}>
+                        <SelectValue placeholder="Select Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="beach">Beach</SelectItem>
+                        <SelectItem value="mountain">Mountain</SelectItem>
+                        <SelectItem value="pilgrimage">Pilgrimage</SelectItem>
+                        <SelectItem value="honeymoon">Honeymoon</SelectItem>
+                        {customTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        <SelectItem value="__custom__" className="text-blue-600 font-semibold">+ Add Custom…</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -151,7 +161,7 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
             {/* Description */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
-              <textarea rows={3} placeholder="Enter package description..." className={inp} />
+              <Textarea rows={3} placeholder="Enter package description..." className={inp} />
             </div>
 
             {/* Itinerary Section */}
@@ -171,8 +181,8 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
                       <span className="w-6 h-6 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-bold">{index + 1}</span>
                       <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Day {index + 1}</span>
                     </div>
-                    <input type="text" placeholder="Day Title" className={inp + " mb-2"} />
-                    <textarea rows={2} placeholder="Day details..." className={inp} />
+                    <Input type="text" placeholder="Day Title" className={inp + " mb-2 h-auto"} />
+                    <Textarea rows={2} placeholder="Day details..." className={inp} />
                   </div>
                 ))}
                 <button onClick={addItineraryDay}
@@ -186,8 +196,8 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
             <div className="bg-green-50 rounded p-4 border border-green-100">
               <h3 className="text-sm font-semibold text-gray-900 mb-3">Pricing</h3>
               <div className="grid grid-cols-2 gap-3">
-                <input type="text" placeholder="Original Price" value={originalPrice} onChange={e => setOriginalPrice(e.target.value)} className={inp + " bg-white"} />
-                <input type="text" placeholder="Discounted Price" value={discountedPrice} onChange={e => setDiscountedPrice(e.target.value)} className={inp + " bg-white"} />
+                <Input type="text" placeholder="Original Price" value={originalPrice} onChange={e => setOriginalPrice(e.target.value)} className={inp + " bg-white h-auto"} />
+                <Input type="text" placeholder="Discounted Price" value={discountedPrice} onChange={e => setDiscountedPrice(e.target.value)} className={inp + " bg-white h-auto"} />
               </div>
               {parseFloat(discountPercentage) > 0 && (
                 <div className="mt-3 p-3 bg-white rounded border border-green-200 border-dashed flex justify-between items-center text-sm">

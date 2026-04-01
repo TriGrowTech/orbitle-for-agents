@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { FileCheck, Shield, Save } from 'lucide-react';
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
 
 export function LegalPages() {
   const [activeTab, setActiveTab] = useState<'privacy' | 'terms'>('privacy');
@@ -47,10 +49,10 @@ export function LegalPages() {
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Privacy Policy Title
                 </label>
-                <input
+                <Input
                   type="text"
                   defaultValue="Privacy Policy"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
                 />
               </div>
 
@@ -58,10 +60,10 @@ export function LegalPages() {
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Last Updated Date
                 </label>
-                <input
+                <Input
                   type="date"
                   defaultValue="2026-03-27"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
                 />
               </div>
 
@@ -69,7 +71,7 @@ export function LegalPages() {
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Privacy Policy Content
                 </label>
-                <textarea
+                <Textarea
                   rows={16}
                   defaultValue={`Welcome to Orbitle Travel! Your privacy is important to us.
 
@@ -110,10 +112,10 @@ If you have any questions about this Privacy Policy, please contact us at privac
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Terms & Conditions Title
                 </label>
-                <input
+                <Input
                   type="text"
                   defaultValue="Terms & Conditions"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
                 />
               </div>
 
@@ -121,10 +123,10 @@ If you have any questions about this Privacy Policy, please contact us at privac
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Last Updated Date
                 </label>
-                <input
+                <Input
                   type="date"
                   defaultValue="2026-03-27"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
                 />
               </div>
 
@@ -132,7 +134,7 @@ If you have any questions about this Privacy Policy, please contact us at privac
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Terms & Conditions Content
                 </label>
-                <textarea
+                <Textarea
                   rows={16}
                   defaultValue={`Terms & Conditions for Orbitle Travel Services
 

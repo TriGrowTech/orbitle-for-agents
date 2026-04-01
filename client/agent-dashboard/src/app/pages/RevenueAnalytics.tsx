@@ -6,6 +6,8 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import { useCRMContext } from '../context/CRMContext';
+import { Input } from "../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 
 type SortField = 'date' | 'price';
 type SortDirection = 'asc' | 'desc';
@@ -251,25 +253,28 @@ export function RevenueAnalytics() {
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <select 
-                    value={selectedMonth} 
-                    onChange={e => setSelectedMonth(e.target.value)}
-                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all cursor-pointer"
-                  >
-                    <option value="All">All Months</option>
-                    {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => (
-                      <option key={m} value={m}>{m}</option>
-                    ))}
-                  </select>
-                  <select 
-                    value={selectedYear} 
-                    onChange={e => setSelectedYear(e.target.value)}
-                    className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-all cursor-pointer"
-                  >
-                    <option value="2026">2026</option>
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                  </select>
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-[120px] h-[36px] bg-gray-50 border-gray-200 rounded-lg text-xs font-semibold px-3">
+                      <SelectValue placeholder="All Months" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All">All Months</SelectItem>
+                      {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => (
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-[100px] h-[36px] bg-gray-50 border-gray-200 rounded-lg text-xs font-semibold px-3">
+                      <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2026">2026</SelectItem>
+                      <SelectItem value="2025">2025</SelectItem>
+                      <SelectItem value="2024">2024</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="p-6 h-[340px] w-full">
@@ -329,14 +334,12 @@ export function RevenueAnalytics() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
 
             {/* Search */}
-            <div className="flex bg-white rounded-xl border border-gray-200 p-2 shadow-sm w-full max-w-md">
-              <div className="pl-3 pr-2 py-2 flex items-center justify-center text-gray-400">
-                <Search className="w-5 h-5" />
-              </div>
-              <input 
+            <div className="flex bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm w-full max-w-md items-center">
+              <Search className="w-5 h-5 text-gray-400 ml-2" />
+              <Input 
                 type="text" 
                 placeholder="Search closed deals by name, destination..."
-                className="bg-transparent border-none outline-none w-full text-sm font-medium text-gray-800 placeholder:text-gray-400"
+                className="bg-transparent border-none outline-none w-full text-sm font-medium text-gray-800 placeholder:text-gray-400 h-auto py-1 shadow-none focus-visible:ring-0"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { User, Shield, CreditCard, Clock, Activity, Settings, TrendingUp, Package, CheckCircle, FileText, UploadCloud } from 'lucide-react';
+import { Input } from "../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 
 export function Profile() {
   const [activeTab, setActiveTab] = useState('Agent Details');
@@ -84,19 +86,19 @@ export function Profile() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-                      <input type="text" defaultValue="Rahul" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                      <Input type="text" defaultValue="Rahul" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-                      <input type="text" defaultValue="Sharma" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                      <Input type="text" defaultValue="Sharma" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-                      <input type="email" defaultValue="rahul@orbitle.com" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                      <Input type="email" defaultValue="rahul@orbitle.com" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                      <input type="tel" defaultValue="+91 9876543210" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
+                      <Input type="tel" defaultValue="+91 9876543210" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
                     </div>
                   </div>
                   <div className="flex justify-end pt-4">
@@ -124,11 +126,11 @@ export function Profile() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
+                    <Input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-auto" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
-                    <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
+                    <Input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-auto" />
                   </div>
                 </div>
                 <div className="flex justify-end pt-4">
@@ -278,12 +280,16 @@ export function Profile() {
 
                   <div className="mt-6 space-y-3">
                     <label className="block text-sm font-semibold text-gray-700">Document Type</label>
-                    <select className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
-                      <option>Select document type...</option>
-                      <option>Business Registration / GST</option>
-                      <option>Director PAN / Aadhaar</option>
-                      <option>Other Affiliate Certificate</option>
-                    </select>
+                    <Select>
+                      <SelectTrigger className="w-full h-[52px] bg-gray-50 border-gray-200 rounded-xl text-sm px-4">
+                        <SelectValue placeholder="Select document type..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gst">Business Registration / GST</SelectItem>
+                        <SelectItem value="pan">Director PAN / Aadhaar</SelectItem>
+                        <SelectItem value="affiliate">Other Affiliate Certificate</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   
                   <button className="w-full mt-6 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">

@@ -12,6 +12,8 @@
 import { useState } from 'react';
 import { XCircle, CheckCircle, Plus } from 'lucide-react';
 import { Lead } from '../../context/CRMContext';
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 // ── ManualEntryModal ───────────────────────────────────────────────────────────
 
@@ -71,44 +73,44 @@ export function ManualEntryModal({ isOpen, onClose, onSubmit }: ManualEntryModal
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Full Name *</label>
-              <input required type="text" value={form.name} onChange={set('name')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="John Doe" />
+              <Input required type="text" value={form.name} onChange={set('name')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-auto" placeholder="John Doe" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Phone *</label>
-              <input required type="tel" value={form.phone} onChange={set('phone')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="+91 9876543210" />
+              <Input required type="tel" value={form.phone} onChange={set('phone')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-auto" placeholder="+91 9876543210" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Email</label>
-              <input type="email" value={form.email} onChange={set('email')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="john@example.com" />
+              <Input type="email" value={form.email} onChange={set('email')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-auto" placeholder="john@example.com" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Travelers</label>
-              <input type="number" min="1" value={form.travelers} onChange={set('travelers')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" />
+              <Input type="number" min="1" value={form.travelers} onChange={set('travelers')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-auto" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">From City *</label>
-              <input required type="text" value={form.fromCity} onChange={set('fromCity')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Delhi" />
+              <Input required type="text" value={form.fromCity} onChange={set('fromCity')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-auto" placeholder="Delhi" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Destination *</label>
-              <input required type="text" value={form.destination} onChange={set('destination')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Maldives" />
+              <Input required type="text" value={form.destination} onChange={set('destination')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-auto" placeholder="Maldives" />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">Budget</label>
-            <input type="text" value={form.budget} onChange={set('budget')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="e.g. ₹50,000" />
+            <Input type="text" value={form.budget} onChange={set('budget')} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm h-auto" placeholder="e.g. ₹50,000" />
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">Message / Notes</label>
-            <textarea value={form.message} onChange={set('message')} rows={3} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Customer requirements..." />
+            <Textarea value={form.message} onChange={set('message')} rows={3} className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm" placeholder="Customer requirements..." />
           </div>
 
           <div className="pt-4 border-t border-gray-100 flex justify-end gap-2">
@@ -168,12 +170,12 @@ export function ConversionModal({ lead, isOpen, onClose, onSubmit }: ConversionM
 
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Final Deal Value (₹) *</label>
-            <input
+            <Input
               required autoFocus
               type="number" min="0"
               value={amount}
               onChange={e => setAmount(e.target.value)}
-              className="w-full px-4 py-3 bg-white border-2 border-emerald-200 rounded-xl text-lg font-bold text-gray-900 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder-gray-300"
+              className="w-full px-4 py-3 bg-white border-2 border-emerald-200 rounded-xl text-lg font-bold text-gray-900 focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder-gray-300 h-auto"
               placeholder="e.g. 150000"
             />
           </div>

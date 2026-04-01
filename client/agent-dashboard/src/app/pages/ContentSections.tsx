@@ -1,5 +1,7 @@
 import { Plus, Save, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
 
 const tabs = ['Travel Themes', 'Why Choose Us', 'FAQ'];
 
@@ -80,11 +82,11 @@ function TravelThemesTable() {
 
             <div className="flex items-center gap-3 min-w-0">
               <span className="text-xl flex-shrink-0">{theme.emoji}</span>
-              <input
+              <Input
                 type="text"
                 value={theme.name}
                 onChange={e => updateName(theme.id, e.target.value)}
-                className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
               />
             </div>
 
@@ -162,13 +164,13 @@ function TravelThemesTable() {
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Theme Title <span className="text-red-500">*</span>
                 </label>
-                <input
+                <Input
                   type="text"
                   value={newTitle}
                   onChange={e => setNewTitle(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleAddTheme()}
                   placeholder="e.g. Adventure, Beach, Honeymoon..."
-                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto"
                   autoFocus
                 />
               </div>
@@ -295,10 +297,10 @@ export function ContentSections() {
                     {card.icon}
                   </div>
                   <div className="flex-1 space-y-3">
-                    <input type="text" defaultValue={card.title} placeholder="Card title"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    <textarea rows={2} defaultValue={card.desc} placeholder="Card description"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" />
+                    <Input type="text" defaultValue={card.title} placeholder="Card title"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto bg-white" />
+                    <Textarea rows={2} defaultValue={card.desc} placeholder="Card description"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white" />
                     <button className="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm flex items-center gap-1">
                       <Trash2 className="w-4 h-4" /> Remove
                     </button>
@@ -328,13 +330,13 @@ export function ContentSections() {
               <div key={index} className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Question</label>
-                  <input type="text" defaultValue={faq.q}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <Input type="text" defaultValue={faq.q}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto bg-white" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Answer</label>
-                  <textarea rows={3} defaultValue={faq.a}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <Textarea rows={3} defaultValue={faq.a}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" />
                 </div>
                 <button className="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm flex items-center gap-1">
                   <Trash2 className="w-4 h-4" /> Remove Question

@@ -1,5 +1,8 @@
 import { Upload, Globe, Palette, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube, Save } from 'lucide-react';
 import { ThemeManagement } from '../components/ThemeManagement';
+import { Input } from "../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Textarea } from "../components/ui/textarea";
 
 export function BrandingSettings() {
   return (
@@ -22,10 +25,10 @@ export function BrandingSettings() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Company Name
               </label>
-              <input
+              <Input
                 type="text"
                 defaultValue="Orbitle Travel"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto"
               />
             </div>
             
@@ -33,10 +36,10 @@ export function BrandingSettings() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
               </label>
-              <input
+              <Input
                 type="email"
                 defaultValue="info@orbitle.com"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto"
               />
             </div>
 
@@ -44,10 +47,10 @@ export function BrandingSettings() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Phone Number
               </label>
-              <input
+              <Input
                 type="tel"
                 defaultValue="+91 98765 43210"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto"
               />
             </div>
 
@@ -55,10 +58,10 @@ export function BrandingSettings() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 WhatsApp Number
               </label>
-              <input
+              <Input
                 type="tel"
                 defaultValue="+91 98765 43210"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto"
               />
             </div>
           </div>
@@ -67,7 +70,7 @@ export function BrandingSettings() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Office Address
             </label>
-            <textarea
+            <Textarea
               rows={3}
               defaultValue="123 Travel Street, Mumbai, Maharashtra 400001"
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -93,10 +96,10 @@ export function BrandingSettings() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Facebook URL
               </label>
-              <input
+              <Input
                 type="url"
                 placeholder="https://facebook.com/yourpage"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto"
               />
             </div>
 
@@ -104,10 +107,10 @@ export function BrandingSettings() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Instagram URL
               </label>
-              <input
+              <Input
                 type="url"
                 placeholder="https://instagram.com/yourpage"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto"
               />
             </div>
           </div>
@@ -129,22 +132,32 @@ export function BrandingSettings() {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Currency
               </label>
-              <select className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-medium">
-                <option value="INR">₹ INR - Indian Rupee</option>
-                <option value="USD">$ USD - US Dollar</option>
-                <option value="AED">AED - UAE Dirham</option>
-              </select>
+              <Select defaultValue="INR">
+                <SelectTrigger className="w-full h-[52px] bg-gray-50 border-gray-200 rounded-xl text-sm px-4">
+                  <SelectValue placeholder="Currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INR">₹ INR - Indian Rupee</SelectItem>
+                  <SelectItem value="USD">$ USD - US Dollar</SelectItem>
+                  <SelectItem value="AED">AED - UAE Dirham</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Timezone
               </label>
-              <select className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-medium">
-                <option value="IST">IST - Indian Standard Time</option>
-                <option value="UTC">UTC - Coordinated Universal Time</option>
-                <option value="GST">GST - Gulf Standard Time</option>
-              </select>
+              <Select defaultValue="IST">
+                <SelectTrigger className="w-full h-[52px] bg-gray-50 border-gray-200 rounded-xl text-sm px-4">
+                  <SelectValue placeholder="Timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="IST">IST - Indian Standard Time</SelectItem>
+                  <SelectItem value="UTC">UTC - Coordinated Universal Time</SelectItem>
+                  <SelectItem value="GST">GST - Gulf Standard Time</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -152,7 +165,7 @@ export function BrandingSettings() {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Default WhatsApp Message
             </label>
-            <textarea
+            <Textarea
               rows={3}
               defaultValue="Hi! I'm interested in your travel packages. Can you help me plan my trip?"
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"

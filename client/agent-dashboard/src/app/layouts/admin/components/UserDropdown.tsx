@@ -20,15 +20,15 @@ export function UserDropdown({ isOpen, onClose, toggleOpen }: UserDropdownProps)
         </div>
         <div className="hidden sm:block text-left">
           <p className="text-sm font-semibold text-gray-900">Admin User</p>
-          <p className="text-xs text-gray-500">admin@orbitle.com</p>
+          <p className="text-xs text-gray-500">admin@orbitle.in</p>
         </div>
         <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={onClose}
           />
           <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl border border-gray-200/50 shadow-xl overflow-hidden z-50">

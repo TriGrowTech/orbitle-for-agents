@@ -65,9 +65,9 @@ export function AdminLayout() {
     <CRMProvider>
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 relative">
         <div className="flex-1 flex w-full max-w-[100vw]">
-          <Sidebar 
-            isOpen={sidebarOpen} 
-            onClose={() => setSidebarOpen(false)} 
+          <Sidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
             activeContext={activeContext}
             setActiveContext={setActiveContext}
             isAtBottom={isAtBottom}

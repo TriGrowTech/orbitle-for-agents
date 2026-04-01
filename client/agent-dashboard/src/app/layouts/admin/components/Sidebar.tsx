@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router';
-import { 
-  LayoutDashboard, 
-  Palette, 
-  Package, 
-  Users, 
-  Image, 
-  FileText, 
-  Star, 
+import {
+  LayoutDashboard,
+  Palette,
+  Package,
+  Users,
+  Image,
+  FileText,
+  Star,
   TrendingUp,
   X,
   Settings,
@@ -62,7 +62,7 @@ export function Sidebar({ isOpen, onClose, activeContext, setActiveContext, isAt
     <>
       {/* Mobile sidebar overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
@@ -108,8 +108,8 @@ export function Sidebar({ isOpen, onClose, activeContext, setActiveContext, isAt
                         onClick={onClose}
                         className={`
                           flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 text-sm font-semibold
-                          ${isActive 
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20' 
+                          ${isActive
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20'
                             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 group'
                           }
                         `}
@@ -136,7 +136,7 @@ export function Sidebar({ isOpen, onClose, activeContext, setActiveContext, isAt
                       </div>
                       <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                     </button>
-                    
+
                     <button
                       onClick={() => setActiveContext('admin')}
                       className="w-full flex items-center justify-between px-3 py-2.5 rounded-md transition-all text-sm font-semibold text-gray-600 hover:bg-gray-100 hover:text-gray-900 group"
@@ -175,8 +175,8 @@ export function Sidebar({ isOpen, onClose, activeContext, setActiveContext, isAt
                         onClick={onClose}
                         className={`
                           flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 text-sm font-semibold
-                          ${isActive 
-                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20' 
+                          ${isActive
+                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md shadow-blue-500/20'
                             : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 group'
                           }
                         `}

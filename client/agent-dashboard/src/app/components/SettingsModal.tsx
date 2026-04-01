@@ -11,11 +11,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
@@ -43,7 +43,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">Account Information</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -61,7 +61,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   </label>
                   <input
                     type="email"
-                    defaultValue="admin@orbitle.com"
+                    defaultValue="admin@orbitle.in"
                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                 </div>
@@ -76,7 +76,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">Security</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -119,7 +119,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
               </div>
-              
+
               <div className="space-y-3">
                 <label className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors">
                   <span className="text-sm font-medium text-gray-700">Email notifications for new leads</span>
@@ -155,7 +155,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">Language & Region</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">

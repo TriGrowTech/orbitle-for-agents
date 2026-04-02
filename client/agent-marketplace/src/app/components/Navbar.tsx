@@ -9,17 +9,9 @@ export function Navbar() {
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [showFontMenu, setShowFontMenu] = useState(false);
   const [showPlanTourModal, setShowPlanTourModal] = useState(false);
-  const { mode, color, headingFont, bodyFont, toggleMode, setThemeColor, setHeadingFont, setBodyFont } = useTheme();
+  const { mode, color, toggleMode, setThemeColor, } = useTheme();
 
-  const fonts = [
-    { id: 'inter', name: 'Inter' },
-    { id: 'roboto', name: 'Roboto' },
-    { id: 'poppins', name: 'Poppins' },
-    { id: 'lato', name: 'Lato' },
-    { id: 'montserrat', name: 'Montserrat' },
-    { id: 'work-sans', name: 'Work Sans' },
-  ] as const;
-
+  
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -117,61 +109,7 @@ export function Navbar() {
               )}
             </div>
 
-            <div className="relative">
-              <button
-                onClick={() => setShowFontMenu(!showFontMenu)}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Type className="w-5 h-5" />
-              </button>
-              
-              {showFontMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl py-2 z-50 border border-gray-200 dark:border-gray-700">
-                  {/* Heading Font Section */}
-                  <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Heading Font</span>
-                  </div>
-                  {fonts.map((f) => (
-                    <button
-                      key={`heading-${f.id}`}
-                      onClick={() => {
-                        setHeadingFont(f.id);
-                      }}
-                      className={`w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${headingFont === f.id ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
-                    >
-                      <span className="text-gray-700 dark:text-gray-200 text-sm">{f.name}</span>
-                      {headingFont === f.id && <span className="text-[var(--theme-primary)] text-xs">✓</span>}
-                    </button>
-                  ))}
-                  
-                  {/* Body Font Section */}
-                  <div className="px-3 py-2 border-t border-b border-gray-200 dark:border-gray-700 mt-1">
-                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Body Font</span>
-                  </div>
-                  {fonts.map((f) => (
-                    <button
-                      key={`body-${f.id}`}
-                      onClick={() => {
-                        setBodyFont(f.id);
-                      }}
-                      className={`w-full px-4 py-2 text-left flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${bodyFont === f.id ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
-                    >
-                      <span className="text-gray-700 dark:text-gray-200 text-sm">{f.name}</span>
-                      {bodyFont === f.id && <span className="text-[var(--theme-primary)] text-xs">✓</span>}
-                    </button>
-                  ))}
-                  
-                  <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 mt-1">
-                    <button
-                      onClick={() => setShowFontMenu(false)}
-                      className="w-full text-center text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            
 
             <button
               onClick={() => setShowPlanTourModal(true)}

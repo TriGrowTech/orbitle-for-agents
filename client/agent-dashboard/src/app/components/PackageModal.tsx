@@ -1,5 +1,7 @@
-import { X, Tag, Award, TrendingUp, Plus, Trash2, Calendar, CheckCircle2, XCircle } from 'lucide-react';
+import { X, Tag, Award, TrendingUp, Plus, Trash2, Calendar, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { useCreatePackageMutation } from '../api/packageApi';
+import { toast } from 'sonner';
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
@@ -21,6 +23,12 @@ interface ItineraryDay {
 }
 
 export function PackageModal({ isOpen, onClose }: PackageModalProps) {
+  const [title, setTitle] = useState('');
+  const [location, setLocation] = useState('');
+  const [duration, setDuration] = useState('');
+  const [category, setCategory] = useState('domestic');
+  const [description, setDescription] = useState('');
+
   const [originalPrice, setOriginalPrice] = useState('');
   const [discountedPrice, setDiscountedPrice] = useState('');
   const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
@@ -28,6 +36,9 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
   const [isTrending, setIsTrending] = useState(false);
   const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
   const [imagePreviews, setImagePreviews] = useState<[string | null, string | null]>([null, null]);
+  const [imageFiles, setImageFiles] = useState<[File | null, File | null]>([null, null]);
+
+  const [createPackage, { isLoading: isCreating }] = useCreatePackageMutation();
 
   const [inclusions, setInclusions] = useState<string[]>([]);
   const [exclusions, setExclusions] = useState<string[]>([]);
@@ -53,6 +64,11 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
     });
 
   const handleImageFile = (index: 0 | 1, file: File) => {
+    setImageFiles(prev => {
+      const next: [File | null, File | null] = [...prev] as [File | null, File | null];
+      next[index] = file;
+      return next;
+    })
     const reader = new FileReader();
     reader.onload = e => setPreview(index, e.target?.result as string);
     reader.readAsDataURL(file);
@@ -76,6 +92,48 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
 
   const addItineraryDay = () =>
     setItineraryDays(prev => [...prev, { id: Date.now().toString(), dayNumber: prev.length + 1, title: '', description: '' }]);
+
+  const handleCreate = async () => {
+    if (!title || !location || !originalPrice || !duration || !description) {
+      toast.error('Please fill all critical required fields (Name, Destination, Price, Duration, Description)');
+      return;
+    }
+    
+    try {
+      const origAmt = parseFloat(originalPrice.replace(/[^0-9.]/g, '')) || 0;
+      const discAmt = discountedPrice ? parseFloat(discountedPrice.replace(/[^0-9.]/g, '')) : undefined;
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('location', location);
+      formData.append('duration', duration);
+      formData.append('category', category);
+      formData.append('packageType', selectedType || 'other');
+      formData.append('description', description);
+      formData.append('originalPrice', origAmt.toString());
+      if (discAmt) formData.append('discountedPrice', discAmt.toString());
+      formData.append('isTrending', String(isTrending));
+      formData.append('hasOffer', String(hasOffer));
+      formData.append('badges', JSON.stringify(selectedBadgeIds));
+      formData.append('inclusions', JSON.stringify(inclusions));
+      formData.append('exclusions', JSON.stringify(exclusions));
+      formData.append('itinerary', JSON.stringify(itineraryDays.map(d => ({
+        dayNumber: d.dayNumber,
+        title: d.title || `Day ${d.dayNumber}`,
+        description: d.description || '...'
+      }))));
+      formData.append('isActive', 'true');
+
+      if (imageFiles[0]) formData.append('image1', imageFiles[0]);
+      if (imageFiles[1]) formData.append('image2', imageFiles[1]);
+
+      await createPackage(formData).unwrap();
+      toast.success('Package created successfully!');
+      onClose();
+    } catch (e: any) {
+      toast.error(e.data?.message || 'Failed to create package');
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -107,24 +165,24 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
               <div className="flex-1 space-y-3 min-w-0">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Package Name</label>
-                  <Input type="text" placeholder="e.g., Bali Paradise – 7D/6N" className={inp + " h-auto"} />
+                  <Input value={title} onChange={e => setTitle(e.target.value)} type="text" placeholder="e.g., Bali Paradise – 7D/6N" className={inp + " h-auto"} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Destination</label>
-                  <Input type="text" placeholder="e.g., Bali, Indonesia" className={inp + " h-auto"} />
+                  <Input value={location} onChange={e => setLocation(e.target.value)} type="text" placeholder="e.g., Bali, Indonesia" className={inp + " h-auto"} />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Duration</label>
-                  <Input type="text" placeholder="e.g., 7 Days / 6 Nights" className={inp + " h-auto"} />
+                  <Input value={duration} onChange={e => setDuration(e.target.value)} type="text" placeholder="e.g., 7 Days / 6 Nights" className={inp + " h-auto"} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Category</label>
-                    <Select>
+                    <Select value={category} onValueChange={setCategory}>
                       <SelectTrigger className={inp + ' font-medium h-[42px]'}>
                         <SelectValue placeholder="Select Category" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[200]">
                         <SelectItem value="domestic">Domestic</SelectItem>
                         <SelectItem value="international">International</SelectItem>
                       </SelectContent>
@@ -137,7 +195,7 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
                       <SelectTrigger className={inp + ' font-medium h-[42px]'}>
                         <SelectValue placeholder="Select Type" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="z-[200]">
                         <SelectItem value="beach">Beach</SelectItem>
                         <SelectItem value="mountain">Mountain</SelectItem>
                         <SelectItem value="pilgrimage">Pilgrimage</SelectItem>
@@ -161,7 +219,7 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
             {/* Description */}
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Description</label>
-              <Textarea rows={3} placeholder="Enter package description..." className={inp} />
+              <Textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="Enter package description..." className={inp} />
             </div>
 
             {/* Itinerary Section */}
@@ -181,8 +239,20 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
                       <span className="w-6 h-6 rounded-full bg-indigo-600 text-white text-[10px] flex items-center justify-center font-bold">{index + 1}</span>
                       <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Day {index + 1}</span>
                     </div>
-                    <Input type="text" placeholder="Day Title" className={inp + " mb-2 h-auto"} />
-                    <Textarea rows={2} placeholder="Day details..." className={inp} />
+                    <Input 
+                      value={day.title} 
+                      onChange={e => setItineraryDays(prev => prev.map(d => d.id === day.id ? { ...d, title: e.target.value } : d))}
+                      type="text" 
+                      placeholder="Day Title" 
+                      className={inp + " mb-2 h-auto"} 
+                    />
+                    <Textarea 
+                      value={day.description}
+                      onChange={e => setItineraryDays(prev => prev.map(d => d.id === day.id ? { ...d, description: e.target.value } : d))}
+                      rows={2} 
+                      placeholder="Day details..." 
+                      className={inp} 
+                    />
                   </div>
                 ))}
                 <button onClick={addItineraryDay}
@@ -263,8 +333,11 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
           </div>
 
           <div className="flex-shrink-0 flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-200 bg-gray-50">
-            <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 font-medium">Cancel</button>
-            <button className="px-6 py-2 text-sm bg-blue-600 text-white rounded font-bold shadow-lg shadow-blue-500/20">Create Package</button>
+            <button onClick={onClose} disabled={isCreating} className="px-4 py-2 text-sm text-gray-600 font-medium">Cancel</button>
+            <button disabled={isCreating} onClick={handleCreate} className="px-6 py-2 flex items-center gap-2 text-sm bg-blue-600 text-white rounded font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50">
+              {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isCreating ? 'Creating...' : 'Create Package'}
+            </button>
           </div>
         </div>
       </div>

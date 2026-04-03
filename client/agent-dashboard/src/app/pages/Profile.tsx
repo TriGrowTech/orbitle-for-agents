@@ -1,10 +1,124 @@
-import { useState } from 'react';
-import { User, Shield, CreditCard, Clock, Activity, Settings, TrendingUp, Package, CheckCircle, FileText, UploadCloud } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Shield, CreditCard, Clock, Activity, Settings, TrendingUp, Package, CheckCircle, FileText, UploadCloud, Loader2 } from 'lucide-react';
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { toast } from 'sonner';
+import { useGetMeQuery, useUpdateProfileMutation, useUpdatePasswordMutation, useForgotPasswordMutation, useResetPasswordMutation } from '../api/authApi';
 
 export function Profile() {
   const [activeTab, setActiveTab] = useState('Agent Details');
+
+  // Fetch agent details
+  const { data, isLoading } = useGetMeQuery();
+  const agent = data?.agent;
+
+  // Mutations
+  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
+  const [updatePassword, { isLoading: isUpdatingPassword }] = useUpdatePasswordMutation();
+  const [forgotPassword, { isLoading: isForgotLoading }] = useForgotPasswordMutation();
+  const [resetPassword, { isLoading: isResettingPassword }] = useResetPasswordMutation();
+
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+
+  // Local state for forms
+  const [profileForm, setProfileForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    whatsapp: '',
+  });
+
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+  });
+
+  // Hydrate form when data arrives
+  useEffect(() => {
+    if (agent) {
+      const nameParts = (agent.name || '').split(' ');
+      setProfileForm({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: agent.email || '',
+        whatsapp: agent.whatsapp || '',
+      });
+    }
+  }, [agent]);
+
+  // Handlers
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const fullName = `${profileForm.firstName.trim()} ${profileForm.lastName.trim()}`.trim();
+      if (!fullName || !profileForm.email) {
+         toast.error("Name and Email are required");
+         return;
+      }
+      await updateProfile({
+        name: fullName,
+        email: profileForm.email,
+        whatsapp: profileForm.whatsapp,
+      }).unwrap();
+      toast.success('Profile updated successfully!');
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to update profile.');
+    }
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpSent) {
+      if (!otp) return toast.error("Please enter the 6-digit OTP sent to your email.");
+      if (!passwordForm.newPassword) return toast.error("Please enter your new password.");
+      
+      try {
+        const res = await resetPassword({ email: agent.email, otp, password: passwordForm.newPassword }).unwrap();
+        toast.success(res.message || "Password updated successfully with OTP!");
+        setPasswordForm({ currentPassword: '', newPassword: '' });
+        setOtp("");
+        setOtpSent(false);
+      } catch (err: any) {
+        toast.error(err.data?.message || 'Failed to verify OTP or reset password.');
+      }
+      return; // Stop execution here for OTP flow
+    }
+
+    try {
+      if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+         toast.error("Please provide both current and new password");
+         return;
+      }
+      await updatePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      }).unwrap();
+      toast.success('Password updated successfully!');
+      setPasswordForm({ currentPassword: '', newPassword: '' });
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Failed to update password.');
+    }
+  };
+
+  // Loading state handling
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  // Error missing data handling
+  if (!agent) {
+    return <div className="p-6 text-center text-red-500 font-medium">Failed to load profile data. Please refresh.</div>;
+  }
+
+  const getInitials = () => {
+    if (!agent?.name) return 'O';
+    return agent.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+  };
 
   return (
     <div className="space-y-6">
@@ -42,10 +156,10 @@ export function Profile() {
             <div className="col-span-1 space-y-6">
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-sm p-6 flex flex-col items-center text-center">
                 <div className="w-24 h-24 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-4">
-                  RS
+                  {getInitials()}
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Rahul Sharma</h2>
-                <p className="text-sm text-gray-500 mb-4">rahul@orbitle.com</p>
+                <h2 className="text-xl font-bold text-gray-900">{agent.name || 'Agent Name'}</h2>
+                <p className="text-sm text-gray-500 mb-4">{agent.email}</p>
                 
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 mb-6">
                   <Shield className="w-3.5 h-3.5" /> Verified Agent
@@ -56,14 +170,14 @@ export function Profile() {
                     <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-2">
                       <TrendingUp className="w-5 h-5" />
                     </div>
-                    <span className="text-2xl font-bold text-gray-900">142</span>
+                    <span className="text-2xl font-bold text-gray-900">{agent.leadsCount !== undefined ? agent.leadsCount : 0}</span>
                     <span className="text-xs text-gray-500 font-medium tracking-wide uppercase">Leads</span>
                   </div>
                   <div className="flex flex-col items-center">
                     <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mb-2">
                       <Package className="w-5 h-5" />
                     </div>
-                    <span className="text-2xl font-bold text-gray-900">12</span>
+                    <span className="text-2xl font-bold text-gray-900">{agent.packagesCount !== undefined ? agent.packagesCount : 0}</span>
                     <span className="text-xs text-gray-500 font-medium tracking-wide uppercase">Packages</span>
                   </div>
                 </div>
@@ -82,31 +196,56 @@ export function Profile() {
                     <p className="text-xs text-gray-500">Update your account details</p>
                   </div>
                 </div>
-                <div className="p-6 space-y-6">
+                <form onSubmit={handleProfileSubmit} className="p-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-                      <Input type="text" defaultValue="Rahul" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
+                      <Input 
+                        type="text" 
+                        value={profileForm.firstName}
+                        onChange={(e) => setProfileForm({...profileForm, firstName: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" 
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-                      <Input type="text" defaultValue="Sharma" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
+                      <Input 
+                        type="text" 
+                        value={profileForm.lastName}
+                        onChange={(e) => setProfileForm({...profileForm, lastName: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" 
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-                      <Input type="email" defaultValue="rahul@orbitle.com" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
+                      <Input 
+                        type="email" 
+                        value={profileForm.email}
+                        onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" 
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                      <Input type="tel" defaultValue="+91 9876543210" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" />
+                      <Input 
+                        type="tel" 
+                        value={profileForm.whatsapp}
+                        onChange={(e) => setProfileForm({...profileForm, whatsapp: e.target.value})}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto" 
+                      />
                     </div>
                   </div>
                   <div className="flex justify-end pt-4">
-                    <button className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-sm">
-                      Save Changes
+                    <button 
+                      type="submit"
+                      disabled={isUpdatingProfile}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {isUpdatingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                      {isUpdatingProfile ? 'Saving...' : 'Save Changes'}
                     </button>
                   </div>
-                </div>
+                </form>
               </div>
               </div>
             </div>
@@ -122,43 +261,110 @@ export function Profile() {
                   <p className="text-xs text-gray-500">Manage your password</p>
                 </div>
               </div>
-              <div className="p-6 space-y-6">
+              <form onSubmit={handlePasswordSubmit} className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
-                    <Input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-auto" />
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-semibold text-gray-700">Current Password</label>
+                      <button 
+                        type="button" 
+                        disabled={isForgotLoading || otpSent}
+                        onClick={async () => {
+                          try {
+                            const res = await forgotPassword({ email: agent.email }).unwrap();
+                            toast.success(res.message || `OTP sent to ${agent.email}`);
+                            setOtpSent(true);
+                          } catch (err: any) {
+                            toast.error(err.data?.message || 'Failed to send OTP email');
+                          }
+                        }}
+                        className={`text-xs font-medium transition-colors ${otpSent ? 'text-green-600' : 'text-blue-600 hover:text-blue-800 disabled:opacity-50'}`}
+                      >
+                        {isForgotLoading ? 'Sending...' : otpSent ? 'OTP Sent!' : 'Forgot password?'}
+                      </button>
+                    </div>
+                    {otpSent ? (
+                      <div>
+                        <Input 
+                          type="text" 
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value)}
+                          placeholder="Enter 6-digit OTP" 
+                          maxLength={6}
+                          className="w-full px-4 py-3 bg-green-50 border border-green-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all h-auto placeholder:text-green-300 font-semibold" 
+                        />
+                        <p className="text-[10px] text-gray-500 mt-1 pl-1">Check your inbox for the OTP</p>
+                      </div>
+                    ) : (
+                      <Input 
+                        type="password" 
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
+                        placeholder="••••••••" 
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-auto" 
+                      />
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
-                    <Input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-auto" />
+                    <Input 
+                      type="password" 
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                      placeholder="••••••••" 
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all h-auto" 
+                    />
                   </div>
                 </div>
                 <div className="flex justify-end pt-4">
-                  <button className="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors">
-                    Update Password
+                  <button 
+                    type="submit"
+                    disabled={isUpdatingPassword || isResettingPassword}
+                    className={`inline-flex items-center gap-2 px-6 py-2.5 font-medium rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed ${otpSent ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                  >
+                    {(isUpdatingPassword || isResettingPassword) ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                    {otpSent ? (isResettingPassword ? 'Verifying...' : 'Verify OTP & Reset') : (isUpdatingPassword ? 'Updating...' : 'Update Password')}
                   </button>
                 </div>
-              </div>
+              </form>
             </div>
           </div>
         )}
 
         {activeTab === 'Purchase History' && (
+          (() => {
+            const isTrial = agent.planType === 'trial' || !agent.planType;
+            let planName = isTrial ? 'Free Trial Plan' : 'Active Plan';
+            if (agent.planType === '6_months') planName = '6 Months Pro Plan';
+            if (agent.planType === 'yearly') planName = 'Yearly Pro Plan';
+            if (agent.planType === 'lifetime') planName = 'Lifetime Super Plan';
+            
+            let expiryDate = agent.planExpiry;
+            if (isTrial) expiryDate = agent.trialEndsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+            
+            const formattedExpiry = new Date(expiryDate || Date.now()).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+            const totalSpent = agent.totalSpent || 0;
+            
+            const invoices: any[] = isTrial && totalSpent === 0 ? [] : [
+               // If there were real invoices they'd be populated here. Showing empty for trial.
+            ];
+
+            return (
           <div className="space-y-6">
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg p-6 sm:p-8 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
               <div>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-xs font-semibold backdrop-blur-md mb-4 border border-white/20">
-                  <Activity className="w-3.5 h-3.5" /> Active Subscription
+                  <Activity className="w-3.5 h-3.5" /> {isTrial ? 'Trial Active' : 'Active Subscription'}
                 </span>
-                <h2 className="text-3xl font-bold mb-1">Yearly Pro Plan</h2>
+                <h2 className="text-3xl font-bold mb-1">{planName}</h2>
                 <div className="flex items-center gap-2 text-blue-100 text-sm">
-                  <Clock className="w-4 h-4" /> Next billing date: Jan 15, 2027
+                  <Clock className="w-4 h-4" /> {isTrial ? 'Trial ends on:' : 'Next billing date:'} {formattedExpiry}
                 </div>
               </div>
               <div className="bg-white/10 rounded-xl p-4 border border-white/20 backdrop-blur-md min-w-[180px]">
                 <p className="text-blue-100 text-xs font-semibold tracking-wide uppercase mb-1">Total Spent</p>
                 <div className="text-3xl font-bold flex items-end gap-1">
-                  <span className="text-xl opacity-80">₹</span>14,999
+                  <span className="text-xl opacity-80">₹</span>{totalSpent.toLocaleString('en-IN')}
                 </div>
               </div>
             </div>
@@ -185,11 +391,7 @@ export function Profile() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {[
-                      { id: '#INV-2026-001', date: 'Jan 15, 2026', amount: '₹14,999', plan: 'Yearly Pro Plan' },
-                      { id: '#INV-2025-012', date: 'Jan 15, 2025', amount: '₹12,499', plan: 'Yearly Pro Plan' },
-                      { id: '#INV-2024-045', date: 'Jan 15, 2024', amount: '₹9,999', plan: 'Yearly Starter' },
-                    ].map((inv) => (
+                    {invoices.length > 0 ? invoices.map((inv: any) => (
                       <tr key={inv.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="font-medium text-gray-900">{inv.id}</div>
@@ -208,12 +410,20 @@ export function Profile() {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )) : (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                           No billing history yet.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
+            );
+          })()
         )}
 
         {activeTab === 'Verification & KYC' && (

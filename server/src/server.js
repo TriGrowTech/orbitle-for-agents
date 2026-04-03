@@ -2,8 +2,15 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
+import packageRoutes from './routes/packageRoutes.js';
 import connectDB from './config/db.js';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Load env vars
 dotenv.config();
 
@@ -14,12 +21,12 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = process.env.NODE_ENV === 'production' 
-    ? ['https://orbitle.in', 'https://agent.orbitle.in'] 
+const allowedOrigins = process.env.NODE_ENV === 'production'
+    ? ['https://orbitle.in', 'https://agent.orbitle.in']
     : ['http://localhost:3000', 'http://localhost:5173'];
 
 app.use(cors({
-    origin: function(origin, callback) {
+    origin: function (origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
@@ -29,8 +36,12 @@ app.use(cors({
     credentials: true
 }));
 
+// Serve static files (logos)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Mount routes
 app.use('/api/auth', authRoutes);
+app.use('/api/packages', packageRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running and MongoDB is connected (using ES Modules)!');

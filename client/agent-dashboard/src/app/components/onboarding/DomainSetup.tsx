@@ -1,15 +1,39 @@
-import { useState } from 'react';
-import { Globe, Check, AlertCircle, Gift } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Globe, Check, AlertCircle, Gift, Loader2 } from 'lucide-react';
+import { useCheckSubdomainQuery } from '../../api/authApi';
 
 interface DomainSetupProps {
   onNext: () => void;
   onSkip: () => void;
   brandData?: any;
   setBrandData?: any;
+  errors?: Record<string, string>;
 }
 
-export function DomainSetup({ onNext, onSkip, brandData }: DomainSetupProps) {
-  const [domainName, setDomainName] = useState('');
+export function DomainSetup({ onNext, onSkip, brandData, setBrandData, errors = {} }: DomainSetupProps) {
+
+  const [debouncedSubdomain, setDebouncedSubdomain] = useState(brandData?.subdomain || '');
+
+  // Debounce the input by 500ms before checking API
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSubdomain(brandData?.subdomain || '');
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [brandData?.subdomain]);
+
+  const { data: checkData, isFetching } = useCheckSubdomainQuery(debouncedSubdomain, {
+    skip: debouncedSubdomain.length < 3,
+  });
+
+  // Calculate live dynamic error
+  const isTaken = checkData?.success && checkData?.isAvailable === false;
+  const isAvailable = checkData?.success && checkData?.isAvailable === true;
+
+  // We should intercept OnboardingWizard validations directly 
+  // by passing back a "logoError" style field or just directly updating `errors` object.
+  // Actually, we can just block visually, since Wizard might still submit. 
+  // It's best if we just show the visual error for now. Wizard's "validate" handles the rest.
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -65,19 +89,43 @@ export function DomainSetup({ onNext, onSkip, brandData }: DomainSetupProps) {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                value={domainName}
-                onChange={(e) => setDomainName(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                value={brandData?.subdomain || ''}
+                onChange={(e) => setBrandData({...brandData, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')})}
                 placeholder="saratravels"
-                className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-semibold"
+                className={`flex-1 px-4 py-3 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-semibold ${
+                  (errors.subdomain || isTaken) ? 'border-red-400 bg-red-50' : 'border-gray-200'
+                }`}
               />
               <span className="text-gray-600 font-semibold">.orbitle.in</span>
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Example: If your business is "Sara Travels", use "saratravels"
-            </p>
+            
+            {/* Status checking / Errors */}
+            <div className="mt-2 min-h-[20px]">
+              {isFetching ? (
+                <p className="flex items-center gap-1 text-blue-600 text-xs mt-2 font-medium">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Checking availability...
+                </p>
+              ) : isTaken ? (
+                <p className="flex items-center gap-1 text-red-600 text-xs mt-2 font-medium">
+                  <AlertCircle className="w-3.5 h-3.5" /> This url is already taken. Please try another one.
+                </p>
+              ) : isAvailable && debouncedSubdomain.length >= 3 && !errors.subdomain ? (
+                <p className="flex items-center gap-1 text-green-600 text-xs mt-2 font-medium">
+                  <Check className="w-3.5 h-3.5" /> This domain is available!
+                </p>
+              ) : errors.subdomain ? (
+                <p className="flex items-center gap-1 text-red-600 text-xs mt-2 font-medium">
+                  <AlertCircle className="w-3.5 h-3.5" /> {errors.subdomain}
+                </p>
+              ) : (
+                <p className="text-xs text-gray-500 mt-2">
+                  Example: If your business is "Sara Travels", use "saratravels"
+                </p>
+              )}
+            </div>
           </div>
 
-          {domainName && (
+          {brandData?.subdomain && !errors.subdomain && !isTaken && (
             <div className="animate-fadeIn mt-6">
               <h4 className="font-semibold text-gray-900 mb-2">Live Website Preview</h4>
               <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm bg-white">
@@ -89,62 +137,14 @@ export function DomainSetup({ onNext, onSkip, brandData }: DomainSetupProps) {
                     <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                   </div>
                   <div className="mx-auto bg-white rounded-md px-3 py-1 text-xs text-center text-gray-500 shadow-sm border border-gray-200 w-2/3 truncate">
-                    https://{domainName}.orbitle.in
+                    https://{brandData.subdomain}.orbitle.in
                   </div>
                 </div>
                 {/* Iframe Preview */}
                 <div className="bg-gray-50 w-full h-[350px] relative">
                   <iframe 
                     title="Website Preview"
-                    srcDoc={`
-                      <html>
-                        <head>
-                          <style>
-                            body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #333; }
-                            .hero { 
-                              background: ${brandData?.theme === 'red' ? 'linear-gradient(135deg, #7f1d1d, #b91c1c)' : brandData?.theme === 'cyan' ? 'linear-gradient(135deg, #164e63, #0e7490)' : 'linear-gradient(135deg, #1e3a8a, #3b82f6)'}; 
-                              color: white; padding: 60px 20px; text-align: center; 
-                            }
-                            .nav { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-                            .nav .logo { font-weight: bold; font-size: 18px; color: ${brandData?.theme === 'red' ? '#b91c1c' : brandData?.theme === 'cyan' ? '#0e7490' : '#1e3a8a'}; display: flex; align-items: center; gap: 8px; }
-                            .nav .logo span { display: inline-block; width: 24px; height: 24px; background: currentColor; border-radius: 4px; opacity: 0.1; }
-                            .hero h1 { margin: 0; font-size: 28px; line-height: 1.2; }
-                            .hero p { margin: 10px 0 0; opacity: 0.9; font-size: 16px; }
-                            .content { padding: 30px 20px; text-align: center; }
-                            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; margin: 0 auto; }
-                            .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-                            .card-img { height: 100px; background: #e2e8f0; border-radius: 6px; margin-bottom: 12px; }
-                            .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: white; color: #111; border-radius: 20px; font-weight: bold; text-decoration: none; font-size: 14px; }
-                          </style>
-                        </head>
-                        <body>
-                          <div class="nav">
-                            <div class="logo"><span></span> ${brandData?.name || 'Your Brand'}</div>
-                            <div style="font-size: 14px; color: #666;">Home &nbsp;&nbsp; Packages</div>
-                          </div>
-                          <div class="hero">
-                            <h1>Explore the World with ${brandData?.name || 'Us'}</h1>
-                            <p>${brandData?.tagline || 'Your Next Adventure Awaits'}</p>
-                            <a href="#" class="btn">View Tour Packages</a>
-                          </div>
-                          <div class="content">
-                            <h2 style="margin: 0 0 20px;">Top Destinations</h2>
-                            <div class="grid">
-                              <div class="card">
-                                <div class="card-img"></div>
-                                <h4 style="margin: 0;">Dubai Special</h4>
-                                <p style="margin: 5px 0 0; font-size: 12px; color: #666;">5 Days / 4 Nights</p>
-                              </div>
-                              <div class="card">
-                                <div class="card-img"></div>
-                                <h4 style="margin: 0;">Bali Escape</h4>
-                                <p style="margin: 5px 0 0; font-size: 12px; color: #666;">6 Days / 5 Nights</p>
-                              </div>
-                            </div>
-                          </div>
-                        </body>
-                      </html>
-                    `}
+                    srcDoc={'<html><head><style>body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #f8fafc; color: #333; } .hero { background: ' + (brandData?.theme === 'red' ? 'linear-gradient(135deg, #7f1d1d, #b91c1c)' : brandData?.theme === 'cyan' ? 'linear-gradient(135deg, #164e63, #0e7490)' : 'linear-gradient(135deg, #1e3a8a, #3b82f6)') + '; color: white; padding: 60px 20px; text-align: center; } .nav { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); } .nav .logo { font-weight: bold; font-size: 18px; color: ' + (brandData?.theme === 'red' ? '#b91c1c' : brandData?.theme === 'cyan' ? '#0e7490' : '#1e3a8a') + '; display: flex; align-items: center; gap: 8px; } .nav .logo span { display: inline-block; width: 24px; height: 24px; background: currentColor; border-radius: 4px; opacity: 0.1; } .hero h1 { margin: 0; font-size: 28px; line-height: 1.2; } .hero p { margin: 10px 0 0; opacity: 0.9; font-size: 16px; } .content { padding: 30px 20px; text-align: center; } .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; margin: 0 auto; } .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); } .card-img { height: 100px; background: #e2e8f0; border-radius: 6px; margin-bottom: 12px; } .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: white; color: #111; border-radius: 20px; font-weight: bold; text-decoration: none; font-size: 14px; } </style></head><body><div class="nav"><div class="logo"><span></span> ' + (brandData?.name || 'Your Brand') + '</div><div style="font-size: 14px; color: #666;">Home &nbsp;&nbsp; Packages</div></div><div class="hero"><h1>Explore the World with ' + (brandData?.name || 'Us') + '</h1><p>' + (brandData?.tagline || 'Your Next Adventure Awaits') + '</p><a href="#" class="btn">View Tour Packages</a></div><div class="content"><h2 style="margin: 0 0 20px;">Top Destinations</h2><div class="grid"><div class="card"><div class="card-img"></div><h4 style="margin: 0;">Dubai Special</h4><p style="margin: 5px 0 0; font-size: 12px; color: #666;">5 Days / 4 Nights</p></div><div class="card"><div class="card-img"></div><h4 style="margin: 0;">Bali Escape</h4><p style="margin: 5px 0 0; font-size: 12px; color: #666;">6 Days / 5 Nights</p></div></div></div></body></html>'}
                     className="w-full h-full border-none"
                   />
                   <div className="absolute inset-0 border border-gray-900/5 pointer-events-none rounded-b-xl"></div>

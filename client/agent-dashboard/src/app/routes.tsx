@@ -14,6 +14,9 @@ import { LegalPages } from "./pages/LegalPages";
 import { Profile } from "./pages/Profile";
 import { RevenueAnalytics } from "./pages/RevenueAnalytics";
 import { OnboardingPage } from "./pages/OnboardingPage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -24,26 +27,40 @@ export const router = createBrowserRouter([
     element: <Navigate to="/dashboard" replace />,
   },
   {
-    path: "/onboarding",
-    Component: OnboardingPage,
+    path: "/reset-password/:token",
+    Component: ResetPasswordPage,
   },
   {
-    path: "/",
-    Component: AdminLayout,
+    element: <ProtectedRoute requireOnboarding={false} />,
     children: [
-      { index: true, element: <Navigate to="/dashboard" replace /> },
-      { path: "dashboard", Component: Dashboard },
-      { path: "branding", Component: BrandingSettings },
-      { path: "packages", Component: Packages },
-      { path: "leads", Component: Leads },
-      { path: "banners", Component: Banners },
-      { path: "content", Component: ContentSections },
-      { path: "testimonials", Component: Testimonials },
-      { path: "seo", Component: SEOAnalytics },
-      { path: "revenue", Component: RevenueAnalytics },
-      { path: "pricing", Component: Pricing },
-      { path: "legal", Component: LegalPages },
-      { path: "profile", Component: Profile },
+      {
+        path: "/onboarding",
+        Component: OnboardingPage,
+      },
+    ],
+  },
+  {
+    element: <ProtectedRoute requireOnboarding={true} />,
+    children: [
+      {
+        path: "/",
+        Component: AdminLayout,
+        children: [
+          { index: true, element: <Navigate to="/dashboard" replace /> },
+          { path: "dashboard", Component: Dashboard },
+          { path: "branding", Component: BrandingSettings },
+          { path: "packages", Component: Packages },
+          { path: "leads", Component: Leads },
+          { path: "banners", Component: Banners },
+          { path: "content", Component: ContentSections },
+          { path: "testimonials", Component: Testimonials },
+          { path: "seo", Component: SEOAnalytics },
+          { path: "revenue", Component: RevenueAnalytics },
+          { path: "pricing", Component: Pricing },
+          { path: "legal", Component: LegalPages },
+          { path: "profile", Component: Profile },
+        ],
+      },
     ],
   },
 ]);

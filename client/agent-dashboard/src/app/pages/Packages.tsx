@@ -1,159 +1,30 @@
-import { Plus, Search, Edit, Trash2, Eye, TrendingUp, MapPin, Clock, Tag, ImageOff } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, TrendingUp, MapPin, Clock, Tag, ImageOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { PackageModal } from '../components/PackageModal';
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { useGetPackagesQuery, useUpdatePackageMutation, useDeletePackageMutation, PackageData } from '../api/packageApi';
+import { toast } from 'sonner';
 
-interface Badge {
+export interface Badge {
   label: string;
   textColor: string;
   bgColor: string;
 }
 
-interface Package {
-  id: number;
-  name: string;
-  destination: string;
-  duration: string;
-  category: string;
-  type: string;
-  originalPrice: string;
-  discountedPrice: string;
-  discountPercent: number;
-  images: string[]; // URLs or empty
-  badges: Badge[];
-  trending: boolean;
-  hasOffer: boolean;
-  inclusions: string[];
-  exclusions: string[];
-  status: 'Active' | 'Inactive';
-}
+const mapBadges = (badgesRaw: string[]): Badge[] => {
+  const mapping: any = {
+    bestseller: { label: 'Bestseller', textColor: '#ffffff', bgColor: '#f59e0b' },
+    hot: { label: 'Hot Deal', textColor: '#ffffff', bgColor: '#ef4444' },
+    new: { label: 'New', textColor: '#ffffff', bgColor: '#10b981' },
+    premium: { label: 'Premium', textColor: '#ffffff', bgColor: '#1f2937' },
+    limited: { label: 'Limited Time', textColor: '#ffffff', bgColor: '#8b5cf6' },
+    familyFriendly: { label: 'Family Friendly', textColor: '#ffffff', bgColor: '#ec4899' },
+  };
+  return badgesRaw.map((b) => mapping[b] || { label: b, textColor: '#ffffff', bgColor: '#6b7280' });
+};
 
-const mockPackages: Package[] = [
-  {
-    id: 1,
-    name: 'Bali Paradise – 7D/6N',
-    destination: 'Bali, Indonesia',
-    duration: '7 Days / 6 Nights',
-    category: 'International',
-    type: 'Beach',
-    originalPrice: '₹50,000',
-    discountedPrice: '₹45,000',
-    discountPercent: 10,
-    images: [],
-    badges: [
-      { label: 'Bestseller', textColor: '#ffffff', bgColor: '#f59e0b' },
-      { label: 'Hot Deal',   textColor: '#ffffff', bgColor: '#ef4444' },
-    ],
-    trending: true,
-    hasOffer: true,
-    inclusions: ['Accommodation', 'Breakfast & Dinner', 'Sightseeing', 'Airport Transfers'],
-    exclusions: ['Airfare', 'Personal Expenses', 'Visa Fees'],
-    status: 'Active',
-  },
-  {
-    id: 2,
-    name: 'Dubai Delight – 5D/4N',
-    destination: 'Dubai, UAE',
-    duration: '5 Days / 4 Nights',
-    category: 'International',
-    type: 'City Tour',
-    originalPrice: '₹42,000',
-    discountedPrice: '₹38,000',
-    discountPercent: 10,
-    images: [],
-    badges: [
-      { label: 'Premium', textColor: '#ffffff', bgColor: '#1f2937' },
-    ],
-    trending: false,
-    hasOffer: false,
-    inclusions: ['5-Star Hotel', 'Desert Safari', 'Burj Khalifa Entry', 'Dhow Cruise'],
-    exclusions: ['Flights', 'Visa'],
-    status: 'Active',
-  },
-  {
-    id: 3,
-    name: 'Goa Beach Escape – 4D/3N',
-    destination: 'Goa, India',
-    duration: '4 Days / 3 Nights',
-    category: 'Domestic',
-    type: 'Beach',
-    originalPrice: '₹15,000',
-    discountedPrice: '₹15,000',
-    discountPercent: 0,
-    images: [],
-    badges: [
-      { label: 'Family Friendly', textColor: '#ffffff', bgColor: '#ec4899' },
-      { label: 'New',             textColor: '#ffffff', bgColor: '#10b981' },
-    ],
-    trending: false,
-    hasOffer: false,
-    inclusions: ['Hotel Stay', 'Breakfast', 'Water Sports', 'Sightseeing'],
-    exclusions: ['Travel', 'Lunch & Dinner'],
-    status: 'Active',
-  },
-  {
-    id: 4,
-    name: 'Maldives Luxury – 6D/5N',
-    destination: 'Maldives',
-    duration: '6 Days / 5 Nights',
-    category: 'International',
-    type: 'Honeymoon',
-    originalPrice: '₹1,00,000',
-    discountedPrice: '₹85,000',
-    discountPercent: 15,
-    images: [],
-    badges: [
-      { label: 'Premium',      textColor: '#ffffff', bgColor: '#1f2937' },
-      { label: 'Limited Time', textColor: '#ffffff', bgColor: '#8b5cf6' },
-    ],
-    trending: true,
-    hasOffer: true,
-    inclusions: ['Overwater Villa', 'All Meals', 'Snorkeling', 'Spa Session'],
-    exclusions: ['International Flights', 'Alcohol'],
-    status: 'Inactive',
-  },
-  {
-    id: 5,
-    name: 'Kedarnath Yatra – 5D/4N',
-    destination: 'Kedarnath, India',
-    duration: '5 Days / 4 Nights',
-    category: 'Domestic',
-    type: 'Pilgrimage',
-    originalPrice: '₹18,000',
-    discountedPrice: '₹16,500',
-    discountPercent: 8,
-    images: [],
-    badges: [
-      { label: 'Bestseller', textColor: '#ffffff', bgColor: '#f59e0b' },
-    ],
-    trending: false,
-    hasOffer: true,
-    inclusions: ['Accommodation', 'All Meals', 'Pony / Helicopter Option', 'Guide'],
-    exclusions: ['Personal Expenses', 'Travel Insurance'],
-    status: 'Active',
-  },
-  {
-    id: 6,
-    name: 'Manali Adventure – 6D/5N',
-    destination: 'Manali, India',
-    duration: '6 Days / 5 Nights',
-    category: 'Domestic',
-    type: 'Adventure',
-    originalPrice: '₹22,000',
-    discountedPrice: '₹19,999',
-    discountPercent: 9,
-    images: [],
-    badges: [
-      { label: 'New', textColor: '#ffffff', bgColor: '#10b981' },
-    ],
-    trending: true,
-    hasOffer: false,
-    inclusions: ['Camp Stay', 'Trekking', 'River Rafting', 'Meals'],
-    exclusions: ['Travel to Manali', 'Personal Gear'],
-    status: 'Active',
-  },
-];
+
 
 /* ─── Gradient palettes for image placeholders ───────────────── */
 const gradients = [
@@ -168,19 +39,41 @@ const gradients = [
 /* ─── Package Card ───────────────────────────────────────────── */
 function PackageCard({
   pkg,
-  onToggleStatus,
+  index
 }: {
-  pkg: Package;
-  onToggleStatus: (id: number) => void;
+  pkg: PackageData;
+  index: number;
 }) {
-  const gradient = gradients[(pkg.id - 1) % gradients.length];
-  const isActive = pkg.status === 'Active';
-  const hasDiscount = pkg.discountPercent > 0;
-  const savings = (() => {
-    const orig = parseFloat(pkg.originalPrice.replace(/[^0-9.]/g, ''));
-    const disc = parseFloat(pkg.discountedPrice.replace(/[^0-9.]/g, ''));
-    return orig - disc;
-  })();
+  const gradient = gradients[index % gradients.length];
+  const isActive = pkg.isActive;
+  const hasDiscount = !!pkg.discountedPrice && pkg.discountedPrice < pkg.originalPrice;
+  const savings = hasDiscount ? pkg.originalPrice - (pkg.discountedPrice || 0) : 0;
+  const discountPercent = hasDiscount ? Math.round((savings / pkg.originalPrice) * 100) : 0;
+  const images = [pkg.imageUrl1, pkg.imageUrl2].filter(Boolean) as string[];
+  const badgesObj = mapBadges(pkg.badges);
+
+  const [updatePackage, { isLoading: isUpdating }] = useUpdatePackageMutation();
+  const [deletePackage] = useDeletePackageMutation();
+
+  const handleToggleStatus = async () => {
+    try {
+      await updatePackage({ id: pkg._id, data: { isActive: !pkg.isActive } }).unwrap();
+      toast.success(`Package marked as ${!pkg.isActive ? 'Active' : 'Inactive'}`);
+    } catch (e) {
+      toast.error('Failed to change status');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (confirm('Are you sure you want to delete this package?')) {
+      try {
+        await deletePackage(pkg._id).unwrap();
+        toast.success("Package deleted successfully");
+      } catch (e) {
+        toast.error("Failed to delete package");
+      }
+    }
+  };
 
   return (
     <div className={`group bg-white rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-xl flex flex-col ${
@@ -193,21 +86,21 @@ function PackageCard({
         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/15 transition-colors" />
 
         {/* Placeholder icon */}
-        {pkg.images.length === 0 && (
+        {images.length === 0 && (
           <ImageOff className="w-10 h-10 text-white/40" />
         )}
 
         {/* Dual image preview */}
-        {pkg.images.length > 0 && (
+        {images.length > 0 && (
           <div className="absolute inset-0 flex">
-            {pkg.images.slice(0, 2).map((src, i) => (
-              <img key={i} src={src} alt="" className={`h-full object-cover ${pkg.images.length === 2 ? 'w-1/2' : 'w-full'}`} />
+            {images.slice(0, 2).map((src, i) => (
+              <img key={i} src={src} alt="" className={`h-full object-cover ${images.length === 2 ? 'w-1/2' : 'w-full'}`} />
             ))}
           </div>
         )}
 
         {/* Top-left: Trending */}
-        {pkg.trending && (
+        {pkg.isTrending && (
           <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-orange-500 text-white rounded-lg text-[10px] font-semibold shadow-md">
             <TrendingUp className="w-3 h-3" />
             Trending
@@ -237,9 +130,9 @@ function PackageCard({
       <div className="p-4 flex flex-col flex-1">
 
         {/* Badges — just above heading */}
-        {pkg.badges.length > 0 && (
+        {badgesObj.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-2">
-            {pkg.badges.map((b, i) => (
+            {badgesObj.map((b, i) => (
               <span
                 key={i}
                 style={{ backgroundColor: b.bgColor, color: b.textColor }}
@@ -252,15 +145,15 @@ function PackageCard({
         )}
 
         {/* Name */}
-        <h3 className="font-semibold text-gray-900 text-[15px] leading-snug mb-2 line-clamp-2">
-          {pkg.name}
+        <h3 className="font-semibold text-gray-900 text-[15px] leading-snug mb-2 line-clamp-2 title-capitalize">
+          {pkg.title}
         </h3>
 
         {/* Meta row */}
         <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
             <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-            {pkg.destination}
+            <span className="capitalize">{pkg.location}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
             <Clock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -323,9 +216,9 @@ function PackageCard({
 
         {/* Price — at the bottom */}
         <div className="flex items-baseline gap-2 mb-3">
-          <span className="text-xl font-bold text-gray-900">{pkg.discountedPrice}</span>
+          <span className="text-xl font-bold text-gray-900">₹{pkg.discountedPrice?.toLocaleString('en-IN') || pkg.originalPrice.toLocaleString('en-IN')}</span>
           {hasDiscount && (
-            <span className="text-sm text-gray-400 line-through">{pkg.originalPrice}</span>
+            <span className="text-sm text-gray-400 line-through">₹{pkg.originalPrice.toLocaleString('en-IN')}</span>
           )}
           <span className="text-xs text-gray-400 ml-auto">per person</span>
         </div>
@@ -336,8 +229,9 @@ function PackageCard({
           {/* Active / Inactive toggle */}
           <div className="flex items-center gap-2 mr-auto">
             <button
-              onClick={() => onToggleStatus(pkg.id)}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
+              onClick={handleToggleStatus}
+              disabled={isUpdating}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
                 isActive ? 'bg-green-500' : 'bg-gray-300'
               }`}
             >
@@ -352,13 +246,10 @@ function PackageCard({
             </span>
           </div>
 
-          <button className="p-2 border border-gray-200 text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-all" title="View">
-            <Eye className="w-3.5 h-3.5" />
-          </button>
           <button className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-md hover:shadow-blue-500/30 transition-all" title="Edit">
             <Edit className="w-3.5 h-3.5" />
           </button>
-          <button className="p-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition-all" title="Delete">
+          <button onClick={handleDelete} className="p-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition-all" title="Delete">
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -369,32 +260,33 @@ function PackageCard({
 
 /* ─── Main Packages page ────────────────────────────────────────── */
 export function Packages() {
-  const [packages, setPackages] = useState<Package[]>(mockPackages);
+  const { data: packageRes, isLoading } = useGetPackagesQuery();
+  const packages = packageRes?.data || [];
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const toggleStatus = (id: number) => {
-    setPackages(prev =>
-      prev.map(p =>
-        p.id === id ? { ...p, status: p.status === 'Active' ? 'Inactive' : 'Active' } : p
-      )
-    );
-  };
-
   const filtered = packages.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.destination.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCat = !filterCategory ||
-      (filterCategory === 'trending' ? p.trending : p.category.toLowerCase() === filterCategory);
-    const matchStatus = !filterStatus || p.status.toLowerCase() === filterStatus;
+    const matchSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.location.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Category mapping: 'all_categories' shouldn't filter. Real values: 'domestic' | 'international'
+    const catSearchMatch = filterCategory === 'all_categories' ? '' : filterCategory;
+    const matchCat = !catSearchMatch ||
+      (catSearchMatch === 'trending' ? p.isTrending : p.category.toLowerCase() === catSearchMatch);
+      
+    // Status mapping: 'all_status' -> '', 'active' -> true, 'inactive' -> false
+    const matchStatus = filterStatus === 'all_status' || !filterStatus ? true : 
+      (filterStatus === 'active' ? p.isActive === true : p.isActive === false);
+      
     return matchSearch && matchCat && matchStatus;
   });
 
-  const activeCount   = packages.filter(p => p.status === 'Active').length;
-  const inactiveCount = packages.filter(p => p.status === 'Inactive').length;
-  const trendingCount = packages.filter(p => p.trending).length;
+  const activeCount   = packages.filter(p => p.isActive).length;
+  const inactiveCount = packages.filter(p => !p.isActive).length;
+  const trendingCount = packages.filter(p => p.isTrending).length;
 
   return (
     <div className="space-y-6">
@@ -468,15 +360,20 @@ export function Packages() {
       </div>
 
       {/* ── Grid ────────────────────────────────────────────────── */}
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-2" />
+          <p className="text-gray-500 font-medium">Loading Packages...</p>
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="text-lg font-medium">No packages found</p>
-          <p className="text-sm mt-1">Try adjusting your search or filters</p>
+          <p className="text-sm mt-1">Try adjusting your search or filters, or add a new package.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map(pkg => (
-            <PackageCard key={pkg.id} pkg={pkg} onToggleStatus={toggleStatus} />
+          {filtered.map((pkg, idx) => (
+            <PackageCard key={pkg._id} pkg={pkg} index={idx} />
           ))}
         </div>
       )}

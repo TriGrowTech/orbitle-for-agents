@@ -6,6 +6,7 @@ import { Footer } from '../components/Footer';
 import { Sidebar } from './admin/components/Sidebar';
 import { Topbar } from './admin/components/Topbar';
 import { TrialBanner } from './admin/components/TrialBanner';
+import { useGetMeQuery } from '../api/authApi';
 
 const websiteItems = ['/branding', '/banners', '/content', '/testimonials'];
 const adminItems = ['/seo', '/pricing', '/legal'];
@@ -34,17 +35,28 @@ export function AdminLayout() {
     }
   }, [location.pathname]);
 
-  const [timeLeft, setTimeLeft] = useState(() => {
-    // Initial: 6 days, 14 hours, 32 mins
-    return (6 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) + (32 * 60 * 1000);
-  });
+  const { data } = useGetMeQuery();
+  const agent = data?.agent;
+  
+  const isTrial = agent?.planType === 'trial' || !agent?.planType;
+
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev - 1000));
-    }, 1000);
+    if (!agent || !isTrial) return;
+    
+    const trialEndsAt = new Date(agent.trialEndsAt || Date.now() + 7 * 24 * 60 * 60 * 1000).getTime();
+
+    const updateTimer = () => {
+      const now = Date.now();
+      const difference = trialEndsAt - now;
+      setTimeLeft(Math.max(0, difference));
+    };
+
+    updateTimer(); // Initial call
+    const timer = setInterval(updateTimer, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [agent, isTrial]);
 
   const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
   const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -77,7 +89,7 @@ export function AdminLayout() {
             <Topbar onOpenSidebar={() => setSidebarOpen(true)} />
 
             <main className="p-3 sm:p-4 lg:p-5 flex-1">
-              <TrialBanner days={days} hours={hours} minutes={minutes} seconds={seconds} />
+              {isTrial && <TrialBanner days={days} hours={hours} minutes={minutes} seconds={seconds} />}
               <Outlet />
             </main>
           </div>

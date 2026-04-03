@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 import { BrandSetup } from './onboarding/BrandSetup';
 import { DomainSetup } from './onboarding/DomainSetup';
 import { FirstPackage } from './onboarding/FirstPackage';
@@ -10,10 +11,11 @@ import orbitleLogo from "../../assets/orbitle-logo.png";
 
 interface OnboardingWizardProps {
   isOpen: boolean;
-  onComplete: () => void;
+  onComplete: (data: any) => void;
+  isSubmitting?: boolean;
 }
 
-export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) {
+export function OnboardingWizard({ isOpen, onComplete, isSubmitting = false }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const navigate = useNavigate();
@@ -21,25 +23,68 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
   const [brandData, setBrandData] = useState({
     theme: 'navy',
     name: 'Your Business Name',
-    tagline: 'Creating Memories, One Journey at a Time'
+    tagline: 'Creating Memories, One Journey at a Time',
+    whatsapp: '',
+    subdomain: '',
+    logoFile: null as File | null,
+    logoError: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const steps = [
-    { id: 1, title: 'Your Brand', subtitle: 'Logo & Colors', icon: '🎨', component: BrandSetup },
-    { id: 2, title: 'Domain', subtitle: 'Website URL', icon: '🌐', component: DomainSetup },
-    { id: 3, title: 'First Package', subtitle: 'Core Activation', icon: '📦', component: FirstPackage },
-    { id: 4, title: 'Test Enquiry', subtitle: 'Try It Out', icon: '🧪', component: TestEnquiry },
-    { id: 5, title: 'Dashboard Tour', subtitle: 'Final Steps', icon: '📊', component: DashboardTour },
+    { 
+      id: 1, title: 'Your Brand', subtitle: 'Logo & Colors', icon: '🎨', component: BrandSetup, isSkippable: false, 
+      validate: () => {
+        if (brandData.logoError) {
+           toast.error(brandData.logoError);
+           return false;
+        }
+        if (!brandData.name.trim()) {
+          setErrors({ name: 'Business name is required' });
+          return false;
+        }
+        setErrors({});
+        return true;
+      }
+    },
+    { 
+      id: 2, title: 'Domain', subtitle: 'Website URL', icon: '🌐', component: DomainSetup, isSkippable: false,
+      validate: () => {
+        if (!brandData.subdomain.trim()) {
+           setErrors({ subdomain: 'Subdomain is required to create your site' });
+           return false;
+        }
+        // Basic subdomain validation: alphanumeric and hyphens only, no start/end hyphens
+        const isValid = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(brandData.subdomain.trim());
+        if(!isValid){
+           setErrors({ subdomain: 'Only lowercase letters, numbers, and hyphens allowed. Cannot start or end with a hyphen.' });
+           return false;
+        }
+        setErrors({});
+        return true;
+      }
+    },
+    { id: 3, title: 'First Package', subtitle: 'Core Activation', icon: '📦', component: FirstPackage, isSkippable: true },
+    { id: 4, title: 'Test Enquiry', subtitle: 'Try It Out', icon: '🧪', component: TestEnquiry, isSkippable: true },
+    { id: 5, title: 'Dashboard Tour', subtitle: 'Final Steps', icon: '📊', component: DashboardTour, isSkippable: false },
   ];
 
+  const currentStepData = steps[currentStep - 1];
+
   const handleNext = () => {
+    // Check validation if the step has it
+    if (currentStepData.validate && !currentStepData.validate()) {
+      toast.error("Please fill in the required fields before continuing.");
+      return;
+    }
+
     if (!completedSteps.includes(currentStep)) {
       setCompletedSteps([...completedSteps, currentStep]);
     }
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     } else {
-      onComplete();
+      onComplete(brandData);
     }
   };
 
@@ -145,7 +190,7 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
 
         {/* Step content — scrollable only if needed */}
         <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(14px, 2.5vh, 24px) clamp(16px, 3vw, 28px)' }}>
-          <CurrentStepComponent onNext={handleNext} onSkip={handleSkip} brandData={brandData} setBrandData={setBrandData} />
+          <CurrentStepComponent onNext={handleNext} onSkip={handleSkip} brandData={brandData} setBrandData={setBrandData} errors={errors} />
         </div>
 
         {/* Footer */}
@@ -154,14 +199,18 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
           padding: 'clamp(10px, 1.8vh, 16px) clamp(16px, 3vw, 28px)',
           borderTop: '1px solid #e2e8f0', background: '#f8fafc',
         }}>
-          <button
-            onClick={handleSkip}
-            style={{ fontSize: 13, color: '#64748b', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 4px' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#1a2f4e')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
-          >
-            Skip for now
-          </button>
+          {currentStepData.isSkippable ? (
+            <button
+              onClick={handleSkip}
+              style={{ fontSize: 13, color: '#64748b', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer', padding: '8px 4px' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#1a2f4e')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
+            >
+              Skip for now
+            </button>
+          ) : (
+            <div /> // Placeholder to maintain space-between flex layout
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {currentStep > 1 && (
@@ -180,17 +229,19 @@ export function OnboardingWizard({ isOpen, onComplete }: OnboardingWizardProps) 
             )}
             <button
               onClick={handleNext}
+              disabled={isSubmitting}
               style={{
                 padding: '8px 20px', fontSize: 13, fontWeight: 600,
-                color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer',
+                color: '#fff', border: 'none', borderRadius: 10, cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 background: 'linear-gradient(135deg, #1a2f4e 0%, #2563a8 100%)',
-                boxShadow: '0 4px 12px rgba(37,99,168,0.35)',
+                boxShadow: isSubmitting ? 'none' : '0 4px 12px rgba(37,99,168,0.35)',
                 transition: 'opacity 0.15s',
+                opacity: isSubmitting ? 0.7 : 1,
               }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={e => !isSubmitting && (e.currentTarget.style.opacity = '0.9')}
+              onMouseLeave={e => !isSubmitting && (e.currentTarget.style.opacity = '1')}
             >
-              {currentStep === steps.length ? 'Complete Setup 🎉' : 'Continue →'}
+              {isSubmitting ? 'Finalizing...' : currentStep === steps.length ? 'Complete Setup 🎉' : 'Continue →'}
             </button>
           </div>
         </div>

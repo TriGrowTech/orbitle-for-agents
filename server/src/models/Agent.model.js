@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const agentSchema = new mongoose.Schema({
     // Auth & Basic Info
@@ -15,6 +17,7 @@ const agentSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Please add a password'],
+        minlength: 6,
         select: false
     },
 
@@ -47,7 +50,7 @@ const agentSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
         trim: true,
-        sparse: true // Allows nulls to be unique if they haven't set it yet
+        sparse: true 
     },
     customDomain: {
         type: String,
@@ -66,5 +69,27 @@ const agentSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+// Encrypt password using bcrypt
+agentSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        next();
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Sign JWT and return
+agentSchema.methods.getSignedJwtToken = function () {
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE
+    });
+};
+
+// Match user entered password to hashed password in database
+agentSchema.methods.matchPassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
 
 export default mongoose.model('Agent', agentSchema);

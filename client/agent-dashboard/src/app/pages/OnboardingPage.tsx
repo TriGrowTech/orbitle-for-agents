@@ -9,7 +9,7 @@ export function OnboardingPage() {
   const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
-    // If already complete, go to dashboard
+    // If onboarding is already marked as complete in localStorage
     if (localStorage.getItem('orbitle_onboarding_complete') === 'true') {
       navigate('/dashboard', { replace: true });
     }

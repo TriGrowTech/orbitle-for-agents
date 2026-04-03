@@ -14,8 +14,15 @@ import { LegalPages } from "./pages/LegalPages";
 import { Profile } from "./pages/Profile";
 import { RevenueAnalytics } from "./pages/RevenueAnalytics";
 import { OnboardingPage } from "./pages/OnboardingPage";
-
 export const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <Navigate to="/dashboard" replace />,
+  },
+  {
+    path: "/signup",
+    element: <Navigate to="/dashboard" replace />,
+  },
   {
     path: "/onboarding",
     Component: OnboardingPage,
@@ -39,4 +46,7 @@ export const router = createBrowserRouter([
       { path: "profile", Component: Profile },
     ],
   },
-]);
+]);
+
+// Note: In main.tsx or indexed.tsx, wrap the RouterProvider with AuthProvider
+// For now, I'm just exporting the router.

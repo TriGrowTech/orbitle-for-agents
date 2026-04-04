@@ -1,20 +1,27 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getThemeConfig, getAllThemes, type ThemeConfig, type LayoutVariant } from '../config/themeConfig';
 
 type ThemeMode = 'light' | 'dark';
-type ThemeColor = 'navy' | 'red' | 'cyan';
 
 interface ThemeContextType {
   mode: ThemeMode;
-  color: ThemeColor;
+  color: string;
+  themeConfig: ThemeConfig;
+  layoutVariant: LayoutVariant;
   toggleMode: () => void;
-  setThemeColor: (color: ThemeColor) => void;
+  setThemeColor: (color: string) => void;
+  allThemes: ThemeConfig[];
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>('light');
-  const [color, setColor] = useState<ThemeColor>('navy');
+  const [color, setColor] = useState<string>('navy');
+
+  const themeConfig = getThemeConfig(color);
+  const layoutVariant = themeConfig.layoutVariant;
+  const allThemes = getAllThemes();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -23,18 +30,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.setAttribute('data-theme-color', color);
     root.setAttribute('data-heading-font', 'poppins');
     root.setAttribute('data-body-font', 'montserrat');
-  }, [mode, color]);
+
+    // Apply CSS vars from themeConfig — this makes themes fully dynamic
+    const { colors } = themeConfig;
+    root.style.setProperty('--theme-primary', colors.primary);
+    root.style.setProperty('--theme-primary-dark', colors.primaryDark);
+    root.style.setProperty('--theme-secondary', colors.secondary);
+    root.style.setProperty('--theme-accent', colors.accent);
+    root.style.setProperty('--theme-gradient', colors.gradient);
+  }, [mode, color, themeConfig]);
 
   const toggleMode = () => {
     setMode(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  const setThemeColor = (newColor: ThemeColor) => {
+  const setThemeColor = (newColor: string) => {
     setColor(newColor);
   };
 
   return (
-    <ThemeContext.Provider value={{ mode, color, toggleMode, setThemeColor }}>
+    <ThemeContext.Provider value={{ mode, color, themeConfig, layoutVariant, toggleMode, setThemeColor, allThemes }}>
       {children}
     </ThemeContext.Provider>
   );

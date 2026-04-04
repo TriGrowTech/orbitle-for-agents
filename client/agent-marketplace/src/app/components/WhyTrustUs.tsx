@@ -45,16 +45,16 @@ const trustReasons = [
 ];
 
 export function WhyTrustUs() {
-  const { color } = useTheme();
+  const { layoutVariant, themeConfig } = useTheme();
 
-  // Navy: Classic 4-column grid with centered icons
-  if (color === 'navy') {
+  // Centered layout
+  if (layoutVariant === 'centered') {
     return (
-      <section id="about" className="py-20 bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
+      <section id="about" className={`py-20 ${themeConfig.trustBgClass}`}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Why <span className="text-transparent bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text">Trust Us</span>
+              Why <span className="text-transparent bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-secondary)] bg-clip-text">Trust Us</span>
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Your trusted partner for unforgettable travel experiences backed by excellence
@@ -67,9 +67,9 @@ export function WhyTrustUs() {
               return (
                 <div
                   key={index}
-                  className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:-translate-y-1"
+                  className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[var(--theme-primary)] hover:-translate-y-1"
                 >
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full mb-4 shadow-lg">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] rounded-full mb-4 shadow-lg">
                     <Icon className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{reason.title}</h3>
@@ -83,14 +83,14 @@ export function WhyTrustUs() {
     );
   }
 
-  // Red: Bold staggered layout with dynamic spacing
-  if (color === 'red') {
+  // Left-aligned layout
+  if (layoutVariant === 'left-aligned') {
     return (
-      <section id="about" className="py-20 bg-gradient-to-br from-red-50 via-orange-50 to-white dark:from-gray-900 dark:via-red-900/10 dark:to-gray-900">
+      <section id="about" className={`py-20 ${themeConfig.trustBgClass}`}>
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-16">
             <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-4">
-              Why Choose <span className="text-transparent bg-gradient-to-r from-red-600 to-orange-500 bg-clip-text">Us</span>
+              Why Choose <span className="text-transparent bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-secondary)] bg-clip-text">Us</span>
             </h2>
             <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl">
               We don't just plan trips. We create memories that last a lifetime.
@@ -106,16 +106,16 @@ export function WhyTrustUs() {
                   key={index}
                   className={`group bg-gradient-to-br ${
                     isHighlighted 
-                      ? 'from-red-500 to-orange-500 text-white' 
+                      ? 'from-[var(--theme-primary)] to-[var(--theme-secondary)] text-white' 
                       : 'from-white to-gray-50 dark:from-gray-800 dark:to-gray-700'
                   } rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 transform hover:scale-105`}
                 >
                   <div className={`inline-flex items-center justify-center w-14 h-14 ${
                     isHighlighted 
                       ? 'bg-white/20 backdrop-blur-sm' 
-                      : 'bg-gradient-to-br from-red-500 to-orange-500'
+                      : 'bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)]'
                   } rounded-xl mb-4`}>
-                    <Icon className={`w-7 h-7 ${isHighlighted ? 'text-white' : 'text-white'}`} />
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className={`text-lg font-bold mb-2 ${
                     isHighlighted ? 'text-white' : 'text-gray-900 dark:text-white'
@@ -136,13 +136,13 @@ export function WhyTrustUs() {
     );
   }
 
-  // Cyan: Modern horizontal card layout with subtle animations
+  // Split layout
   return (
-    <section id="about" className="py-20 bg-gradient-to-b from-white to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+    <section id="about" className={`py-20 ${themeConfig.trustBgClass}`}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white mb-4">
-            Why <span className="text-transparent bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text">Trust Us</span>
+            Why <span className="text-transparent bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-secondary)] bg-clip-text">Trust Us</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Excellence in every journey, commitment in every experience
@@ -155,10 +155,10 @@ export function WhyTrustUs() {
             return (
               <div
                 key={index}
-                className="group bg-white dark:bg-gray-800 rounded-3xl p-6 hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-cyan-500"
+                className="group bg-white dark:bg-gray-800 rounded-3xl p-6 hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[var(--theme-primary)]"
               >
                 <div className="flex items-start gap-4 mb-3">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <div>

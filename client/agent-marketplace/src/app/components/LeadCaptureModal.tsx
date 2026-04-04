@@ -14,10 +14,10 @@ export function LeadCaptureModal() {
     const hasSeenModal = sessionStorage.getItem('leadCaptureShown');
     
     if (!hasSeenModal) {
-      // Show modal after 2 seconds
+      // Show modal after 7 seconds
       const timer = setTimeout(() => {
         setIsOpen(true);
-      }, 2000);
+      }, 7000);
       
       return () => clearTimeout(timer);
     }

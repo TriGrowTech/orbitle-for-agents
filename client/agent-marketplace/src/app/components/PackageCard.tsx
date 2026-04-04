@@ -160,7 +160,7 @@ export function PackageCard({
   }
 
   return (
-    <div className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+    <div className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
       <Link to={`/package/${id}`} className="block relative overflow-hidden">
         <img
           src={imageUrl}
@@ -193,7 +193,7 @@ export function PackageCard({
         </div>
       </Link>
       
-      <div className="p-5">
+      <div className="p-5 flex-1 flex flex-col">
         {/* Badge above title */}
         {badges && (
           <div className="flex gap-2 mb-2 flex-wrap">
@@ -284,7 +284,7 @@ export function PackageCard({
         )}
         
         {/* Price Section */}
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mb-4">
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mb-4 mt-auto">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">Starting from</p>

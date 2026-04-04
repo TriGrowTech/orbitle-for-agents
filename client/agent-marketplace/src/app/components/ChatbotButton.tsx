@@ -2,8 +2,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { useState } from 'react';
 
-export function ChatbotButton() {
+interface ChatbotButtonProps {
+  hidden?: boolean;
+}
+
+export function ChatbotButton({ hidden = false }: ChatbotButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  if (hidden) return null;
 
   const handleClick = () => {
     const whatsappNumber = '+911234567890';

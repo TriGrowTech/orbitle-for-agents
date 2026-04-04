@@ -136,12 +136,12 @@ export default function PackageDetail() {
                 alt={packageData.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 right-4 ">
                 <button
-                  onClick={handleWhatsAppShare}
-                  className="p-3 bg-green-500 rounded-full shadow-lg hover:scale-130 transition-transform"
+                  onClick={handleWhatsAppShare} 
+                  className="px-2.5 py-3 bg-green-500 rounded-full shadow-lg hover:scale-110 transition-transform"
                 >
-                  <FontAwesomeIcon icon={faWhatsapp} className="w-8 h-8 text-white" />
+                  <FontAwesomeIcon icon={faWhatsapp} size="2x" className=" text-white" />
                 </button>
               </div>
             </div>

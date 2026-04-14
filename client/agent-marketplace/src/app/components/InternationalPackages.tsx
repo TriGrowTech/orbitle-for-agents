@@ -69,6 +69,74 @@ const internationalPackages = [
     inclusions: ['Flights', '5-Star Hotel', 'All Meals', 'Mountain Tours', 'Guide'],
     exclusions: ['Visa', 'Equipment', 'Tips'],
   },
+  {
+    id: '14',
+    title: 'Japan Discovery',
+    location: 'Tokyo & Kyoto',
+    price: 89999,
+    originalPrice: 110999,
+    discount: 18,
+    duration: '6D/5N',
+    imageUrl: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxreW90byUyMGphcGFufGVufDF8fHx8MTc3NDQyMDA3OHww&ixlib=rb-4.1.0&q=80&w=1080',
+    rating: 4.8,
+    reviews: 154,
+    badge: 'trending' as const,
+    category: 'Cultural',
+    offer: 'Limited',
+    inclusions: ['Flights', 'Hotel', 'Bullet Train', 'Tours'],
+    exclusions: ['Visa', 'Lunch', 'Dinner'],
+  },
+  {
+    id: '15',
+    title: 'Maldives Retreat',
+    location: 'Maldives',
+    price: 99999,
+    originalPrice: 139999,
+    discount: 28,
+    duration: '5D/4N',
+    imageUrl: 'https://images.unsplash.com/photo-1698726654908-834d3a5330d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    rating: 4.9,
+    reviews: 322,
+    badge: 'bestseller' as const,
+    category: 'Beach',
+    offer: 'Save Flat 40K',
+    inclusions: ['Flights', 'Water Villa', 'Meals', 'Transfers'],
+    exclusions: ['Spa', 'Travel Insurance'],
+  },
+  {
+    id: '16',
+    title: 'Vietnam Wonders',
+    location: 'Hanoi & Halong Bay',
+    price: 45999,
+    originalPrice: 59999,
+    discount: 23,
+    duration: '6D/5N',
+    imageUrl: 'https://images.unsplash.com/photo-1528127269322-539801943592?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    rating: 4.7,
+    reviews: 211,
+    badge: 'budget' as const,
+    category: 'Adventure',
+    offer: 'Great Deal',
+    inclusions: ['Flights', 'Cruise', 'Hotels', 'Meals'],
+    exclusions: ['Visa on arrival', 'Shopping'],
+  },
+  {
+    id: '17',
+    title: 'Egypt Escapade',
+    location: 'Cairo & Luxor',
+    price: 75999,
+    originalPrice: 95999,
+    discount: 20,
+    duration: '7D/6N',
+    imageUrl: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2750?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+    rating: 4.8,
+    reviews: 198,
+    badge: 'premium' as const,
+    category: 'Heritage',
+    offer: 'Exotic',
+    inclusions: ['Flights', 'Nile Cruise', 'Pyramid Tour'],
+    exclusions: ['Tipping', 'Visa'],
+  },
 ];
 
 export function InternationalPackages() {
@@ -84,10 +152,17 @@ export function InternationalPackages() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {internationalPackages.map((pkg) => (
             <PackageCard key={pkg.id} {...pkg} />
           ))}
+        </div>
+
+        <div className="flex justify-center mt-10">
+          <button className="flex items-center gap-2 text-sm font-semibold text-[var(--theme-primary)] hover:text-white hover:bg-[var(--theme-primary)] px-5 py-2.5 rounded-lg border border-[var(--theme-primary)] transition-all shadow-sm">
+            View More
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+          </button>
         </div>
       </div>
     </section>

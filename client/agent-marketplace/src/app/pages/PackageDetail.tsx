@@ -1,11 +1,13 @@
 import { useParams, Link } from 'react-router';
-import { ArrowLeft, MapPin, Calendar, Users, Star, Heart, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Users, Star, Check } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { Topbar } from '../components/Topbar';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { ChatbotButton } from '../components/ChatbotButton';
+import { PlanTourModal } from '../components/PlanTourModal';
+import { useState, useEffect } from 'react';
 
 // Mock data - in real app, this would come from API/database
 const packageDetails: Record<string, any> = {
@@ -50,12 +52,32 @@ const packageDetails: Record<string, any> = {
       'Any meals not mentioned',
     ],
   },
-  // Add more package details as needed with similar structure
 };
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
   const packageData = packageDetails[id || '1'] || packageDetails['1'];
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+
+  // Simple scroll-based sticky bar for mobile
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const footer = document.querySelector('footer');
+      const footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
+
+      if (scrollY > 300 && footerTop > window.innerHeight) {
+        setShowStickyBar(true);
+      } else {
+        setShowStickyBar(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleWhatsAppShare = () => {
     const message = `Check out this amazing travel package: ${packageData.title} - ${packageData.location}. Price: ₹${packageData.price.toLocaleString()}. ${window.location.href}`;
@@ -63,9 +85,8 @@ export default function PackageDetail() {
     window.open(whatsappUrl, '_blank');
   };
 
-  const handleBooking = () => {
-    // Scroll to plan tour form or open booking modal
-    window.location.href = '/#plan-tour';
+  const handleGetQuote = () => {
+    setShowQuoteModal(true);
   };
 
   return (
@@ -86,20 +107,15 @@ export default function PackageDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Package Info Header - Above Image */}
+            {/* Package Info Header */}
             <div className="mb-6">
-              {/* Location at top left */}
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-3">
                 <MapPin className="w-5 h-5" />
                 <span className="font-medium">{packageData.location}</span>
               </div>
-
-              {/* Title */}
               <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
                 {packageData.title}
               </h1>
-
-              {/* Badges and Meta Info */}
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-secondary)] text-white px-4 py-2 rounded-full shadow-md">
                   <Star className="w-4 h-4 fill-white" />
@@ -113,22 +129,19 @@ export default function PackageDetail() {
               </div>
             </div>
 
-            {/* Hero Image */}
+            {/* Hero Image — NO favourite icon, only WhatsApp share */}
             <div className="relative h-96 rounded-2xl overflow-hidden mb-6">
               <img
                 src={packageData.images[0]}
                 alt={packageData.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:scale-110 transition-transform">
-                  <Heart className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                </button>
+              <div className="absolute top-4 right-4 ">
                 <button
-                  onClick={handleWhatsAppShare}
-                  className="p-3 bg-green-500 rounded-full shadow-lg hover:scale-110 transition-transform"
+                  onClick={handleWhatsAppShare} 
+                  className="px-2.5 py-3 bg-green-500 rounded-full shadow-lg hover:scale-110 transition-transform"
                 >
-                  <FontAwesomeIcon icon={faWhatsapp} className="w-5 h-5 text-white" />
+                  <FontAwesomeIcon icon={faWhatsapp} size="2x" className=" text-white" />
                 </button>
               </div>
             </div>
@@ -138,19 +151,6 @@ export default function PackageDetail() {
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                 {packageData.description}
               </p>
-
-              {/* Highlights */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Package Highlights</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {packageData.highlights.map((highlight: string, index: number) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700 dark:text-gray-300">{highlight}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* Itinerary */}
@@ -174,7 +174,7 @@ export default function PackageDetail() {
             </div>
 
             {/* Inclusions & Exclusions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 lg:mb-0">
               <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Inclusions</h3>
                 <ul className="space-y-2">
@@ -200,8 +200,8 @@ export default function PackageDetail() {
             </div>
           </div>
 
-          {/* Sidebar - Booking Card */}
-          <div className="lg:col-span-1">
+          {/* Sidebar - Booking Card (Desktop) */}
+          <div className="lg:col-span-1 hidden lg:block">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sticky top-24">
               <div className="mb-6">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Starting from</p>
@@ -213,30 +213,13 @@ export default function PackageDetail() {
                 </div>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3 p-3 border border-gray-300 dark:border-gray-600 rounded-lg">
-                  <Calendar className="w-5 h-5 text-gray-400" />
-                  <input
-                    type="date"
-                    className="bg-transparent border-none outline-none text-gray-900 dark:text-white w-full"
-                  />
-                </div>
-                <div className="flex items-center gap-3 p-3 border border-gray-300 dark:border-gray-600 rounded-lg">
-                  <Users className="w-5 h-5 text-gray-400" />
-                  <select className="bg-transparent border-none outline-none text-gray-900 dark:text-white w-full">
-                    <option>1 Guest</option>
-                    <option>2 Guests</option>
-                    <option>3 Guests</option>
-                    <option>4+ Guests</option>
-                  </select>
-                </div>
-              </div>
+             
 
               <button
-                onClick={handleBooking}
-                className="w-full bg-[var(--theme-primary)] hover:bg-[var(--theme-primary-dark)] text-white font-semibold py-4 rounded-lg transition-colors mb-3"
+                onClick={handleGetQuote}
+                className="w-full bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-secondary)] hover:shadow-lg text-white font-semibold py-4 rounded-lg transition-all mb-3"
               >
-                Book Now
+                Get Quote
               </button>
               
               <button
@@ -264,8 +247,47 @@ export default function PackageDetail() {
         </div>
       </div>
 
+      {/* ━━━ Sticky Get Quote Bar — MOBILE ONLY ━━━ */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-40 lg:hidden transition-transform duration-300 ease-out ${
+          showStickyBar ? 'translate-y-0' : 'translate-y-full'
+        }`}
+        style={{ willChange: 'transform' }}
+      >
+        <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-[0_-4px_24px_rgba(0,0,0,0.12)] px-4 py-3">
+          <div className="flex items-center justify-between gap-4 max-w-lg mx-auto">
+            <div className="min-w-0">
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">Starting from</p>
+              <p className="text-lg font-bold text-[var(--theme-primary)] leading-tight">
+                ₹{packageData.price.toLocaleString()}
+                <span className="text-[10px] font-normal text-gray-500 dark:text-gray-400 ml-1">/ person</span>
+              </p>
+            </div>
+            <button
+              onClick={handleGetQuote}
+              className="bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-secondary)] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all text-sm flex-shrink-0 active:scale-95"
+            >
+              Get Quote
+            </button>
+          </div>
+        </div>
+      </div>
+
       <Footer />
-      <ChatbotButton />
+      {/* Chatbot hidden on package detail pages */}
+      <ChatbotButton hidden />
+
+      {/* Get Quote Modal */}
+      <PlanTourModal
+        isOpen={showQuoteModal}
+        onClose={() => setShowQuoteModal(false)}
+        preselectedPackage={{
+          title: packageData.title,
+          location: packageData.location,
+          price: packageData.price,
+          duration: packageData.duration,
+        }}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { InternationalPackages } from '../components/InternationalPackages';
 import { TravelThemes } from '../components/TravelThemes';
 import { PlanTourForm } from '../components/PlanTourForm';
 import { WhyTrustUs } from '../components/WhyTrustUs';
+import { Testimonials } from '../components/Testimonials';
 import { FAQ } from '../components/FAQ';
 import { Footer } from '../components/Footer';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
@@ -28,6 +29,7 @@ export default function Home() {
       <TravelThemes />
       <PlanTourForm />
       <WhyTrustUs />
+      <Testimonials />
       <FAQ />
       <Footer />
       <LeadCaptureModal />

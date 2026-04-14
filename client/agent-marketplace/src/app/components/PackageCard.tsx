@@ -69,15 +69,15 @@ export function PackageCard({
 
   if (featured) {
     return (
-      <div className="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 h-full">
+      <div className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 h-full">
         <Link to={`/package/${id}`} className="block relative overflow-hidden">
           <img
             src={imageUrl}
             alt={title}
             className="w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-700"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-          
+         
+           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
           {/* Offer Ribbon */}
           {offer && (
             <div className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-orange-600 text-white px-6 py-2 rounded-bl-2xl shadow-xl">
@@ -135,7 +135,7 @@ export function PackageCard({
             <div className="flex gap-3">
               <Link
                 to={`/package/${id}`}
-                className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-2xl transition-all duration-300 font-bold text-base shadow-2xl hover:shadow-3xl hover:-translate-y-1 active:scale-95"
+                className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-900 px-8 py-4 rounded-lg transition-all duration-300 font-bold text-base shadow-2xl hover:shadow-3xl hover:-translate-y-1 active:scale-95"
               >
                 <span>View Details</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,10 +147,10 @@ export function PackageCard({
                   e.preventDefault();
                   handleWhatsAppShare();
                 }}
-                className="flex items-center justify-center bg-[#25D366] hover:bg-[#20BA5A] text-white px-8 py-4 rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-3xl hover:-translate-y-1 active:scale-95 group"
+                className="flex items-center justify-center bg-[#25D366] hover:bg-[#20BA5A] text-white px-3 py-4 rounded-full transition-all duration-300 shadow-2xl hover:shadow-3xl hover:-translate-y-1 active:scale-95 group"
                 title="Share on WhatsApp"
               >
-                <FontAwesomeIcon icon={faWhatsapp} className="w-7 h-7 group-hover:scale-110 transition-transform" />
+                <FontAwesomeIcon icon={faWhatsapp} size="2x" className="group-hover:scale-110 transition-transform" />
               </button>
             </div>
           </div>
@@ -160,7 +160,7 @@ export function PackageCard({
   }
 
   return (
-    <div className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+    <div className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
       <Link to={`/package/${id}`} className="block relative overflow-hidden">
         <img
           src={imageUrl}
@@ -193,7 +193,7 @@ export function PackageCard({
         </div>
       </Link>
       
-      <div className="p-5">
+      <div className="p-5 flex-1 flex flex-col">
         {/* Badge above title */}
         {badges && (
           <div className="flex gap-2 mb-2 flex-wrap">
@@ -210,12 +210,7 @@ export function PackageCard({
             <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-[var(--theme-primary)] transition-colors flex-1">
               {title}
             </h3>
-            <button 
-              className="text-gray-400 hover:text-red-500 transition-colors ml-2"
-              onClick={(e) => e.preventDefault()}
-            >
-              <Heart className="w-5 h-5" />
-            </button>
+           
           </div>
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">{location}</p>
@@ -231,7 +226,7 @@ export function PackageCard({
 
         {/* Inclusions & Exclusions */}
         {(inclusions.length > 0 || exclusions.length > 0) && (
-          <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="mb-3 pb-3">
             {inclusions.length > 0 && (
               <div className="mb-2">
                 <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Included:</p>
@@ -284,7 +279,7 @@ export function PackageCard({
         )}
         
         {/* Price Section */}
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mb-4">
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mb-4 mt-auto">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">Starting from</p>
@@ -316,10 +311,10 @@ export function PackageCard({
           </Link>
           <button
             onClick={handleWhatsAppShare}
-            className="flex items-center justify-center bg-[#25D366] hover:bg-[#20BA5A] text-white px-5 py-3.5 rounded-lg transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-95 group"
+            className="flex items-center justify-center bg-[#25D366] hover:bg-[#20BA5A] text-white px-2 py-3 rounded-full transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:scale-95 group"
             title="Share on WhatsApp"
           >
-            <FontAwesomeIcon icon={faWhatsapp} className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <FontAwesomeIcon icon={faWhatsapp} size='2x' className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </button>
         </div>
       </div>

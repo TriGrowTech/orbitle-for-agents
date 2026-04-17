@@ -16,6 +16,7 @@ const packageDetails: Record<string, any> = {
     location: 'Maldives',
     price: 89999,
     duration: '5 Days / 4 Nights',
+    badges: ['premium', 'vip'],
     images: [
       'https://images.unsplash.com/photo-1698726654908-834d3a5330d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWxkaXZlcyUyMHdhdGVyJTIwdmlsbGF8ZW58MXx8fHwxNzc0NDMyNzYxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     ],
@@ -53,6 +54,31 @@ const packageDetails: Record<string, any> = {
     ],
   },
 };
+
+// Badge styling — mirrors PackageCard.tsx
+const getBadgeStyles = (badge: string): string => {
+  switch (badge) {
+    case 'premium':    return 'bg-gradient-to-r from-purple-600 to-pink-600 text-white';
+    case 'vip':        return 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900';
+    case 'budget':     return 'bg-gradient-to-r from-green-500 to-emerald-600 text-white';
+    case 'bestseller': return 'bg-gradient-to-r from-orange-500 to-red-600 text-white';
+    case 'trending':   return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white';
+    case 'season':     return 'bg-gradient-to-r from-red-500 to-orange-500 text-white';
+    case 'discount':   return 'bg-gradient-to-r from-green-500 to-lime-500 text-white';
+    default:           return 'bg-blue-600 text-white';
+  }
+};
+
+const BADGE_ICONS: Record<string, string> = {
+  premium: '👑',
+  vip: '⭐',
+  bestseller: '🔥',
+  trending: '📈',
+  budget: '💚',
+  season: '🌸',
+  discount: '🏷️',
+};
+
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
@@ -116,6 +142,20 @@ export default function PackageDetail() {
               <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
                 {packageData.title}
               </h1>
+              {/* Badges */}
+              {packageData.badges && packageData.badges.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                  {packageData.badges.map((badge: string) => (
+                    <span
+                      key={badge}
+                      className={`inline-flex items-center gap-1.5 ${getBadgeStyles(badge)} px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-md`}
+                    >
+                      <span>{BADGE_ICONS[badge] || ''}</span>
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 bg-gradient-to-r from-[var(--theme-primary)] to-[var(--theme-secondary)] text-white px-4 py-2 rounded-full shadow-md">
                   <Star className="w-4 h-4 fill-white" />

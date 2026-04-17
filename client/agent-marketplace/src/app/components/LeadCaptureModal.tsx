@@ -1,27 +1,36 @@
-import { useState, useEffect } from 'react';
-import { X, Phone } from 'lucide-react';
-import exampleImage from "figma:asset/7202b305d8d4ac078d528aa37bceafaf6743aa87.png";
+import { useState, useEffect, useRef } from 'react';
+import { Phone, X, ChevronDown, BadgeCheck } from 'lucide-react';
+
+const AVATARS = [
+  { initials: 'RS', bg: 'bg-emerald-100', text: 'text-emerald-700' },
+  { initials: 'PM', bg: 'bg-violet-100',  text: 'text-violet-700'  },
+  { initials: 'AK', bg: 'bg-orange-100',  text: 'text-orange-700'  },
+  { initials: 'DV', bg: 'bg-blue-100',    text: 'text-blue-700'    },
+];
+
+const STATS = [
+  { value: '₹0',     label: 'Consultation' },
+  { value: '< 2 hrs', label: 'Callback'    },
+  { value: '4.9 ★',  label: 'Rating'       },
+];
 
 export function LeadCaptureModal() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-  });
+  const [isOpen,    setIsOpen]    = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [formData,  setFormData]  = useState({ name: '', phone: '' });
+  const nameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Check if user has already seen the modal in this session
     const hasSeenModal = sessionStorage.getItem('leadCaptureShown');
-    
     if (!hasSeenModal) {
-      // Show modal after 7 seconds
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 7000);
-      
+      const timer = setTimeout(() => setIsOpen(true), 7000);
       return () => clearTimeout(timer);
     }
   }, []);
+
+  useEffect(() => {
+    if (isOpen) setTimeout(() => nameRef.current?.focus(), 300);
+  }, [isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -30,154 +39,176 @@ export function LeadCaptureModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Here you would typically send the data to your backend
     console.log('Lead captured:', formData);
-    
-    // Show success message (you could add a toast notification)
-    alert('Thank you! Our team will contact you soon.');
-    
-    handleClose();
+    setSubmitted(true);
+    setTimeout(() => {
+      handleClose();
+      setSubmitted(false);
+      setFormData({ name: '', phone: '' });
+    }, 2800);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-300">
-        {/* Header with gradient and travel illustration */}
-        <div className="relative bg-gradient-to-br from-blue-600 via-blue-500 to-blue-600 text-white px-6 py-8 overflow-hidden">
-          {/* Background decorative elements */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-2 left-6">
-              <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 5L25 15L30 5L25 10L30 15L20 10L10 15L15 10L10 5L15 15L20 5Z" fill="white"/>
-              </svg>
-            </div>
-            <div className="absolute top-4 right-8">
-              <svg width="24" height="24" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 5L25 15L30 5L25 10L30 15L20 10L10 15L15 10L10 5L15 15L20 5Z" fill="white"/>
-              </svg>
-            </div>
-          </div>
+    <div
+      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:px-4 sm:py-6 bg-black/50 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+    >
+      {/* Card */}
+      <div className="w-full sm:max-w-[420px] bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-300">
 
-          {/* Illustration - use the provided image or travel SVG */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 opacity-20">
-            <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-              <path d="M0 50L60 45C120 40 240 30 360 35C480 40 600 60 720 65C840 70 960 60 1080 55C1200 50 1320 50 1380 50L1440 50V100H1380C1320 100 1200 100 1080 100C960 100 840 100 720 100C600 100 480 100 360 100C240 100 120 100 60 100H0V50Z" fill="white"/>
-            </svg>
-          </div>
+        {/* ── Hero strip ──────────────────────────────── */}
+        <div
+          className="relative px-5 pt-5 pb-0 overflow-hidden"
+          style={{ background: 'var(--theme-gradient)' }}
+        >
+          {/* Decorative circles */}
+          <div className="absolute -top-10 -right-10 w-36 h-36 rounded-full bg-white/10 pointer-events-none" />
+          <div className="absolute -bottom-6 left-4 w-16 h-16 rounded-full bg-white/10 pointer-events-none" />
 
-          {/* Traveler illustrations - smaller */}
-          <div className="absolute bottom-4 left-8 opacity-90 scale-75">
-            <div className="w-10 h-10 bg-yellow-400 rounded-full"></div>
-            <div className="w-6 h-8 bg-white rounded-t-full mt-1 mx-auto"></div>
-            <div className="w-5 h-6 bg-orange-500 rounded mx-auto -mt-2"></div>
-          </div>
-          
-          <div className="absolute bottom-4 right-8 opacity-90 scale-75">
-            <div className="flex gap-1">
-              <div>
-                <div className="w-8 h-8 bg-pink-300 rounded-full"></div>
-                <div className="w-6 h-7 bg-white rounded-t-full mt-1 mx-auto"></div>
-              </div>
-              <div>
-                <div className="w-8 h-8 bg-blue-300 rounded-full"></div>
-                <div className="w-6 h-7 bg-white rounded-t-full mt-1 mx-auto"></div>
-              </div>
-            </div>
-            <div className="flex gap-1 justify-center -mt-2">
-              <div className="w-4 h-6 bg-red-400 rounded"></div>
-              <div className="w-4 h-6 bg-purple-400 rounded"></div>
-            </div>
-          </div>
-
-          {/* Close Button */}
+          {/* Close */}
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 p-1.5 hover:bg-white/20 rounded-full transition-colors z-10"
+            className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors text-white"
           >
-            <X className="w-4 h-4" />
+            <X size={13} />
           </button>
 
-          {/* Title - smaller text */}
-          <div className="text-center relative z-10">
-            <h2 className="text-xl font-semibold mb-2 leading-snug" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Scrolling is fun, but travelling is better.<br />
-              Leave your number, and let's get<br />
-              you packing!
-            </h2>
+          {/* Live badge */}
+          <div className="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-2.5 py-1 text-white text-[10px] font-medium mb-3">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse inline-block" />
+            24 specialists available now
+          </div>
+
+          {/* Headline */}
+          <h2 className="text-white font-bold text-lg leading-snug mb-1">
+            Your dream trip is one call away.
+          </h2>
+          <p className="text-white/75 text-xs leading-relaxed mb-0">
+            Drop your number — we'll handle flights, stays &amp; everything in between.
+          </p>
+
+          {/* Stats strip */}
+          <div className="flex mt-3 border-t border-white/20">
+            {STATS.map((s, i) => (
+              <div
+                key={s.label}
+                className={`flex-1 text-center py-2 ${i !== 0 ? 'border-l border-white/20' : ''}`}
+              >
+                <p className="text-white font-semibold text-sm leading-none">{s.value}</p>
+                <p className="text-white/60 text-[9px] mt-0.5">{s.label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Form - more compact */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-gray-50 dark:bg-gray-800">
-          {/* Name */}
-          <div>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              placeholder="Your Name*"
-              className="w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900 dark:text-white placeholder-gray-400 transition-all text-sm"
-            />
-          </div>
+        {/* ── Form body ───────────────────────────────── */}
+        <div className="px-5 pt-4 pb-5 bg-white dark:bg-gray-900">
 
-          {/* Phone with country code */}
-          <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">
-              Mobile No.*
-            </label>
-            <div className="flex gap-2">
-              {/* Country Code Selector */}
-              <div className="relative flex items-center bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg px-2 py-3">
-                <span className="text-xl mr-1">🇮🇳</span>
-                <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+          {submitted ? (
+            /* Success state */
+            <div className="text-center py-4 animate-in zoom-in-90 duration-300">
+              <div className="w-11 h-11 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-2">
+                <BadgeCheck className="w-5 h-5 text-emerald-600" />
               </div>
-
-              {/* Phone Input */}
-              <div className="flex-1 relative">
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="Mobile Number"
-                  className="w-full px-4 py-3 pl-12 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900 dark:text-white placeholder-gray-400 transition-all text-sm"
-                />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none text-sm">
-                  +91
-                </span>
-              </div>
+              <p className="font-semibold text-gray-900 dark:text-white text-sm">You're all set!</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
+                A specialist will call you within 2 hours.
+              </p>
             </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-3">
 
-          {/* Submit Button - smaller */}
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-semibold py-3 rounded-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 text-sm"
-          >
-            <Phone className="w-4 h-4" />
-            Request Call Back
-          </button>
+              {/* Name */}
+              <div>
+                <label className="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                  Your name
+                </label>
+                <input
+                  ref={nameRef}
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Arjun Sharma"
+                  required
+                  className="w-full h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all"
+                  style={{ '--tw-ring-color': 'var(--theme-primary)' } as React.CSSProperties}
+                />
+              </div>
 
-          {/* Privacy note */}
-          <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
-            We respect your privacy. Your information is safe with us.
-          </p>
-        </form>
+              {/* Phone */}
+              <div>
+                <label className="block text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                  Mobile number
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs whitespace-nowrap"
+                  >
+                    <span className="text-sm">🇮🇳</span>
+                    +91
+                    <ChevronDown size={11} />
+                  </button>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="98765 43210"
+                    required
+                    className="flex-1 min-w-0 h-10 px-3 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all"
+                    style={{ '--tw-ring-color': 'var(--theme-primary)' } as React.CSSProperties}
+                  />
+                </div>
+              </div>
+
+              {/* CTA */}
+              <button
+                type="submit"
+                className="w-full h-10 flex items-center justify-center gap-2 text-white font-semibold text-sm rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all"
+                style={{ background: 'var(--theme-gradient)' }}
+              >
+                <Phone size={14} />
+                Get a free callback
+              </button>
+
+              {/* Social proof */}
+              <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl px-3 py-2.5">
+                {/* Stacked avatars */}
+                <div className="flex flex-shrink-0">
+                  {AVATARS.map((av, i) => (
+                    <div
+                      key={av.initials}
+                      className={`w-6 h-6 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-[8px] font-bold ${av.bg} ${av.text} ${i !== 0 ? '-ml-1.5' : ''}`}
+                      style={{ zIndex: AVATARS.length - i, position: 'relative' }}
+                    >
+                      {av.initials}
+                    </div>
+                  ))}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 leading-tight">
+                    1,200+ trips planned this month
+                  </p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5 truncate">
+                    "Best experience ever." — Priya M.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center">
+                We respect your privacy. No spam, ever.
+              </p>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

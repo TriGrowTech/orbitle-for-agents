@@ -140,9 +140,9 @@ export function Navbar() {
               )}
             </div>
 
-            <a href="#about" className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all font-medium">
+            <Link to="/about" className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all font-medium">
               About
-            </a>
+            </Link>
             <a href="#contact" className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all font-medium">
               Contact
             </a>
@@ -269,9 +269,9 @@ export function Navbar() {
                 )}
               </div>
 
-              <a href="#about" className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium">
+              <Link to="/about" onClick={() => setIsOpen(false)} className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium">
                 About
-              </a>
+              </Link>
               <a href="#contact" className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium">
                 Contact
               </a>

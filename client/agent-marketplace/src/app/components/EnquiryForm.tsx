@@ -371,6 +371,15 @@ export function EnquiryForm({
                         </div>
                       </div>
                     </div>
+                    <div className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-gray-800 rounded-xl pt-5 pb-3 px-8 border border-orange-200 dark:border-orange-800/40 shadow-sm flex flex-col items-center justify-center text-center space-y-3">
+                      <div className="bg-orange-100 dark:bg-orange-800/50 p-3 rounded-full ring-4 ring-orange-50 dark:ring-orange-900/20">
+                        <Phone className="w-6 h-6 text-orange-600 dark:text-orange-400 animate-pulse" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-orange-900 dark:text-orange-300 mb-1 uppercase tracking-wider">Any problems? contact us</p>
+                        <p className="text-2xl font-black text-gray-900 dark:text-white">+91 123 456 7890</p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Mobile — How It Works before form */}
@@ -470,6 +479,15 @@ export function EnquiryForm({
                         <p className="text-sm sm:text-md font-semibold text-green-900 dark:text-green-300">100% Secure</p>
                         <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-400">Your information is private</p>
                       </div>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-gray-800 rounded-xl pt-7 pb-5 px-8 border border-orange-200 dark:border-orange-800/40 shadow-sm flex flex-col items-center justify-center text-center space-y-3">
+                    <div className="bg-orange-100 dark:bg-orange-800/50 p-3 rounded-full ring-4 ring-orange-50 dark:ring-orange-900/20">
+                      <Phone className="w-6 h-6 text-orange-600 dark:text-orange-400 animate-pulse" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-orange-900 dark:text-orange-300 mb-1 uppercase tracking-wider">Any problems? contact us</p>
+                      <p className="text-2xl font-black text-gray-900 dark:text-white">+91 123 456 7890</p>
                     </div>
                   </div>
                 </div>

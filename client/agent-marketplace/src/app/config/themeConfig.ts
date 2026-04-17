@@ -60,7 +60,7 @@ const THEMES: Record<string, ThemeConfig> = {
       'https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cm9waWNhbCUyMHBhcmFkaXNlJTIwaXNsYW5kfGVufDF8fHx8MTc3NDQzNDAyNHww&ixlib=rb-4.1.0&q=80&w=1080',
       'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMGxha2UlMjBzY2VuaWN8ZW58MXx8fHwxNzc0NDM0MDI0fDA&ixlib=rb-4.1.0&q=80&w=1080',
     ],
-    heroOverlayClass: 'bg-gradient-to-b from-blue-900/85 via-blue-900/70 to-blue-900/90',
+    heroOverlayClass: 'bg-gradient-to-r from-blue-900/65 via-blue-900/50 to-blue-900/75',
     footerBgClass: 'bg-gradient-to-b from-gray-900 to-blue-950',
     footerAccentClass: 'hover:text-blue-400',
     trustBgClass: 'bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900',

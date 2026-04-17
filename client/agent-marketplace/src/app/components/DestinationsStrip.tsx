@@ -1,0 +1,113 @@
+import { MapPin, Globe, Home as HomeIcon } from 'lucide-react';
+
+const INTERNATIONAL = [
+  'Maldives', 'Dubai', 'Thailand', 'Bali', 'Singapore',
+  'Malaysia', 'Sri Lanka', 'Vietnam', 'Turkey', 'Greece',
+  'Switzerland', 'Paris', 'London', 'Japan', 'Australia',
+  'Africa', 'Mauritius', 'Egypt',
+];
+
+const DOMESTIC = [
+  'Goa', 'Manali', 'Kashmir', 'Shimla', 'Jaipur',
+  'Udaipur', 'Kerala', 'Ladakh', 'Rishikesh', 'Andaman',
+  'Darjeeling', 'Meghalaya', 'Varanasi', 'Ooty', 'Coorg',
+  'Hampi', 'Leh', 'Munnar',
+];
+
+export function DestinationsStrip() {
+  return (
+    <section className="py-14 bg-gray-50 dark:bg-gray-800/40 border-t border-gray-100 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto px-4">
+
+        <div className="flex items-center gap-3 mb-8">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'var(--theme-gradient)' }}
+          >
+            <MapPin className="w-4 h-4 text-white" />
+          </div>
+          <h2
+            className="text-xl font-bold text-gray-900 dark:text-white"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Explore All Destinations
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {/* International */}
+          <div>
+            <div className="flex items-center gap-2 mb-5">
+              <div
+                className="w-7 h-7 rounded-sm flex items-center justify-center"
+                style={{ background: 'var(--theme-gradient)' }}
+              >
+                <Globe className="w-3.5 h-3.5 text-white" />
+              </div>
+              <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                International
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {INTERNATIONAL.map((dest) => (
+                <a
+                  key={dest}
+                  href="#packages"
+                  className="group flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-300 px-3 py-1.5  border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-transparent hover:text-white transition-all duration-200"
+                  style={undefined}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'var(--theme-gradient)';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = '';
+                    (e.currentTarget as HTMLElement).style.borderColor = '';
+                  }}
+                >
+                  <MapPin className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+                  {dest}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Domestic */}
+          <div>
+            <div className="flex items-center gap-2 mb-5">
+              <div
+                className="w-7 h-7 rounded-sm flex items-center justify-center"
+                style={{ background: 'var(--theme-gradient)' }}
+              >
+                <HomeIcon className="w-3.5 h-3.5 text-white" />
+              </div>
+              <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                Domestic
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {DOMESTIC.map((dest) => (
+                <a
+                  key={dest}
+                  href="#packages"
+                  className="group flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-300 px-3 py-1.5  border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:text-white transition-all duration-200"
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'var(--theme-gradient)';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = '';
+                    (e.currentTarget as HTMLElement).style.borderColor = '';
+                  }}
+                >
+                  <MapPin className="w-3 h-3 opacity-50 group-hover:opacity-100" />
+                  {dest}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}

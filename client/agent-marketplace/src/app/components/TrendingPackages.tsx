@@ -51,7 +51,7 @@ const DEALS = [
     headline: 'Char Dham Yatra',
     subtitle: 'Embark on a Journey of Faith',
     price: 34999,
-    image: 'https://images.unsplash.com/photo-1609075820678-498d8e65b9d4?w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1706790574525-d218c4c52b5c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
   {
     id: '7',
@@ -67,7 +67,7 @@ const DEALS = [
     headline: 'Bhutan Direct',
     subtitle: 'Ex Bangalore | Ex Ahmedabad',
     price: 85990,
-    image: 'https://images.unsplash.com/photo-1561111951-f4e15ce6168e?w=800&q=80',
+    image: 'https://plus.unsplash.com/premium_photo-1661952578770-79010299a9f9?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Ymh1dGFufGVufDB8fDB8fHww',
   },
 ];
 
@@ -140,7 +140,7 @@ function BentoCarousel() {
 
   useEffect(() => {
     if (paused) return;
-    timer.current = setInterval(() => go(idx + 1), 3500);
+    timer.current = setInterval(() => go(idx + 1), 2500);
     return () => { if (timer.current) clearInterval(timer.current); };
   }, [idx, paused]);
 

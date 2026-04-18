@@ -24,13 +24,13 @@ const THEMES = [
     title: 'Pilgrimage',
     description: 'Sacred destinations that calm and restore the soul.',
     tags: ['Char Dham', 'Vaishno Devi', 'Tirupati', 'Shirdi'],
-    image: 'https://images.unsplash.com/photo-1609075820678-498d8e65b9d4?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1706790574525-d218c4c52b5c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   },
   {
     title: 'Honeymoon',
     description: 'Romantic escapes crafted for two, in paradise.',
     tags: ['Maldives', 'Bali', 'Kerala', 'Paris'],
-    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1626970356891-a6339d8eece6?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJhbGklMjBob25leW1vb258ZW58MHx8MHx8fDA%3D',
   },
   {
     title: 'Culinary Tours',

@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { User, Shield, CreditCard, Clock, Activity, Settings, TrendingUp, Package, CheckCircle, FileText, UploadCloud, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { User, Shield, CreditCard, Clock, Activity, Settings, TrendingUp, Package, CheckCircle, FileText, UploadCloud, Loader2, Globe, ExternalLink } from 'lucide-react';
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { toast } from 'sonner';
-import { useGetMeQuery, useUpdateProfileMutation, useUpdatePasswordMutation, useForgotPasswordMutation, useResetPasswordMutation } from '../api/authApi';
+import { useGetMeQuery, useUpdateProfileMutation, useUpdatePasswordMutation, useForgotPasswordMutation, useResetPasswordMutation, useCompleteOnboardingMutation, useCheckSubdomainQuery } from '../api/authApi';
 
 export function Profile() {
   const [activeTab, setActiveTab] = useState('Agent Details');
@@ -17,6 +17,15 @@ export function Profile() {
   const [updatePassword, { isLoading: isUpdatingPassword }] = useUpdatePasswordMutation();
   const [forgotPassword, { isLoading: isForgotLoading }] = useForgotPasswordMutation();
   const [resetPassword, { isLoading: isResettingPassword }] = useResetPasswordMutation();
+  const [completeOnboarding, { isLoading: isSavingSubdomain }] = useCompleteOnboardingMutation();
+
+  // Subdomain state
+  const [subdomainInput, setSubdomainInput] = useState('');
+  const [subdomainCheckValue, setSubdomainCheckValue] = useState('');
+  const subdomainDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { data: subdomainCheck } = useCheckSubdomainQuery(subdomainCheckValue, {
+    skip: !subdomainCheckValue || subdomainCheckValue.length < 2,
+  });
 
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
@@ -44,8 +53,45 @@ export function Profile() {
         email: agent.email || '',
         whatsapp: agent.whatsapp || '',
       });
+      setSubdomainInput(agent.subdomain || '');
     }
   }, [agent]);
+
+  const handleSubdomainChange = (val: string) => {
+    const cleaned = val.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 30);
+    setSubdomainInput(cleaned);
+    if (subdomainDebounceRef.current) clearTimeout(subdomainDebounceRef.current);
+    subdomainDebounceRef.current = setTimeout(() => {
+      if (cleaned.length >= 2) setSubdomainCheckValue(cleaned);
+      else setSubdomainCheckValue('');
+    }, 500);
+  };
+
+  const handleSubdomainSave = async () => {
+    if (!subdomainInput || subdomainInput.length < 2) {
+      toast.error('Subdomain must be at least 2 characters.');
+      return;
+    }
+    if (subdomainCheck && !subdomainCheck.isAvailable && subdomainInput !== agent?.subdomain) {
+      toast.error('This subdomain is already taken.');
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append('subdomain', subdomainInput);
+      await completeOnboarding(formData).unwrap();
+      const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
+      toast.success(`Marketplace URL set! Visit: ${subdomainInput}.${marketplaceDomain}`);
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to save subdomain.');
+    }
+  };
+
+  const isSubdomainAvailable = !subdomainCheckValue || !subdomainCheck
+    ? null
+    : subdomainInput === agent?.subdomain
+    ? true
+    : subdomainCheck.isAvailable;
 
   // Handlers
   const handleProfileSubmit = async (e: React.FormEvent) => {
@@ -246,6 +292,71 @@ export function Profile() {
                     </button>
                   </div>
                 </form>
+              </div>
+
+              {/* Marketplace URL Card */}
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex items-center gap-3">
+                  <div className="p-2 bg-green-50 text-green-600 rounded-lg">
+                    <Globe className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">My Marketplace URL</h3>
+                    <p className="text-xs text-gray-500">This is the URL your customers will visit to see your packages</p>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {/* Current URL display */}
+                  {agent?.subdomain && (
+                    <a
+                      href={`http://${agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 font-medium text-sm hover:bg-green-100 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                      {agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}
+                    </a>
+                  )}
+
+                  {/* Input */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Subdomain</label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Input
+                          type="text"
+                          value={subdomainInput}
+                          onChange={e => handleSubdomainChange(e.target.value)}
+                          placeholder="e.g. trigrowtech"
+                          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all h-auto"
+                        />
+                        {subdomainInput.length >= 2 && (
+                          <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold ${
+                            isSubdomainAvailable === true ? 'text-green-600' :
+                            isSubdomainAvailable === false ? 'text-red-500' : 'text-gray-400'
+                          }`}>
+                            {isSubdomainAvailable === true ? '✓ Available' :
+                             isSubdomainAvailable === false ? '✗ Taken' : 'Checking...'}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-gray-400 text-sm whitespace-nowrap">.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}</span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1.5 pl-1">Only lowercase letters, numbers, and hyphens allowed</p>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      onClick={handleSubdomainSave}
+                      disabled={isSavingSubdomain || (isSubdomainAvailable === false && subdomainInput !== agent?.subdomain)}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    >
+                      {isSavingSubdomain ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+                      {isSavingSubdomain ? 'Saving...' : 'Save Marketplace URL'}
+                    </button>
+                  </div>
+                </div>
               </div>
               </div>
             </div>

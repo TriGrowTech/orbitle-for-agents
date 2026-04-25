@@ -3,12 +3,17 @@ import {
     register, login, getMe, logout, 
     completeOnboarding, checkSubdomain, 
     updateProfile, updatePassword, 
-    forgotPassword, resetPassword 
+    forgotPassword, resetPassword,
+    sendSignupOtp, verifySignupOtp
 } from '../controllers/authController.js';
 import { isAuthenticated } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
 
 const router = express.Router();
+
+// Signup OTP (public — no auth required)
+router.post('/send-signup-otp', sendSignupOtp);
+router.post('/verify-signup-otp', verifySignupOtp);
 
 router.post('/register', register);
 router.post('/login', login);

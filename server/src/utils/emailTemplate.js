@@ -6,7 +6,7 @@ export const getOtpEmailTemplate = (otp, name) => `
     <title>Password Reset OTP</title>
 </head>
 <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0;">
-    <div style="max-w-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
         <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 30px; text-align: center;">
             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold; letter-spacing: 1px;">Orbitle</h1>
         </div>
@@ -31,3 +31,40 @@ export const getOtpEmailTemplate = (otp, name) => `
 </body>
 </html>
 `;
+
+export const getSignupOtpEmailTemplate = (otp, name) => `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Verify your email — Orbitle</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 0;">
+    <div style="max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold; letter-spacing: 1px;">Orbitle</h1>
+            <p style="color: #bfdbfe; margin: 6px 0 0; font-size: 14px;">Your travel business, structured.</p>
+        </div>
+        <div style="padding: 40px 30px;">
+            <p style="color: #333333; font-size: 16px; margin-top: 0;">Hi ${name || 'there'},</p>
+            <p style="color: #555555; font-size: 16px; line-height: 1.6;">Welcome to Orbitle! Please verify your email address using the OTP below to complete your account creation.</p>
+            
+            <div style="margin: 35px 0; text-align: center;">
+                <p style="color: #6b7280; font-size: 13px; margin-bottom: 12px;">Your verification code</p>
+                <div style="display: inline-block; background-color: #eff6ff; padding: 18px 36px; border-radius: 10px; letter-spacing: 10px; font-size: 36px; font-weight: bold; color: #1d4ed8; border: 2px dashed #93c5fd;">
+                    ${otp}
+                </div>
+            </div>
+            
+            <p style="color: #555555; font-size: 14px; text-align: center; margin-bottom: 30px;">This code is valid for <strong>10 minutes</strong>. Do not share it with anyone.</p>
+            
+            <p style="color: #777777; font-size: 14px; border-top: 1px solid #eeeeee; padding-top: 20px;">If you didn't sign up for Orbitle, you can safely ignore this email.</p>
+        </div>
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">&copy; ${new Date().getFullYear()} Orbitle by TriGrowTech. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+`;
+

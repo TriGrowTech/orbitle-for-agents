@@ -10,7 +10,7 @@ interface TrialBannerProps {
 }
 
 export function TrialBanner({ days, hours, minutes, seconds }: TrialBannerProps) {
-  if (localStorage.getItem('orbitle_onboarding_complete') !== 'true') return null;
+
 
   return (
     <div className="mb-4 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50 border border-orange-200 rounded-xl p-4 shadow-sm">

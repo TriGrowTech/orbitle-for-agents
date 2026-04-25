@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useGetLeadsQuery } from '../api/leadsApi';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-export type LeadSource = 'Hero Form' | 'Package Page' | 'Popup' | 'Manual Entry';
+export type LeadSource = 'Hero Form' | 'Package Page' | 'Popup' | 'Manual Entry' | 'Marketplace';
 export type LeadStatus = 'pending' | 'contacted' | 'follow_up' | 'quoted' | 'converted' | 'cancelled';
 export type Priority   = 'high' | 'medium' | 'low';
 
 export interface BaseLead {
-  id: number;
+  id: string | number;
   name: string;
   phone: string;
   destination: string;
@@ -60,75 +61,76 @@ export type Lead = PopupLead | FormLead | PackageLead | ManualLead;
 export const initialMockLeads: Lead[] = [
   {
     id: 1, source: 'Hero Form', status: 'pending', priority: 'high',
-    name: 'Rahul Sharma', phone: '+91 98765 43210', email: 'rahul@example.com',
+    name: 'Rahul Sharma (Demo)', phone: '+91 98765 43210', email: 'rahul@example.com',
     fromCity: 'Mumbai',
     destination: 'Bali', startDate: '2026-04-15', duration: '7 nights',
     travelers: 2, budget: '₹40,000 – ₹50,000',
     message: 'Looking for a honeymoon package with beach resort.',
     date: '2026-03-25',
-  },
-  {
-    id: 2, source: 'Package Page', status: 'contacted', priority: 'high',
-    name: 'Priya Patel', phone: '+91 98765 43211', email: 'priya@example.com',
-    fromCity: 'Delhi',
-    destination: 'Dubai', packageName: 'Dubai Delight – 6N/7D',
-    travelers: 4, budget: '₹1,50,000+', startDate: '2026-05-01',
-    date: '2026-03-25',
-  },
-  {
-    id: 3, source: 'Popup', status: 'follow_up', priority: 'medium',
-    name: 'Amit Kumar', phone: '+91 98765 43212', email: 'amit@example.com',
-    destination: 'Maldives',
-    date: '2026-03-24',
-  },
-  {
-    id: 4, source: 'Hero Form', status: 'quoted', priority: 'medium',
-    name: 'Sneha Reddy', phone: '+91 98765 43213', email: 'sneha@example.com',
-    fromCity: 'Hyderabad',
-    destination: 'Thailand', startDate: '2026-04-20', duration: '5 nights',
-    travelers: 3, budget: '₹1,00,000 – ₹1,50,000',
-    message: 'Interested in adventure + beach combo. Flexible on dates.',
-    date: '2026-03-24',
-  },
-  {
-    id: 5, source: 'Package Page', status: 'converted', priority: 'high',
-    name: 'Vikram Singh', phone: '+91 98765 43214',email: 'Vikram@example.com',
-    fromCity: 'Bangalore',
-    destination: 'Singapore', packageName: 'Singapore Explorer – 5N/6D',
-    travelers: 5, budget: '₹2,00,000+',
-    dealValue: 180000,startDate: '2026-05-01',
-    date: '2026-03-23',
-  },
-  {
-    id: 6, source: 'Popup', status: 'cancelled', priority: 'low',
-    name: 'Neha Gupta', phone: '+91 98765 43215', email: 'neha@example.com',
-    destination: 'Goa',
-    date: '2026-03-23',
-  },
+  }
 ];
 
 // ── Context Setup ──────────────────────────────────────────────────────────────
 interface CRMContextType {
   leadsData: Lead[];
-  leadStatuses: Record<number, string>;
-  dealValues: Record<number, number>;
-  setLeadStatuses: React.Dispatch<React.SetStateAction<Record<number, string>>>;
-  setDealValues: React.Dispatch<React.SetStateAction<Record<number, number>>>;
+  leadStatuses: Record<string | number, string>;
+  dealValues: Record<string | number, number>;
+  setLeadStatuses: React.Dispatch<React.SetStateAction<Record<string | number, string>>>;
+  setDealValues: React.Dispatch<React.SetStateAction<Record<string | number, number>>>;
   setLeadsData: React.Dispatch<React.SetStateAction<Lead[]>>;
 }
 
 const CRMContext = createContext<CRMContextType | undefined>(undefined);
 
 export function CRMProvider({ children }: { children: ReactNode }) {
+  const { data: leadsResponse, isLoading } = useGetLeadsQuery();
   const [leadsData, setLeadsData] = useState<Lead[]>(initialMockLeads);
   
-  const [leadStatuses, setLeadStatuses] = useState<Record<number, string>>(
+  const [leadStatuses, setLeadStatuses] = useState<Record<string | number, string>>(
     initialMockLeads.reduce((acc, l) => ({ ...acc, [l.id]: l.status }), {})
   );
 
-  const [dealValues, setDealValues] = useState<Record<number, number>>(
+  const [dealValues, setDealValues] = useState<Record<string | number, number>>(
     initialMockLeads.reduce((acc, l) => ({ ...acc, [l.id]: l.dealValue || 0 }), {})
   );
+
+  useEffect(() => {
+    if (leadsResponse?.success && leadsResponse.data) {
+      if (leadsResponse.data.length > 0) {
+        const transformedLeads: Lead[] = leadsResponse.data.map((l: any) => ({
+          id: l._id,
+          name: l.name,
+          phone: l.phone,
+          email: l.email,
+          destination: l.toLocation,
+          date: l.createdAt.split('T')[0],
+          source: (l.source as LeadSource) || 'Marketplace',
+          status: (l.status as LeadStatus) || 'pending',
+          priority: 'medium',
+          fromCity: l.fromLocation,
+          startDate: l.departureDate?.split('T')[0],
+          duration: `${l.numberOfDays} days`,
+          travelers: (l.adults || 0) + (l.children || 0),
+          budget: `₹${l.budgetRupees}`,
+          message: l.specialRequests || ''
+        }));
+        setLeadsData(transformedLeads);
+
+        // Sync statuses and deal values
+        const statuses: Record<string | number, string> = {};
+        const values: Record<string | number, number> = {};
+        transformedLeads.forEach(l => {
+          statuses[l.id] = l.status;
+          values[l.id] = l.dealValue || 0;
+        });
+        setLeadStatuses(statuses);
+        setDealValues(values);
+      } else {
+        // If no real leads, show the demo lead
+        setLeadsData(initialMockLeads);
+      }
+    }
+  }, [leadsResponse]);
 
   return (
     <CRMContext.Provider value={{

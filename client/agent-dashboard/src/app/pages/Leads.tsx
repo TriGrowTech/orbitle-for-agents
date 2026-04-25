@@ -25,11 +25,13 @@ import { STATUS_CONFIG, SOURCE_CONFIG, ALL_STATUSES, ALL_SOURCES } from '../comp
 import { renderLeadCard } from '../components/leads/LeadCard';
 import { ManualEntryModal, ConversionModal, ManualFormData } from '../components/leads/LeadModals';
 import { Input } from "../components/ui/input";
+import { useUpdateLeadStatusMutation } from '../api/leadsApi';
 
 export function Leads() {
   const navigate = useNavigate();
   const location = useLocation();
   const { leadsData, setLeadsData, leadStatuses, setLeadStatuses, dealValues, setDealValues } = useCRMContext();
+  const [updateStatus] = useUpdateLeadStatusMutation();
 
   // ── Filter state ───────────────────────────────────────────────────────────
   const [searchTerm,   setSearchTerm]   = useState('');
@@ -37,14 +39,14 @@ export function Leads() {
   const [filterSource, setFilterSource] = useState('all');
 
   // ── UI open/close state ────────────────────────────────────────────────────
-  const [openStatusDropdown, setOpenStatusDropdown] = useState<number | null>(null);
+  const [openStatusDropdown, setOpenStatusDropdown] = useState<string | number | null>(null);
   const [openSourceDropdown, setOpenSourceDropdown] = useState(false);
   const [isManualModalOpen,  setIsManualModalOpen]  = useState(false);
   const [conversionLead,     setConversionLead]     = useState<Lead | undefined>();
 
   // ── Highlight state (navigated here from Revenue Analytics) ───────────────
-  const [highlightedId, setHighlightedId] = useState<number | null>(null);
-  const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [highlightedId, setHighlightedId] = useState<string | number | null>(null);
+  const cardRefs = useRef<Record<string | number, HTMLDivElement | null>>({});
 
   useEffect(() => {
     const state = location.state as { highlightId?: number } | null;
@@ -67,13 +69,21 @@ export function Leads() {
 
   // ── Status change handler ──────────────────────────────────────────────────
   // Intercepts "converted" to open the deal-value modal first.
-  const handleStatusChange = (leadId: number, newStatus: string) => {
+  const handleStatusChange = async (leadId: string | number, newStatus: string) => {
     if (newStatus === 'converted') {
       setConversionLead(leadsData.find(l => l.id === leadId));
       setOpenStatusDropdown(null);
     } else {
       setLeadStatuses(prev => ({ ...prev, [leadId]: newStatus }));
       setOpenStatusDropdown(null);
+      // Update backend if it's a real lead (string ID)
+      if (typeof leadId === 'string') {
+        try {
+          await updateStatus({ id: leadId, status: newStatus }).unwrap();
+        } catch (error) {
+          console.error('Failed to update status:', error);
+        }
+      }
     }
   };
 
@@ -89,10 +99,18 @@ export function Leads() {
   };
 
   // ── Conversion submit ──────────────────────────────────────────────────────
-  const handleConversionSubmit = (leadId: number, amount: number) => {
+  const handleConversionSubmit = async (leadId: string | number, amount: number) => {
     setLeadStatuses(prev => ({ ...prev, [leadId]: 'converted' }));
     setDealValues(prev => ({ ...prev, [leadId]: amount }));
     setConversionLead(undefined);
+    // Update backend if it's a real lead (string ID)
+    if (typeof leadId === 'string') {
+      try {
+        await updateStatus({ id: leadId, status: 'converted' }).unwrap();
+      } catch (error) {
+        console.error('Failed to update status:', error);
+      }
+    }
   };
 
   // ── Filtered leads ─────────────────────────────────────────────────────────

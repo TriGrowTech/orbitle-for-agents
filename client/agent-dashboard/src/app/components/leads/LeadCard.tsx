@@ -51,16 +51,16 @@ import {
 
 interface CardWrapperProps {
   lead: Lead;
-  highlightedId: number | null;
-  cardRefs: React.MutableRefObject<Record<number, HTMLDivElement | null>>;
+  highlightedId: string | number | null;
+  cardRefs: React.MutableRefObject<Record<string | number, HTMLDivElement | null>>;
   children: React.ReactNode;
 }
 
 interface StatusDropdownProps {
   lead: Lead;
-  openStatusDropdown: number | null;
-  setOpenStatusDropdown: (id: number | null) => void;
-  onStatusChange: (leadId: number, newStatus: string) => void;
+  openStatusDropdown: string | number | null;
+  setOpenStatusDropdown: (id: string | number | null) => void;
+  onStatusChange: (leadId: string | number, newStatus: string) => void;
 }
 
 // ── CardWrapper ────────────────────────────────────────────────────────────────
@@ -164,9 +164,9 @@ export function StatusDropdown({
 interface CardHeaderProps {
   lead: Lead;
   srcLabel: string;
-  openStatusDropdown: number | null;
-  setOpenStatusDropdown: (id: number | null) => void;
-  onStatusChange: (leadId: number, newStatus: string) => void;
+  openStatusDropdown: string | number | null;
+  setOpenStatusDropdown: (id: string | number | null) => void;
+  onStatusChange: (leadId: string | number, newStatus: string) => void;
 }
 
 export function CardHeader({
@@ -404,11 +404,11 @@ function TravelersAndBudget({
 
 interface CardProps {
   lead: Lead;
-  highlightedId: number | null;
-  cardRefs: React.MutableRefObject<Record<number, HTMLDivElement | null>>;
-  openStatusDropdown: number | null;
-  setOpenStatusDropdown: (id: number | null) => void;
-  onStatusChange: (leadId: number, newStatus: string) => void;
+  highlightedId: string | number | null;
+  cardRefs: React.MutableRefObject<Record<string | number, HTMLDivElement | null>>;
+  openStatusDropdown: string | number | null;
+  setOpenStatusDropdown: (id: string | number | null) => void;
+  onStatusChange: (leadId: string | number, newStatus: string) => void;
 }
 
 // ── PopupCard ──────────────────────────────────────────────────────────────────
@@ -615,6 +615,8 @@ export function renderLeadCard(
   if (lead.source === "Package Page")
     return <PackageCard key={lead.id} {...props} />;
   if (lead.source === "Manual Entry")
+    return <FormCard key={lead.id} {...props} />;
+  if (lead.source === "Marketplace")
     return <FormCard key={lead.id} {...props} />;
   return null;
 }

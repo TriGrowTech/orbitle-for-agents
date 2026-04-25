@@ -2,7 +2,88 @@ import Agent from '../models/Agent.model.js';
 import Package from '../models/Package.model.js';
 import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail.js';
-import { getOtpEmailTemplate } from '../utils/emailTemplate.js';
+import { getOtpEmailTemplate, getSignupOtpEmailTemplate } from '../utils/emailTemplate.js';
+
+// In-memory OTP store for signup (before account creation)
+// Structure: { email -> { otp: hashedOtp, expiry: Date, name: string } }
+const signupOtpStore = new Map();
+
+// Send OTP for signup email verification
+export const sendSignupOtp = async (req, res) => {
+    try {
+        const { email, name } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required.' });
+        }
+        const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
+        }
+
+        // Check if already registered
+        const exists = await Agent.findOne({ email });
+        if (exists) {
+            return res.status(400).json({ success: false, message: 'An account with this email already exists.' });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+        const expiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+        // Store in memory
+        signupOtpStore.set(email.toLowerCase(), { hashedOtp, expiry, name: name || '' });
+
+        // Send email
+        const htmlBody = getSignupOtpEmailTemplate(otp, name);
+        await sendEmail({
+            email,
+            subject: 'Verify your email — Orbitle',
+            message: `Your Orbitle signup OTP is ${otp}. It expires in 10 minutes.`,
+            html: htmlBody
+        });
+
+        console.log(`[SIGNUP OTP] Sent to ${email}`);
+        res.status(200).json({ success: true, message: 'OTP sent to your email.' });
+    } catch (err) {
+        console.error('[SIGNUP OTP ERROR]', err);
+        res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    }
+};
+
+// Verify OTP for signup email verification
+export const verifySignupOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+        }
+
+        const record = signupOtpStore.get(email.toLowerCase());
+        if (!record) {
+            return res.status(400).json({ success: false, message: 'OTP not found. Please request a new one.' });
+        }
+
+        if (Date.now() > record.expiry) {
+            signupOtpStore.delete(email.toLowerCase());
+            return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
+        }
+
+        const hashedInput = crypto.createHash('sha256').update(otp).digest('hex');
+        if (hashedInput !== record.hashedOtp) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+        }
+
+        // Mark verified (keep record so register can confirm)
+        record.verified = true;
+        signupOtpStore.set(email.toLowerCase(), record);
+
+        res.status(200).json({ success: true, message: 'Email verified successfully.' });
+    } catch (err) {
+        console.error('[VERIFY OTP ERROR]', err);
+        res.status(500).json({ success: false, message: 'Verification failed. Please try again.' });
+    }
+};
 
 // Register Agent
 export const register = async (req, res, next) => {
@@ -34,12 +115,21 @@ export const register = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'An account with this email address already exists.' });
         }
 
+        // Confirm email was verified via OTP
+        const otpRecord = signupOtpStore.get(email.toLowerCase());
+        if (!otpRecord || !otpRecord.verified) {
+            return res.status(400).json({ success: false, message: 'Email not verified. Please verify your email with OTP first.' });
+        }
+
         const agent = await Agent.create({
             name,
             email,
             password,
             businessName
         });
+
+        // Cleanup OTP record after successful registration
+        signupOtpStore.delete(email.toLowerCase());
 
         sendTokenResponse(agent, 201, res);
 

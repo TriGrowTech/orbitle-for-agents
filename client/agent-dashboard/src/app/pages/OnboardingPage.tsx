@@ -24,9 +24,7 @@ export function OnboardingPage() {
       return;
     }
 
-    if (user.isOnboarded) {
-      navigate('/dashboard', { replace: true });
-    }
+
   }, [navigate, user]);
 
   const handleStartOnboarding = () => {

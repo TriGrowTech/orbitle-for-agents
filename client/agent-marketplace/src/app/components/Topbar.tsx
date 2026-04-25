@@ -1,8 +1,11 @@
 import { Phone, Mail } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { useAgent } from '../context/AgentContext';
 
 export function Topbar() {
-  const { color } = useTheme();
+  const { agent, isTenantMode } = useAgent();
+
+  const phone = isTenantMode && agent?.whatsapp ? agent.whatsapp : '+91 123 456 7890';
+  const email = isTenantMode && agent?.email ? agent.email : 'info@travelmarket.com';
 
   return (
     <div className="bg-[var(--theme-primary)] text-white py-2.5 px-4">
@@ -10,8 +13,8 @@ export function Topbar() {
         {/* Left - Phone */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <Phone className="w-4 h-4" />
-          <a href="tel:+911234567890" className="hover:opacity-80 transition-opacity hidden sm:inline">
-            +91 123 456 7890
+          <a href={`tel:${phone}`} className="hover:opacity-80 transition-opacity hidden sm:inline">
+            {phone}
           </a>
         </div>
         
@@ -25,8 +28,8 @@ export function Topbar() {
         {/* Right - Email */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <Mail className="w-4 h-4" />
-          <a href="mailto:info@travelmarket.com" className="hover:opacity-80 transition-opacity hidden sm:inline">
-            info@travelmarket.com
+          <a href={`mailto:${email}`} className="hover:opacity-80 transition-opacity hidden sm:inline">
+            {email}
           </a>
         </div>
       </div>

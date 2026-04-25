@@ -1,6 +1,6 @@
 import { X, Tag, Award, TrendingUp, Plus, Trash2, Calendar, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { useCreatePackageMutation } from '../api/packageApi';
+import { useState, useEffect } from 'react';
+import { useCreatePackageMutation, useUpdatePackageMutation, PackageData } from '../api/packageApi';
 import { toast } from 'sonner';
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -13,6 +13,8 @@ import { BadgePill, CustomBadgeBuilder, BadgeDef } from './package/BadgeManageme
 interface PackageModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Pass existing package to open in Edit mode */
+  initialData?: PackageData;
 }
 
 interface ItineraryDay {
@@ -22,7 +24,9 @@ interface ItineraryDay {
   description: string;
 }
 
-export function PackageModal({ isOpen, onClose }: PackageModalProps) {
+export function PackageModal({ isOpen, onClose, initialData }: PackageModalProps) {
+  const isEditMode = !!initialData;
+
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [duration, setDuration] = useState('');
@@ -39,6 +43,8 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
   const [imageFiles, setImageFiles] = useState<[File | null, File | null]>([null, null]);
 
   const [createPackage, { isLoading: isCreating }] = useCreatePackageMutation();
+  const [updatePackage, { isLoading: isUpdating }] = useUpdatePackageMutation();
+  const isSaving = isCreating || isUpdating;
 
   const [inclusions, setInclusions] = useState<string[]>([]);
   const [exclusions, setExclusions] = useState<string[]>([]);
@@ -55,6 +61,50 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
     { id: 'premium', label: 'Premium', textColor: '#ffffff', bgColor: '#1f2937' },
     { id: 'family', label: 'Family Friendly', textColor: '#ffffff', bgColor: '#ec4899' },
   ]);
+
+  // ── Pre-fill when opening in edit mode ───────────────────────
+  useEffect(() => {
+    if (!isOpen) return;
+    if (initialData) {
+      setTitle(initialData.title || '');
+      setLocation(initialData.location || '');
+      setDuration(initialData.duration || '');
+      setCategory(initialData.category || 'domestic');
+      setDescription(initialData.description || '');
+      setOriginalPrice(initialData.originalPrice?.toString() || '');
+      setDiscountedPrice(initialData.discountedPrice?.toString() || '');
+      setSelectedBadgeIds(initialData.badges || []);
+      setHasOffer(initialData.hasOffer || false);
+      setIsTrending(initialData.isTrending || false);
+      setInclusions(initialData.inclusions || []);
+      setExclusions(initialData.exclusions || []);
+      setSelectedType(initialData.packageType || '');
+      setItineraryDays(
+        (initialData.itinerary || []).map((d, i) => ({
+          id: d._id || String(i),
+          dayNumber: d.dayNumber,
+          title: d.title,
+          description: d.description,
+        }))
+      );
+      // Existing images — show as URL previews (no file upload needed unless replaced)
+      setImagePreviews([
+        initialData.imageUrl1 || null,
+        initialData.imageUrl2 || null,
+      ]);
+      setImageFiles([null, null]);
+    } else {
+      // Reset to blank for create mode
+      setTitle(''); setLocation(''); setDuration('');
+      setCategory('domestic'); setDescription('');
+      setOriginalPrice(''); setDiscountedPrice('');
+      setSelectedBadgeIds([]); setHasOffer(false); setIsTrending(false);
+      setInclusions([]); setExclusions([]); setSelectedType('');
+      setItineraryDays([]);
+      setImagePreviews([null, null]); setImageFiles([null, null]);
+    }
+  }, [isOpen, initialData]);
+
 
   const setPreview = (index: 0 | 1, src: string | null) =>
     setImagePreviews(prev => { 
@@ -127,13 +177,19 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
       if (imageFiles[0]) formData.append('image1', imageFiles[0]);
       if (imageFiles[1]) formData.append('image2', imageFiles[1]);
 
-      await createPackage(formData).unwrap();
-      toast.success('Package created successfully!');
+      if (isEditMode && initialData) {
+        await updatePackage({ id: initialData._id, data: formData }).unwrap();
+        toast.success('Package updated successfully!');
+      } else {
+        await createPackage(formData).unwrap();
+        toast.success('Package created successfully!');
+      }
       onClose();
     } catch (e: any) {
-      toast.error(e.data?.message || 'Failed to create package');
+      toast.error(e.data?.message || (isEditMode ? 'Failed to update package' : 'Failed to create package'));
     }
   };
+
 
   if (!isOpen) return null;
 
@@ -151,8 +207,12 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-gray-50">
             <div>
-              <h2 className="text-base font-semibold text-gray-900">Add New Package</h2>
-              <p className="text-xs text-gray-500 mt-0.5">Fill in the details to create a new travel package</p>
+              <h2 className="text-base font-semibold text-gray-900">
+                {isEditMode ? '✏️ Edit Package' : 'Add New Package'}
+              </h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {isEditMode ? 'Update the details of this travel package' : 'Fill in the details to create a new travel package'}
+              </p>
             </div>
             <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors">
               <X className="w-5 h-5" />
@@ -333,10 +393,21 @@ export function PackageModal({ isOpen, onClose }: PackageModalProps) {
           </div>
 
           <div className="flex-shrink-0 flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-200 bg-gray-50">
-            <button onClick={onClose} disabled={isCreating} className="px-4 py-2 text-sm text-gray-600 font-medium">Cancel</button>
-            <button disabled={isCreating} onClick={handleCreate} className="px-6 py-2 flex items-center gap-2 text-sm bg-blue-600 text-white rounded font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50">
-              {isCreating && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isCreating ? 'Creating...' : 'Create Package'}
+            <button onClick={onClose} disabled={isSaving} className="px-4 py-2 text-sm text-gray-600 font-medium">Cancel</button>
+            <button
+              disabled={isSaving}
+              onClick={handleCreate}
+              className={`px-6 py-2 flex items-center gap-2 text-sm text-white rounded font-bold shadow-lg disabled:opacity-50 ${
+                isEditMode
+                  ? 'bg-emerald-600 shadow-emerald-500/20 hover:bg-emerald-700'
+                  : 'bg-blue-600 shadow-blue-500/20 hover:bg-blue-700'
+              }`}
+            >
+              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isSaving
+                ? (isEditMode ? 'Saving...' : 'Creating...')
+                : (isEditMode ? 'Save Changes' : 'Create Package')
+              }
             </button>
           </div>
         </div>

@@ -39,10 +39,12 @@ const gradients = [
 /* ─── Package Card ───────────────────────────────────────────── */
 function PackageCard({
   pkg,
-  index
+  index,
+  onEdit,
 }: {
   pkg: PackageData;
   index: number;
+  onEdit: (pkg: PackageData) => void;
 }) {
   const gradient = gradients[index % gradients.length];
   const isActive = pkg.isActive;
@@ -246,7 +248,11 @@ function PackageCard({
             </span>
           </div>
 
-          <button className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-md hover:shadow-blue-500/30 transition-all" title="Edit">
+          <button
+            onClick={() => onEdit(pkg)}
+            className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-md hover:shadow-blue-500/30 transition-all"
+            title="Edit"
+          >
             <Edit className="w-3.5 h-3.5" />
           </button>
           <button onClick={handleDelete} className="p-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 transition-all" title="Delete">
@@ -267,6 +273,11 @@ export function Packages() {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPkg, setEditingPkg] = useState<PackageData | null>(null);
+
+  const openCreate = () => { setEditingPkg(null); setIsModalOpen(true); };
+  const openEdit   = (pkg: PackageData) => { setEditingPkg(pkg); setIsModalOpen(true); };
+  const closeModal = () => { setIsModalOpen(false); setEditingPkg(null); };
 
   const filtered = packages.filter(p => {
     const matchSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -298,7 +309,7 @@ export function Packages() {
           <p className="text-gray-600 mt-1">Manage your travel packages and offerings</p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreate}
           className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 flex items-center gap-2 w-fit font-medium"
         >
           <Plus className="w-5 h-5" />
@@ -373,13 +384,17 @@ export function Packages() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((pkg, idx) => (
-            <PackageCard key={pkg._id} pkg={pkg} index={idx} />
+            <PackageCard key={pkg._id} pkg={pkg} index={idx} onEdit={openEdit} />
           ))}
         </div>
       )}
 
       {/* ── Modal ───────────────────────────────────────────────── */}
-      <PackageModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <PackageModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        initialData={editingPkg ?? undefined}
+      />
     </div>
   );
 }

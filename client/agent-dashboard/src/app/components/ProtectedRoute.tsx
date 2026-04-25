@@ -63,7 +63,8 @@ export function ProtectedRoute({ requireOnboarding = true }: ProtectedRouteProps
   }
 
   // Combine store user with server response for the route check
-  const currentUser = user ?? (data?.success && data.agent
+  // CRITICAL: Prioritize fresh server data over stale store/localStorage data
+  const currentUser = (data?.success && data.agent)
     ? {
       id: data.agent._id,
       name: data.agent.name,
@@ -71,7 +72,7 @@ export function ProtectedRoute({ requireOnboarding = true }: ProtectedRouteProps
       businessName: data.agent.businessName,
       isOnboarded: data.agent.isOnboarded,
     }
-    : null);
+    : user;
 
   // Redirect to login if user is not authenticated
   if (!currentUser) {

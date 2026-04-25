@@ -2,8 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router';
 import { Menu, X, Sun, Moon, Palette, Heart, Gift, ChevronDown, MapPin, Globe, Home as HomeIcon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAgent } from '../context/AgentContext';
 import { PlanTourModal } from './PlanTourModal';
 import logo from "../../assets/tgt-logo.png";
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const internationalDestinations = [
   'Maldives', 'Dubai', 'Thailand', 'Bali', 'Singapore',
@@ -26,8 +29,14 @@ export function Navbar() {
   const [mobileDestOpen, setMobileDestOpen] = useState(false);
   const [showPlanTourModal, setShowPlanTourModal] = useState(false);
   const { mode, toggleMode, setThemeColor, allThemes, color } = useTheme();
+  const { agent, isTenantMode } = useAgent();
   const destRef = useRef<HTMLDivElement>(null);
   const destTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const displayName = isTenantMode && agent ? (agent.businessName || agent.name) : 'TG Travels';
+  const agentLogoUrl = isTenantMode && agent?.logo && agent.logo !== 'no-photo.jpg'
+    ? `${API_BASE}/uploads/${agent.logo}`
+    : null;
 
   // Close destinations dropdown on outside click
   useEffect(() => {
@@ -54,13 +63,13 @@ export function Navbar() {
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center gap-3">
            <div className="w-12 h-12 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-  <img
-    src={logo}
-    alt="TGT Logo"
-    className="w-full h-full object-contain"
-  />
+  {agentLogoUrl ? (
+    <img src={agentLogoUrl} alt={displayName} className="w-full h-full object-cover" />
+  ) : (
+    <img src={logo} alt="Logo" className="w-full h-full object-contain" />
+  )}
 </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">TG Travels</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{displayName}</span>
           </Link>
 
           {/* Desktop Menu */}
@@ -149,43 +158,45 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Desktop Action Buttons — Wishlist only */}
-            
 
-            {/* Theme Controls */}
+            {/* Dark / Light toggle — always visible */}
             <button
               onClick={toggleMode}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             >
               {mode === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
-            
-            <div className="relative">
-              <button
-                onClick={() => setShowThemeMenu(!showThemeMenu)}
-                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-              >
-                <Palette className="w-5 h-5" />
-              </button>
-              
-              {showThemeMenu && (
-                <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-xl shadow-xl py-2 z-50 border border-gray-200 dark:border-gray-700">
-                  {allThemes.map((theme) => (
-                    <button
-                      key={theme.id}
-                      onClick={() => {
-                        setThemeColor(theme.id);
-                        setShowThemeMenu(false);
-                      }}
-                      className={`w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${color === theme.id ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
-                    >
-                      <div className={`w-5 h-5 bg-gradient-to-br ${theme.swatchGradient} rounded-full shadow`}></div>
-                      <span className="text-gray-700 dark:text-gray-200 font-medium">{theme.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+
+            {/* Color theme palette — hidden in tenant mode (controlled from dashboard) */}
+            {!isTenantMode && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowThemeMenu(!showThemeMenu)}
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <Palette className="w-5 h-5" />
+                </button>
+
+                {showThemeMenu && (
+                  <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-xl shadow-xl py-2 z-50 border border-gray-200 dark:border-gray-700">
+                    {allThemes.map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => {
+                          setThemeColor(theme.id);
+                          setShowThemeMenu(false);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${color === theme.id ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+                      >
+                        <div className={`w-5 h-5 bg-gradient-to-br ${theme.swatchGradient} rounded-full shadow`}></div>
+                        <span className="text-gray-700 dark:text-gray-200 font-medium">{theme.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
 
             <button
               onClick={() => setShowPlanTourModal(true)}

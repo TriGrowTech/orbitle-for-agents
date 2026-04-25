@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { TrendingUp, MessageCircle, Package, Users, ArrowUpRight, ArrowDownRight, Clock, Zap, Copy, CheckCircle, Globe, IndianRupee } from 'lucide-react';
 import { useCRMContext } from '../context/CRMContext';
+import { useGetMeQuery } from '../api/authApi';
 
 const topPackages = [
   { name: 'Bali Paradise - 7D/6N', enquiries: 45, price: '₹45,000', trend: '+12%' },
@@ -21,10 +22,15 @@ const recentEnquiries = [
 export function Dashboard() {
   const navigate = useNavigate();
   const { leadsData, leadStatuses, dealValues } = useCRMContext();
+  const { data: userData } = useGetMeQuery();
+  const agent = userData?.agent;
 
   const [copied, setCopied] = useState(false);
 
-  const subdomainLink = "saratravels.orbitle.in";
+  const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
+  const subdomainLink = agent?.subdomain 
+    ? `${agent.subdomain}.${marketplaceDomain}` 
+    : "loading...";
 
   // Dynamic stats
   const totalRevenue = Object.values(dealValues).reduce((a, b) => a + b, 0);
@@ -40,12 +46,7 @@ export function Dashboard() {
     { name: 'Conversion Rate', value: `${conversionRate}%`, change: '+5%', icon: TrendingUp, color: 'orange', trend: 'up' },
   ];
 
-  useEffect(() => {
-    // If onboarding is not complete, redirect to onboarding page
-    if (localStorage.getItem('orbitle_onboarding_complete') !== 'true') {
-      navigate('/onboarding', { replace: true });
-    }
-  }, [navigate]);
+
 
   return (
     <div className="space-y-4">

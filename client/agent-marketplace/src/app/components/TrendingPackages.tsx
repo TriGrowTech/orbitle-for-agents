@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { useAgent } from '../context/AgentContext';
 
 const DEALS = [
   {
@@ -131,20 +132,22 @@ function DealCard({ deal, className = '', height = 'h-48' }: DealCardProps) {
 }
 
 // ── Top-right auto-cycling carousel ──────────────────────────────────────────
-function BentoCarousel() {
+function BentoCarousel({ slides }: { slides: any[] }) {
   const [idx, setIdx]       = useState(0);
   const [paused, setPaused] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const go = (n: number) => setIdx((n + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length);
+  const go = (n: number) => setIdx((n + slides.length) % slides.length);
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || slides.length <= 1) return;
     timer.current = setInterval(() => go(idx + 1), 2500);
     return () => { if (timer.current) clearInterval(timer.current); };
-  }, [idx, paused]);
+  }, [idx, paused, slides.length]);
 
-  const slide = CAROUSEL_SLIDES[idx];
+  const slide = slides[idx];
+
+  if (!slide) return null;
 
   return (
     <div
@@ -153,7 +156,7 @@ function BentoCarousel() {
       onMouseLeave={() => setPaused(false)}
     >
       {/* Image with crossfade */}
-      {CAROUSEL_SLIDES.map((s, i) => (
+      {slides.map((s, i) => (
         <img
           key={s.id}
           src={s.image}
@@ -208,7 +211,7 @@ function BentoCarousel() {
 
       {/* Dots */}
       <div className="absolute bottom-4 right-4 flex gap-1.5 z-10">
-        {CAROUSEL_SLIDES.map((_, i) => (
+        {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => setIdx(i)}
@@ -228,6 +231,28 @@ function BentoCarousel() {
 
 
 export function TrendingPackages() {
+  const { packages: agentPackages, isTenantMode } = useAgent();
+
+  // In tenant mode: use agent's trending packages, else use demo DEALS
+  const displayPackages = isTenantMode
+    ? agentPackages
+        .filter(p => p.isTrending)
+        .map(p => ({
+          id: p._id,
+          tag: p.hasOffer ? 'Special Offer' : 'Trending',
+          headline: p.title,
+          subtitle: p.location + ' — ' + p.duration,
+          price: p.discountedPrice ?? p.originalPrice,
+          image: p.imageUrl1 || `https://images.unsplash.com/photo-1518684079-3c830dcef090?w=800&q=80`,
+        }))
+    : DEALS;
+
+  // Slides for carousel
+  const carouselSlides = displayPackages.slice(0, 4);
+
+  // If tenant mode has no trending packages, don't render this section
+  if (isTenantMode && displayPackages.length === 0) return null;
+
   return (
     <section id="packages" className="py-16 bg-gray-50 dark:bg-gray-800/40">
       <div className="max-w-7xl mx-auto px-4">
@@ -269,23 +294,23 @@ export function TrendingPackages() {
           {/* Row 1 — left 1/3 · right 2/3 (carousel) */}
           <div className="flex gap-3 h-[280px]">
             <div className="flex-[1_0_0%] min-w-0">
-              <DealCard deal={DEALS[0]} height="h-full" />
+              {displayPackages[0] && <DealCard deal={displayPackages[0]} height="h-full" />}
             </div>
             <div className="flex-[2_0_0%] min-w-0">
-              <BentoCarousel />
+              <BentoCarousel slides={carouselSlides} />
             </div>
           </div>
 
           {/* Row 2 — left 1/2 · middle 1/4 · right 1/4 */}
           <div className="flex gap-3 h-[280px]">
             <div className="flex-[2_0_0%] min-w-0">
-              <DealCard deal={DEALS[5]} height="h-full" />
+              {displayPackages[4] && <DealCard deal={displayPackages[4]} height="h-full" />}
             </div>
             <div className="flex-[1_0_0%] min-w-0">
-              <DealCard deal={DEALS[6]} height="h-full" />
+              {displayPackages[5] && <DealCard deal={displayPackages[5]} height="h-full" />}
             </div>
             <div className="flex-[1_0_0%] min-w-0">
-              <DealCard deal={DEALS[7]} height="h-full" />
+              {displayPackages[6] && <DealCard deal={displayPackages[6]} height="h-full" />}
             </div>
           </div>
 
@@ -293,7 +318,7 @@ export function TrendingPackages() {
 
         {/* ── Mobile: vertical stack ── */}
         <div className="md:hidden flex flex-col gap-3">
-          {DEALS.map(deal => (
+          {displayPackages.map(deal => (
             <DealCard key={deal.id} deal={deal} height="h-44" />
           ))}
         </div>

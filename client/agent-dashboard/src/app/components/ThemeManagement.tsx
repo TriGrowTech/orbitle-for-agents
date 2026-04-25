@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { Palette, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Palette, Check, Loader2, ExternalLink } from 'lucide-react';
+import { useGetMeQuery, useCompleteOnboardingMutation } from '../api/authApi';
+import { toast } from 'sonner';
 
 interface PredefinedTheme {
   id: string;
@@ -34,18 +36,62 @@ const PREDEFINED_THEMES: PredefinedTheme[] = [
 ];
 
 export function ThemeManagement() {
+  const { data } = useGetMeQuery();
+  const [saveTheme, { isLoading }] = useCompleteOnboardingMutation();
+
+  const agent = data?.agent;
   const [activeTheme, setActiveTheme] = useState<string>('navy');
+
+  // Hydrate from DB on load
+  useEffect(() => {
+    if (agent?.theme) setActiveTheme(agent.theme);
+  }, [agent?.theme]);
+
+  const handleThemeSelect = async (themeId: string) => {
+    if (themeId === activeTheme) return; // no change
+    setActiveTheme(themeId); // optimistic update
+
+    try {
+      const formData = new FormData();
+      formData.append('theme', themeId);
+      await saveTheme(formData).unwrap();
+      toast.success(`Theme updated to "${PREDEFINED_THEMES.find(t => t.id === themeId)?.name}"! Your marketplace will reflect this change.`);
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to save theme.');
+      // Revert on error
+      setActiveTheme(agent?.theme || 'navy');
+    }
+  };
+
+  const marketplaceUrl = agent?.subdomain
+    ? `http://${agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}`
+    : null;
 
   return (
     <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
-      <div className="p-6 border-b border-gray-100 flex items-center gap-3">
-        <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-          <Palette className="w-5 h-5" />
+      <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+            <Palette className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Website Theme</h2>
+            <p className="text-sm text-gray-600 mt-1">Choose the primary aesthetic for your travel website</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Website Theme</h2>
-          <p className="text-sm text-gray-600 mt-1">Choose the primary aesthetic for your travel website</p>
-        </div>
+
+        {/* Live preview link */}
+        {marketplaceUrl && (
+          <a
+            href={marketplaceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Preview site
+          </a>
+        )}
       </div>
       
       <div className="p-6">
@@ -56,9 +102,10 @@ export function ThemeManagement() {
             return (
               <div 
                 key={theme.id}
-                className={`relative rounded-xl border-2 transition-all duration-300 overflow-hidden ${
-                  isActive ? 'border-blue-500 shadow-md ring-4 ring-blue-500/10' : 'border-gray-200 hover:border-gray-300'
+                className={`relative rounded-xl border-2 transition-all duration-300 overflow-hidden cursor-pointer ${
+                  isActive ? 'border-blue-500 shadow-md ring-4 ring-blue-500/10' : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
                 }`}
+                onClick={() => handleThemeSelect(theme.id)}
               >
                 {/* Theme Preview Header */}
                 <div 
@@ -73,26 +120,31 @@ export function ThemeManagement() {
                   <p className="text-xs text-gray-500 font-medium leading-relaxed">{theme.description}</p>
                   
                   <div className="flex items-center justify-between w-full mt-auto">
-                    <span className={`text-sm font-semibold ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
-                      {isActive ? 'Active Theme' : 'Set Active'}
+                    <span className={`text-sm font-semibold flex items-center gap-1.5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {isActive && <Check className="w-3.5 h-3.5" />}
+                      {isActive ? (isLoading ? 'Saving...' : 'Active Theme') : 'Set Active'}
                     </span>
                     
                     {/* iOS style toggle */}
                     <button
-                      onClick={() => setActiveTheme(theme.id)}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      onClick={(e) => { e.stopPropagation(); handleThemeSelect(theme.id); }}
+                      disabled={isLoading}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 ${
                         isActive ? 'bg-blue-500' : 'bg-gray-200'
                       }`}
                       role="switch"
                       aria-checked={isActive}
                     >
                       <span className="sr-only">Make Active</span>
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          isActive ? 'translate-x-5' : 'translate-x-0'
-                        }`}
-                      >
-                      </span>
+                      {isActive && isLoading ? (
+                        <Loader2 className="w-4 h-4 text-white animate-spin absolute left-1 top-0.5" />
+                      ) : (
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            isActive ? 'translate-x-5' : 'translate-x-0'
+                          }`}
+                        />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -100,6 +152,15 @@ export function ThemeManagement() {
             );
           })}
         </div>
+
+        {marketplaceUrl && (
+          <p className="text-xs text-gray-400 mt-4 text-center">
+            Changes reflect instantly on{' '}
+            <a href={marketplaceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline font-medium">
+              {agent?.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}
+            </a>
+          </p>
+        )}
       </div>
     </div>
   );

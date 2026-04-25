@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Upload, MapPin, Clock, IndianRupee, Sparkles, Eye, Check } from 'lucide-react';
+import { useGetMeQuery } from '../../api/authApi';
 
 interface FirstPackageProps {
   onNext: () => void;
@@ -13,6 +14,8 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
   const [highlights, setHighlights] = useState(['Beach resort stay', 'Water sports', 'North & South Goa tour']);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
+  const { data: userData } = useGetMeQuery();
+  const agent = userData?.agent;
 
   const handlePublish = () => {
     setIsPublishing(true);
@@ -23,7 +26,9 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
   };
 
   const handlePreview = () => {
-    window.open('https://saratravels.orbitle.in', '_blank');
+    const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
+    const url = agent?.subdomain ? `http://${agent.subdomain}.${marketplaceDomain}` : `http://${marketplaceDomain}`;
+    window.open(url, '_blank');
   };
 
   const updateHighlight = (index: number, value: string) => {
@@ -33,6 +38,7 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
   };
 
   return (
+
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-full mb-3">
@@ -132,11 +138,10 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
-                isPublishing
+              className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${isPublishing
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:shadow-lg hover:shadow-green-500/30 text-white'
-              }`}
+                }`}
             >
               {isPublishing ? (
                 <span className="flex items-center justify-center gap-2">
@@ -167,7 +172,7 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {destination || 'Destination'} - {duration || 'Duration'}
                 </h3>
-                
+
                 <div className="flex items-baseline gap-2 mb-4">
                   <span className="text-3xl font-bold text-blue-600">₹{price || '0'}</span>
                   <span className="text-sm text-gray-600">per person</span>
@@ -201,7 +206,7 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
           <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/30 animate-bounce">
             <Check className="w-12 h-12 text-white" />
           </div>
-          
+
           <h3 className="text-3xl font-bold text-gray-900 mb-3">
             🎉 Your package is live!
           </h3>

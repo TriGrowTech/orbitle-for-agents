@@ -41,6 +41,7 @@ export const SOURCE_CONFIG: Record<LeadSource, {
   'Package Page': { label: 'Package Page', color: 'text-violet-700', bg: 'bg-violet-50', ring: 'ring-violet-400/40', accent: 'bg-violet-500', avatarGrad: 'from-violet-500 to-purple-600', icon: Package  },
   'Popup':        { label: 'Popup',        color: 'text-amber-700',  bg: 'bg-amber-50',  ring: 'ring-amber-400/40',  accent: 'bg-amber-400',  avatarGrad: 'from-amber-500 to-orange-500',  icon: Zap      },
   'Manual Entry': { label: 'Manual Entry', color: 'text-teal-700',   bg: 'bg-teal-50',   ring: 'ring-teal-400/40',   accent: 'bg-teal-500',   avatarGrad: 'from-teal-500 to-emerald-500',  icon: Plus     },
+  'Marketplace':  { label: 'Marketplace',  color: 'text-indigo-700', bg: 'bg-indigo-50', ring: 'ring-indigo-400/40', accent: 'bg-indigo-500', avatarGrad: 'from-indigo-500 to-blue-600',    icon: Zap      },
 };
 
 // ── Card header styles (driven by status) ─────────────────────────────────────

@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router';
-import { ArrowLeft, MapPin, Calendar, Users, Star, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Users, Star, Check, Loader2 } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { Topbar } from '../components/Topbar';
@@ -8,6 +8,9 @@ import { Footer } from '../components/Footer';
 import { ChatbotButton } from '../components/ChatbotButton';
 import { PlanTourModal } from '../components/PlanTourModal';
 import { useState, useEffect } from 'react';
+import { useAgent } from '../context/AgentContext';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Mock data - in real app, this would come from API/database
 const packageDetails: Record<string, any> = {
@@ -82,9 +85,58 @@ const BADGE_ICONS: Record<string, string> = {
 
 export default function PackageDetail() {
   const { id } = useParams<{ id: string }>();
-  const packageData = packageDetails[id || '1'] || packageDetails['1'];
+  const { isTenantMode, agent } = useAgent();
+  
+  const [packageData, setPackageData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+
+  // Fetch package details
+  useEffect(() => {
+    if (!id) return;
+    
+    // Always try to fetch first
+    setIsLoading(true);
+    fetch(`${API_BASE}/api/public/package/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Normalize API data to match frontend expectations
+          const pkg = data.data;
+          setPackageData({
+            title: pkg.title,
+            location: pkg.location,
+            price: pkg.discountedPrice || pkg.originalPrice,
+            originalPrice: pkg.originalPrice,
+            duration: pkg.duration,
+            badges: pkg.badges || [],
+            images: [pkg.imageUrl1, pkg.imageUrl2].filter(Boolean),
+            rating: 4.8, // Mock
+            reviews: 124, // Mock
+            description: pkg.description,
+            itinerary: (pkg.itinerary || []).map((i: any) => ({
+              day: i.dayNumber,
+              title: i.title,
+              description: i.description
+            })),
+            inclusions: pkg.inclusions || [],
+            exclusions: pkg.exclusions || [],
+          });
+        } else {
+          // Fallback to mock if API fails (useful for local testing without DB setup)
+          setPackageData(packageDetails[id] || packageDetails['1']);
+        }
+      })
+      .catch(() => {
+        setPackageData(packageDetails[id] || packageDetails['1']);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [id]);
 
   // Simple scroll-based sticky bar for mobile
   useEffect(() => {
@@ -106,14 +158,32 @@ export default function PackageDetail() {
   }, []);
 
   const handleWhatsAppShare = () => {
+    if (!packageData) return;
+    const phone = isTenantMode && agent?.whatsapp ? agent.whatsapp : '911234567890';
     const message = `Check out this amazing travel package: ${packageData.title} - ${packageData.location}. Price: ₹${packageData.price.toLocaleString()}. ${window.location.href}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
   const handleGetQuote = () => {
     setShowQuoteModal(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col">
+        <Topbar />
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center flex-col gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-[var(--theme-primary)]" />
+          <p className="text-gray-500 font-medium">Loading package details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!packageData) return null;
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -276,10 +346,10 @@ export default function PackageDetail() {
                   Our travel experts are available 24/7 to assist you
                 </p>
                 <a
-                  href="tel:+911234567890"
+                  href={`tel:${isTenantMode && agent?.whatsapp ? agent.whatsapp : '+91 123 456 7890'}`}
                   className="text-[var(--theme-primary)] font-semibold hover:underline"
                 >
-                  +91 123 456 7890
+                  {isTenantMode && agent?.whatsapp ? agent.whatsapp : '+91 123 456 7890'}
                 </a>
               </div>
             </div>

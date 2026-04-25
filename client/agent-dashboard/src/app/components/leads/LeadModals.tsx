@@ -133,7 +133,7 @@ interface ConversionModalProps {
   lead: Lead | undefined;
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (leadId: number, amount: number) => void;
+  onSubmit: (leadId: string | number, amount: number) => void;
 }
 
 export function ConversionModal({ lead, isOpen, onClose, onSubmit }: ConversionModalProps) {

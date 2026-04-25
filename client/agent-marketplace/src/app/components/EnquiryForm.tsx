@@ -68,6 +68,9 @@ export interface EnquiryFormData {
   formFillTime: number;
 }
 
+import { useAgent } from '../context/AgentContext';
+import { toast } from 'sonner';
+
 export interface EnquiryFormProps {
   /** Pre-fill destination (e.g. from package detail page) */
   prefilledDestination?: string;
@@ -103,9 +106,11 @@ export function EnquiryForm({
   compact = false,
   hideHeader = false,
 }: EnquiryFormProps) {
+  const { subdomain } = useAgent();
   const [startTime] = useState(Date.now());
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [shouldSubmit, setShouldSubmit] = useState(false);
   const [formData, setFormData] = useState<EnquiryFormData>({
     ...initialFormData,
@@ -135,12 +140,38 @@ export function EnquiryForm({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!shouldSubmit) return;
-    console.log('Form submitted:', formData);
-    setShouldSubmit(false);
-    setTimeout(() => setShowSuccess(true), 200);
+    if (!shouldSubmit || !subdomain) return;
+    
+    setIsSubmitting(true);
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE}/api/public/lead`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          subdomain
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShowSuccess(true);
+        setShouldSubmit(false);
+      } else {
+        toast.error(data.message || 'Failed to submit enquiry');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error('An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSuccessClose = () => {
@@ -456,10 +487,15 @@ export function EnquiryForm({
                       ) : (
                         <button
                           type="submit"
+                          disabled={isSubmitting}
                           onClick={() => setShouldSubmit(true)}
-                          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-2.5 sm:py-3 rounded-lg font-bold text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2">
-                          <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                          Send Request
+                          className={`flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-2.5 sm:py-3 rounded-lg font-bold text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                          {isSubmitting ? (
+                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                             <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          )}
+                          {isSubmitting ? 'Sending...' : 'Send Request'}
                         </button>
                       )}
                     </div>

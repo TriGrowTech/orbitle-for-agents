@@ -1,4 +1,5 @@
 import { PackageCard } from './PackageCard';
+import { useAgent } from '../context/AgentContext';
 
 const internationalPackages = [
   {
@@ -140,6 +141,36 @@ const internationalPackages = [
 ];
 
 export function InternationalPackages() {
+  const { packages: agentPackages, isTenantMode } = useAgent();
+
+  // In tenant mode: use agent's international packages, else use demo packages
+  const displayPackages = isTenantMode
+    ? agentPackages
+        .filter(p => p.category === 'international')
+        .map(p => ({
+          id: p._id,
+          title: p.title,
+          location: p.location,
+          price: p.discountedPrice ?? p.originalPrice,
+          originalPrice: p.discountedPrice ? p.originalPrice : undefined,
+          discount: p.discountedPrice
+            ? Math.round(((p.originalPrice - p.discountedPrice) / p.originalPrice) * 100)
+            : undefined,
+          duration: p.duration,
+          imageUrl: p.imageUrl1 || `https://images.unsplash.com/photo-1725806760874-96040618865c?w=800&q=80`,
+          rating: 4.9,
+          reviews: 0,
+          category: p.packageType,
+          inclusions: p.inclusions,
+          exclusions: p.exclusions,
+          badges: p.isTrending ? ['trending' as const] : [],
+          offer: p.hasOffer ? 'Special Offer' : undefined,
+        }))
+    : internationalPackages;
+
+  // If tenant mode has no international packages, don't render this section
+  if (isTenantMode && displayPackages.length === 0) return null;
+
   return (
     <section className="py-16 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4">
@@ -153,7 +184,7 @@ export function InternationalPackages() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {internationalPackages.map((pkg) => (
+          {displayPackages.map((pkg) => (
             <PackageCard key={pkg.id} {...pkg} />
           ))}
         </div>

@@ -1,6 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { PackageCard } from './PackageCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAgent } from '../context/AgentContext';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 
 const domesticPackages = [
   {
@@ -145,6 +149,7 @@ export function DomesticPackages() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const { packages: agentPackages, isTenantMode } = useAgent();
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -152,8 +157,39 @@ export function DomesticPackages() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // In tenant mode: use agent's domestic packages, else use demo packages
+  const displayPackages = isTenantMode
+    ? agentPackages
+        .filter(p => p.category === 'domestic')
+        .map(p => ({
+          id: p._id,
+          title: p.title,
+          location: p.location,
+          price: p.discountedPrice ?? p.originalPrice,
+          originalPrice: p.discountedPrice ? p.originalPrice : undefined,
+          discount: p.discountedPrice
+            ? Math.round(((p.originalPrice - p.discountedPrice) / p.originalPrice) * 100)
+            : undefined,
+          duration: p.duration,
+          imageUrl: p.imageUrl1 || `https://images.unsplash.com/photo-1667111838729-1a25f468856b?w=800&q=80`,
+          rating: 4.8,
+          reviews: 0,
+          category: p.packageType,
+          inclusions: p.inclusions,
+          exclusions: p.exclusions,
+          badges: p.isTrending ? ['trending' as const] : [],
+          offer: p.hasOffer ? 'Special Offer' : undefined,
+        }))
+    : domesticPackages;
+
+  // If tenant mode has no domestic packages, don't render this section
+  if (isTenantMode && displayPackages.length === 0) return null;
+
+
+
   const visibleCount = windowWidth < 768 ? 1 : windowWidth < 1024 ? 3 : 4;
-  const maxIndex = Math.max(0, domesticPackages.length - visibleCount);
+  const maxIndex = Math.max(0, displayPackages.length - visibleCount);
+
 
   const goNext = useCallback(() => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
@@ -214,7 +250,7 @@ export function DomesticPackages() {
                 transform: `translateX(calc(-${(currentIndex * 100) / visibleCount}% - ${currentIndex * (windowWidth < 640 ? 16 : 0)}px))`,
               }}
             >
-              {domesticPackages.map((pkg) => (
+              {displayPackages.map((pkg) => (
                 <div
                   key={pkg.id}
                   className="flex-shrink-0 sm:px-3"

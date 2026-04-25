@@ -48,6 +48,10 @@ const agentSchema = new mongoose.Schema({
     resetPasswordOTP: String,
     resetPasswordExpire: Date,
 
+    // Email OTP for signup verification
+    emailOtp: String,
+    emailOtpExpire: Date,
+
     // Domains
     subdomain: {
         type: String,
@@ -124,6 +128,13 @@ agentSchema.methods.getResetPasswordOTP = function () {
     this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
     return resetOTP;
+};
+
+agentSchema.methods.getEmailVerifyOTP = function () {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    this.emailOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    this.emailOtpExpire = Date.now() + 10 * 60 * 1000; // 10 min
+    return otp;
 };
 
 export default mongoose.model('Agent', agentSchema);

@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router';
-import { Clock } from 'lucide-react';
+import { Clock, SquareX } from 'lucide-react';
 
 interface TrialBannerProps {
   days: number;
   hours: number;
   minutes: number;
   seconds: number;
+  onDevEndTrial?: () => void;
 }
 
-export function TrialBanner({ days, hours, minutes, seconds }: TrialBannerProps) {
+const isDev = (import.meta as any).env.DEV;
 
-
+export function TrialBanner({ days, hours, minutes, seconds, onDevEndTrial }: TrialBannerProps) {
   return (
     <div className="mb-4 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50 border border-orange-200 rounded-xl p-4 shadow-sm">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -28,7 +29,17 @@ export function TrialBanner({ days, hours, minutes, seconds }: TrialBannerProps)
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+          {isDev && onDevEndTrial && (
+            <button
+              onClick={onDevEndTrial}
+              title="Dev: Immediately expire the trial"
+              className="flex-1 sm:flex-none px-3 py-2 bg-gray-800 hover:bg-gray-900 border border-gray-700 text-gray-200 rounded-lg transition-colors font-medium text-xs text-center flex items-center gap-1.5 justify-center"
+            >
+              <SquareX className="w-3.5 h-3.5 text-red-400" />
+              🛠 End Trial
+            </button>
+          )}
           <Link
             to="/branding"
             className="flex-1 sm:flex-none px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm text-center"

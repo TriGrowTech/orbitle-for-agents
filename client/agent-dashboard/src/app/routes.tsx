@@ -16,6 +16,7 @@ import { RevenueAnalytics } from "./pages/RevenueAnalytics";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { Support } from "./pages/Support";
 
 export const router = createBrowserRouter([
   {
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
           { path: "pricing", Component: Pricing },
           { path: "legal", Component: LegalPages },
           { path: "profile", Component: Profile },
+          { path: "support", Component: Support },
         ],
       },
     ],

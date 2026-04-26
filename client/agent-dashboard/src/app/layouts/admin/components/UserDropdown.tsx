@@ -69,13 +69,14 @@ export function UserDropdown({ isOpen, onClose, toggleOpen }: UserDropdownProps)
                 <User className="w-4 h-4" />
                 <span>My Profile</span>
               </Link>
-              <button
+              <Link
+                to="/support"
                 onClick={onClose}
                 className="w-full flex items-center gap-3 px-3 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <HelpCircle className="w-4 h-4" />
                 <span>Help & Support</span>
-              </button>
+              </Link>
               <button
                 onClick={async () => {
                   onClose();

@@ -1,9 +1,9 @@
-import { Plus, Save, Trash2, Upload } from 'lucide-react';
+import { Plus, Save, Trash2, Upload, Globe2, Home, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 
-const tabs = ['Travel Themes', 'Why Choose Us', 'FAQ'];
+const tabs = ['Travel Themes', 'Why Choose Us', 'FAQ', 'Destinations'];
 
 // ── Travel Themes ──────────────────────────────────────────────────────────────
 
@@ -240,6 +240,235 @@ function TravelThemesTable() {
   );
 }
 
+// ── Destinations Tab ──────────────────────────────────────────────────────────
+
+type DestCategory = 'domestic' | 'international';
+
+interface Destination {
+  id: number;
+  name: string;
+  active: boolean;
+  trending: boolean;
+  category: DestCategory;
+}
+
+const MAX_DESTINATIONS = 18;
+
+const initialDestinations: Destination[] = [
+  { id: 1, name: 'Goa',       active: true,  trending: true,  category: 'domestic' },
+  { id: 2, name: 'Manali',    active: true,  trending: false, category: 'domestic' },
+  { id: 3, name: 'Kerala',    active: false, trending: false, category: 'domestic' },
+  { id: 4, name: 'Bali',      active: true,  trending: true,  category: 'international' },
+  { id: 5, name: 'Dubai',     active: true,  trending: false, category: 'international' },
+  { id: 6, name: 'Singapore', active: false, trending: false, category: 'international' },
+];
+
+type DestMode = 'domestic' | 'international' | 'both';
+
+function DestinationsTab() {
+  const [mode, setMode]               = useState<DestMode>('both');
+  const [destinations, setDestinations] = useState<Destination[]>(initialDestinations);
+  const [addingTo, setAddingTo]       = useState<DestCategory | null>(null);
+  const [newName, setNewName]         = useState('');
+
+  const visibleCategories: DestCategory[] = mode === 'both'
+    ? ['domestic', 'international']
+    : [mode];
+
+  const getCount     = (cat: DestCategory)  => destinations.filter(d => d.category === cat).length;
+  const toggleActive   = (id: number) => setDestinations(prev => prev.map(d => d.id === id ? { ...d, active:   !d.active   } : d));
+  const toggleTrending = (id: number) => setDestinations(prev => prev.map(d => d.id === id ? { ...d, trending: !d.trending } : d));
+  const deleteDest     = (id: number) => setDestinations(prev => prev.filter(d => d.id !== id));
+
+  const startAdding = (cat: DestCategory) => { setAddingTo(cat); setNewName(''); };
+  const cancelAdd   = ()                  => { setAddingTo(null); setNewName(''); };
+
+  const confirmAdd = (cat: DestCategory) => {
+    if (!newName.trim() || getCount(cat) >= MAX_DESTINATIONS) return;
+    setDestinations(prev => [
+      ...prev,
+      { id: Date.now(), name: newName.trim(), active: true, trending: false, category: cat },
+    ]);
+    setAddingTo(null);
+    setNewName('');
+  };
+
+  const modeButtons: { value: DestMode; label: string; icon: any }[] = [
+    { value: 'domestic',      label: 'Domestic',      icon: Home   },
+    { value: 'international', label: 'International', icon: Globe2 },
+    { value: 'both',          label: 'Both',          icon: MapPin },
+  ];
+
+  const CategoryBlock = ({ cat }: { cat: DestCategory }) => {
+    const catDests = destinations.filter(d => d.category === cat);
+    const count    = catDests.length;
+    const isAdding = addingTo === cat;
+
+    return (
+      <div className="space-y-3">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${
+            cat === 'domestic' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'
+          }`}>
+            {cat === 'domestic' ? <Home className="w-3.5 h-3.5" /> : <Globe2 className="w-3.5 h-3.5" />}
+            {cat === 'domestic' ? 'Domestic' : 'International'}
+          </div>
+          <span className="text-xs text-gray-400 font-medium">{count} / {MAX_DESTINATIONS}</span>
+          {count >= MAX_DESTINATIONS && <span className="text-xs text-red-500 font-semibold">Limit reached</span>}
+        </div>
+
+        {/* Table */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          {/* Head */}
+          <div className="grid grid-cols-[2rem_1fr_5rem_5rem_3rem] gap-3 px-4 py-2.5 bg-gray-50 border-b border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            <span>#</span>
+            <span>Name</span>
+            <span>Trending</span>
+            <span>Status</span>
+            <span className="text-right">Del</span>
+          </div>
+
+          {/* Empty state */}
+          {catDests.length === 0 && !isAdding && (
+            <div className="py-7 text-center text-sm text-gray-400">
+              No destinations yet — click <strong>+ Add</strong> below.
+            </div>
+          )}
+
+          {/* Rows */}
+          {catDests.map((dest, idx) => (
+            <div
+              key={dest.id}
+              className={`grid grid-cols-[2rem_1fr_5rem_5rem_3rem] gap-3 px-4 py-3 items-center border-b border-gray-100 last:border-0 transition-colors ${
+                !dest.active ? 'bg-gray-50/60 opacity-60' : 'hover:bg-gray-50/40'
+              }`}
+            >
+              <span className="text-xs text-gray-400 font-medium">{idx + 1}</span>
+
+              <Input
+                type="text"
+                value={dest.name}
+                onChange={e => setDestinations(prev => prev.map(d => d.id === dest.id ? { ...d, name: e.target.value } : d))}
+                className="w-full px-2 py-1 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
+              />
+
+              {/* Trending toggle */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => toggleTrending(dest.id)}
+                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+                    dest.trending ? 'bg-orange-400' : 'bg-gray-200'
+                  }`}
+                  role="switch" aria-checked={dest.trending}
+                >
+                  <span className="sr-only">Mark as Trending</span>
+                  <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${dest.trending ? 'translate-x-4' : 'translate-x-0'}`} />
+                </button>
+                <span className="text-sm leading-none">{dest.trending ? '🔥' : ''}</span>
+              </div>
+
+              {/* Active toggle */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => toggleActive(dest.id)}
+                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+                    dest.active ? 'bg-blue-500' : 'bg-gray-200'
+                  }`}
+                  role="switch" aria-checked={dest.active}
+                >
+                  <span className="sr-only">Toggle Active</span>
+                  <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${dest.active ? 'translate-x-4' : 'translate-x-0'}`} />
+                </button>
+              </div>
+
+              {/* Delete */}
+              <div className="flex justify-end">
+                <button
+                  onClick={() => deleteDest(dest.id)}
+                  className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {/* Inline add row */}
+          {isAdding ? (
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 border-t border-blue-100">
+              <Input
+                type="text"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') confirmAdd(cat); if (e.key === 'Escape') cancelAdd(); }}
+                placeholder="Destination name…"
+                className="flex-1 px-2.5 py-1.5 border border-blue-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto bg-white"
+                autoFocus
+              />
+              <button
+                onClick={() => confirmAdd(cat)}
+                disabled={!newName.trim() || count >= MAX_DESTINATIONS}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white rounded-md text-xs font-semibold transition-colors"
+              >
+                Add
+              </button>
+              <button
+                onClick={cancelAdd}
+                className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-md text-xs font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            count < MAX_DESTINATIONS && (
+              <button
+                onClick={() => startAdding(cat)}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50/50 transition-colors border-t border-gray-100 font-medium"
+              >
+                <Plus className="w-4 h-4" /> Add destination
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Mode selector */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <p className="text-sm text-gray-500 hidden sm:block">Show:</p>
+        <div className="inline-flex rounded-xl border border-gray-200 bg-gray-50 p-1 gap-1">
+          {modeButtons.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              onClick={() => { setMode(value); cancelAdd(); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                mode === value
+                  ? 'bg-white text-blue-600 shadow-sm ring-1 ring-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </button>
+          ))}
+        </div>
+        <span className="text-xs text-gray-400 hidden sm:block">Max {MAX_DESTINATIONS} per category</span>
+      </div>
+
+      {/* Side by side on desktop, stacked on mobile */}
+      <div className={mode === 'both' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : ''}>
+        {visibleCategories.map(cat => (
+          <CategoryBlock key={cat} cat={cat} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 
 export function ContentSections() {
@@ -274,6 +503,9 @@ export function ContentSections() {
 
       {/* Travel Themes */}
       {activeTab === 'Travel Themes' && <TravelThemesTable />}
+
+      {/* Destinations */}
+      {activeTab === 'Destinations' && <DestinationsTab />}
 
       {/* Why Choose Us */}
       {activeTab === 'Why Choose Us' && (

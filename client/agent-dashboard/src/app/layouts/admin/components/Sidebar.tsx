@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
 import {
   LayoutDashboard,
   Palette,
@@ -15,7 +17,8 @@ import {
   CreditCard,
   FileCheck,
   User,
-  BarChart2
+  BarChart2,
+  Headphones,
 } from 'lucide-react';
 import orbitleLogo from "../../../../assets/orbitle-logo.png";
 
@@ -25,6 +28,7 @@ const globalNavItems = [
   { name: 'Revenue Analytics', href: '/revenue', icon: BarChart2 },
   { name: 'Package Catalog', href: '/packages', icon: Package },
   { name: 'My Profile', href: '/profile', icon: User },
+  { name: 'Support', href: '/support', icon: Headphones },
 ];
 
 const contextData: Record<string, { title: string, items: { name: string, href: string, icon: any }[] }> = {
@@ -56,6 +60,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose, activeContext, setActiveContext, isAtBottom }: SidebarProps) {
+  const { user } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
 
   return (
@@ -82,7 +87,9 @@ export function Sidebar({ isOpen, onClose, activeContext, setActiveContext, isAt
             <div className="flex items-center gap-2.5">
               <img src={orbitleLogo} alt="Orbitle" className="w-7 h-7" />
               <div>
-                <h2 className="text-sm font-bold text-gray-900">Rahul's Dashboard</h2>
+                <h2 className="text-sm font-bold text-gray-900 line-clamp-1 break-all">
+                  {user?.name ? `${user.name.split(' ')[0]}'s Dashboard` : 'Dashboard'}
+                </h2>
               </div>
             </div>
             <button
@@ -94,7 +101,7 @@ export function Sidebar({ isOpen, onClose, activeContext, setActiveContext, isAt
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-2">
+          <nav className="flex-1 px-3 py-4 space-y-2">
             {!activeContext ? (
               <>
                 <div className="space-y-1 pb-4">

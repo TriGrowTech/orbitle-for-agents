@@ -32,7 +32,7 @@ const plans = [
     popular: false,
     features: [
       'Everything in Monthly',
-      'Domain included (free for 6 months)',
+      'Domain included (free for 1 year)',
       'Priority email support',
       'Package management',
       'Enquiry tracking & pipeline',
@@ -52,7 +52,7 @@ const plans = [
     popular: true,
     features: [
       'Everything in 6-Month',
-      'Domain included (free for 6 months)',
+      'Domain included (free for 1 year)',
       'Priority WhatsApp support',
       'Quarterly content updates',
       'SEO meta setup included',
@@ -63,7 +63,7 @@ const plans = [
   },
   {
     name: 'Lifetime',
-    price: '₹9,999',
+    price: '₹14,999',
     perDay: 'One-time',
     billing: 'Pay once, yours forever',
     tagline: '78 spots left',
@@ -72,7 +72,7 @@ const plans = [
     popular: false,
     features: [
       'Everything in Yearly',
-      'Domain included (free for 6 months)',
+      'Domain included (free for 1 year)',
       'Dedicated support',
       'Ongoing content updates',
       'First access to new features',

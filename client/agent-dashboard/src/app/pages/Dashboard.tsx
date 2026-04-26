@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { TrendingUp, MessageCircle, Package, Users, ArrowUpRight, ArrowDownRight, Clock, Zap, Copy, CheckCircle, Globe, IndianRupee } from 'lucide-react';
+import { TrendingUp, MessageCircle, Package, Users, ArrowUpRight, ArrowDownRight, Clock, Zap, Copy, CheckCircle, Globe, IndianRupee, Lock } from 'lucide-react';
 import { useCRMContext } from '../context/CRMContext';
 import { useGetMeQuery } from '../api/authApi';
 
@@ -32,6 +32,13 @@ export function Dashboard() {
     ? `${agent.subdomain}.${marketplaceDomain}` 
     : "loading...";
 
+  // Determine if expired
+  const isTrial = agent?.planType === 'trial' || !agent?.planType;
+  const isPlanExpired = agent?.planExpiredAt ? new Date(agent.planExpiredAt) < new Date() : false;
+  const trialEndsAt = agent?.trialEndsAt ? new Date(agent.trialEndsAt).getTime() : Date.now() + 1;
+  const trialTimeLeft = trialEndsAt - Date.now();
+  const isExpired = (isTrial || isPlanExpired) && trialTimeLeft <= 0 && agent !== undefined;
+
   // Dynamic stats
   const totalRevenue = Object.values(dealValues).reduce((a, b) => a + b, 0);
   const totalLeads = leadsData.length;
@@ -57,32 +64,54 @@ export function Dashboard() {
       </div>
 
       {/* Subdomain Link Banner */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <Globe className="w-5 h-5 text-blue-600" />
+      {isExpired ? (
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Lock className="w-5 h-5 text-red-500" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-red-700">Subdomain Suspended</p>
+              <p className="text-xs text-red-500">Your trial has ended. Purchase a plan to restore your website. Data deleted in 7 days.</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-900">Your Website is Live!</p>
-            <p className="text-xs text-gray-600">Share this link with your customers to start getting leads.</p>
+          <div className="flex items-center gap-2 bg-red-100/60 border border-red-200 rounded-lg p-1 w-full sm:w-auto opacity-60 cursor-not-allowed select-none">
+            <span className="px-3 text-sm font-medium text-red-400 truncate min-w-[180px] line-through">
+              {subdomainLink}
+            </span>
+            <span className="px-3 py-1.5 bg-red-100 text-red-400 rounded-md text-xs font-semibold flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5" /> Disabled
+            </span>
           </div>
         </div>
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1 w-full sm:w-auto">
-          <span className="px-3 text-sm font-medium text-gray-700 truncate min-w-[180px]">
-            {subdomainLink}
-          </span>
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(subdomainLink);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-            className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            {copied ? <><CheckCircle className="w-3.5 h-3.5" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy Link</>}
-          </button>
+      ) : (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Globe className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Your Website is Live!</p>
+              <p className="text-xs text-gray-600">Share this link with your customers to start getting leads.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1 w-full sm:w-auto">
+            <span className="px-3 text-sm font-medium text-gray-700 truncate min-w-[180px]">
+              {subdomainLink}
+            </span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(subdomainLink);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              {copied ? <><CheckCircle className="w-3.5 h-3.5" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy Link</>}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">

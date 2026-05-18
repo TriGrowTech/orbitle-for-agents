@@ -177,8 +177,10 @@ export function DomesticPackages() {
           category: p.packageType,
           inclusions: p.inclusions,
           exclusions: p.exclusions,
-          badges: p.isTrending ? ['trending' as const] : [],
-          offer: p.hasOffer ? 'Special Offer' : undefined,
+          badges: (p.badges && p.badges.length > 0)
+            ? p.badges as Array<'premium' | 'budget' | 'vip' | 'bestseller' | 'trending' | 'season' | 'discount'>
+            : (p.isTrending ? ['trending' as const] : []),
+          offer: undefined, // Card offer is controlled globally via siteConfig.cardOffer
         }))
     : domesticPackages;
 

@@ -1,51 +1,51 @@
-import { Shield, Award, Headphones, CreditCard, Users, Globe, Clock, ThumbsUp } from 'lucide-react';
+import { Shield, Award, Headphones, CreditCard, Users, Globe, Clock, ThumbsUp, Star } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAgent } from '../context/AgentContext';
+import { useState, useEffect, useMemo } from 'react';
 
-const trustReasons = [
-  {
-    icon: Shield,
-    title: 'Secure Booking',
-    description: '100% secure payment gateway with SSL encryption',
-  },
-  {
-    icon: Award,
-    title: 'Certified Agency',
-    description: 'Government approved and ISO certified travel agency',
-  },
-  {
-    icon: Headphones,
-    title: '24/7 Support',
-    description: 'Round the clock customer support for your convenience',
-  },
-  {
-    icon: CreditCard,
-    title: 'Best Price',
-    description: 'Guaranteed lowest prices with price match promise',
-  },
-  {
-    icon: Users,
-    title: '50K+ Travelers',
-    description: 'Trusted by over 50,000 happy travelers worldwide',
-  },
-  {
-    icon: Globe,
-    title: '500+ Destinations',
-    description: 'Access to destinations across 100+ countries',
-  },
-  {
-    icon: Clock,
-    title: '15+ Years',
-    description: 'Over 15 years of experience in travel industry',
-  },
-  {
-    icon: ThumbsUp,
-    title: '4.8 Rating',
-    description: 'Excellent ratings on all major review platforms',
-  },
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+const defaultIcons = [Shield, Award, Headphones, CreditCard, Users, Globe, Clock, ThumbsUp];
+
+const defaultTrustReasons = [
+  { icon: Shield, title: 'Secure Booking', description: '100% secure payment gateway with SSL encryption' },
+  { icon: Award, title: 'Certified Agency', description: 'Government approved and ISO certified travel agency' },
+  { icon: Headphones, title: '24/7 Support', description: 'Round the clock customer support for your convenience' },
+  { icon: CreditCard, title: 'Best Price', description: 'Guaranteed lowest prices with price match promise' },
+  { icon: Users, title: '50K+ Travelers', description: 'Trusted by over 50,000 happy travelers worldwide' },
+  { icon: Globe, title: '500+ Destinations', description: 'Access to destinations across 100+ countries' },
+  { icon: Clock, title: '15+ Years', description: 'Over 15 years of experience in travel industry' },
+  { icon: ThumbsUp, title: '4.8 Rating', description: 'Excellent ratings on all major review platforms' },
 ];
 
 export function WhyTrustUs() {
   const { layoutVariant, themeConfig } = useTheme();
+  const { subdomain, isTenantMode } = useAgent();
+  const [apiSections, setApiSections] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    if (!isTenantMode || !subdomain) return;
+    fetch(`${API_BASE}/api/public/content/${subdomain}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.data) {
+          const whyCards = data.data.filter((s: any) => s.sectionType === 'why_choose_us');
+          if (whyCards.length > 0) setApiSections(whyCards);
+        }
+      })
+      .catch(() => {});
+  }, [subdomain, isTenantMode]);
+
+  const trustReasons = useMemo(() => {
+    if (apiSections && apiSections.length > 0) {
+      return apiSections.map((s, i) => ({
+        icon: defaultIcons[i % defaultIcons.length],
+        title: s.title,
+        description: s.content,
+      }));
+    }
+    return defaultTrustReasons;
+  }, [apiSections]);
 
   // Centered layout
   if (layoutVariant === 'centered') {

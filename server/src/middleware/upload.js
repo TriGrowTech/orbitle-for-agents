@@ -44,5 +44,20 @@ export const uploadPackageImage = multer({
   fileFilter: fileFilter
 });
 
+// Banners
+const bannerStorage = multer.diskStorage({
+  destination: 'uploads/banners',
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, req.agent.id + '-banner-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+export const uploadBannerImage = multer({
+  storage: bannerStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: fileFilter
+});
+
 
 export default uploadLogo;

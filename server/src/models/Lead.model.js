@@ -13,11 +13,13 @@ const LeadSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: [true, 'Please provide an email'],
-        match: [
-            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-            'Please provide a valid email'
-        ]
+        validate: {
+            validator: function(v) {
+                if (!v) return true; // email is optional — only validate format if provided
+                return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+            },
+            message: 'Please provide a valid email address'
+        }
     },
     phone: {
         type: String,
@@ -25,19 +27,15 @@ const LeadSchema = new mongoose.Schema({
     },
     fromLocation: {
         type: String,
-        required: [true, 'Please provide departure city']
     },
     toLocation: {
         type: String,
-        required: [true, 'Please provide destination']
     },
     departureDate: {
         type: Date,
-        required: [true, 'Please provide departure date']
     },
     numberOfDays: {
         type: Number,
-        required: [true, 'Please provide duration']
     },
     adults: {
         type: Number,
@@ -63,17 +61,21 @@ const LeadSchema = new mongoose.Schema({
         enum: ['yes', 'no'],
         default: 'no'
     },
+    packageName: {
+        type: String,
+    },
     specialRequests: {
         type: String
     },
     status: {
         type: String,
-        enum: ['pending', 'contacted', 'follow-up', 'quoted', 'converted', 'cancelled'],
+        enum: ['pending', 'contacted', 'follow_up', 'quoted', 'converted', 'cancelled'],
         default: 'pending'
     },
     source: {
         type: String,
-        default: 'Marketplace'
+        enum: ['popup', 'hero_form', 'package_detail', 'plan_tour', 'chatbot', 'marketplace'],
+        default: 'marketplace'
     },
     createdAt: {
         type: Date,

@@ -3,7 +3,7 @@ import { EnquiryForm } from './EnquiryForm';
 export function PlanTourForm() {
   return (
     <section id="plan-tour">
-      <EnquiryForm />
+      <EnquiryForm source="plan_tour" />
     </section>
   );
 }

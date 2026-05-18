@@ -50,6 +50,7 @@ export function PlanTourModal({ isOpen, onClose, preselectedPackage }: PlanTourM
             prefilledDuration={preselectedPackage?.duration?.match(/\d+/)?.[0] || ''}
             lockDestination={isQuoteMode}
             onSubmitSuccess={onClose}
+            source={isQuoteMode ? 'package_detail' : 'hero_form'}
           />
         </div>
       </div>

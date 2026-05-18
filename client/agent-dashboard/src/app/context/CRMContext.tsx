@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { useGetLeadsQuery } from '../api/leadsApi';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-export type LeadSource = 'Hero Form' | 'Package Page' | 'Popup' | 'Manual Entry' | 'Marketplace';
+export type LeadSource = 'hero_form' | 'package_detail' | 'popup' | 'plan_tour' | 'chatbot' | 'marketplace';
 export type LeadStatus = 'pending' | 'contacted' | 'follow_up' | 'quoted' | 'converted' | 'cancelled';
 export type Priority   = 'high' | 'medium' | 'low';
 
@@ -19,12 +19,12 @@ export interface BaseLead {
 }
 
 export interface PopupLead extends BaseLead {
-  source: 'Popup';
+  source: 'popup' | 'chatbot';
   email?: string;
 }
 
 export interface FormLead extends BaseLead {
-  source: 'Hero Form';
+  source: 'hero_form' | 'plan_tour' | 'marketplace';
   email: string;
   fromCity: string;
   startDate: string;
@@ -35,7 +35,7 @@ export interface FormLead extends BaseLead {
 }
 
 export interface PackageLead extends BaseLead {
-  source: 'Package Page';
+  source: 'package_detail';
   email?: string;
   packageName: string;
   fromCity: string;
@@ -44,18 +44,7 @@ export interface PackageLead extends BaseLead {
   startDate?: string;
 }
 
-export interface ManualLead extends BaseLead {
-  source: 'Manual Entry';
-  email?: string;
-  fromCity?: string;
-  startDate?: string;
-  duration?: string;
-  travelers?: number;
-  budget?: string;
-  message?: string;
-}
-
-export type Lead = PopupLead | FormLead | PackageLead | ManualLead;
+export type Lead = PopupLead | FormLead | PackageLead;
 
 // ── Mock Data ──────────────────────────────────────────────────────────────────
 export const initialMockLeads: Lead[] = [
@@ -102,16 +91,17 @@ export function CRMProvider({ children }: { children: ReactNode }) {
           name: l.name,
           phone: l.phone,
           email: l.email,
-          destination: l.toLocation,
+          destination: l.toLocation || '',
+          packageName: l.packageName || '',
           date: l.createdAt.split('T')[0],
-          source: (l.source as LeadSource) || 'Marketplace',
+          source: (l.source as LeadSource) || 'marketplace',
           status: (l.status as LeadStatus) || 'pending',
           priority: 'medium',
-          fromCity: l.fromLocation,
+          fromCity: l.fromLocation || '',
           startDate: l.departureDate?.split('T')[0],
-          duration: `${l.numberOfDays} days`,
+          duration: l.numberOfDays ? `${l.numberOfDays} days` : '',
           travelers: (l.adults || 0) + (l.children || 0),
-          budget: `₹${l.budgetRupees}`,
+          budget: l.budgetRupees ? `₹${l.budgetRupees}` : '',
           message: l.specialRequests || ''
         }));
         setLeadsData(transformedLeads);

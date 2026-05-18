@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { TrendingUp, MessageCircle, Package, Users, ArrowUpRight, ArrowDownRight, Clock, Zap, Copy, CheckCircle, Globe, IndianRupee, Lock } from 'lucide-react';
 import { useCRMContext } from '../context/CRMContext';
 import { useGetMeQuery } from '../api/authApi';
+import { useGetPackagesQuery } from '../api/packageApi';
 
 const topPackages = [
   { name: 'Bali Paradise - 7D/6N', enquiries: 45, price: '₹45,000', trend: '+12%' },
@@ -23,11 +24,13 @@ export function Dashboard() {
   const navigate = useNavigate();
   const { leadsData, leadStatuses, dealValues } = useCRMContext();
   const { data: userData } = useGetMeQuery();
+  const { data: pkgData } = useGetPackagesQuery();
   const agent = userData?.agent;
+  const totalPackages = pkgData?.data?.length || 0;
 
   const [copied, setCopied] = useState(false);
 
-  const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
+  const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173';
   const subdomainLink = agent?.subdomain 
     ? `${agent.subdomain}.${marketplaceDomain}` 
     : "loading...";
@@ -43,14 +46,16 @@ export function Dashboard() {
   const totalRevenue = Object.values(dealValues).reduce((a, b) => a + b, 0);
   const totalLeads = leadsData.length;
   const convertedLeads = Object.values(leadStatuses).filter(s => s === 'converted').length;
+  const newLeads = Object.values(leadStatuses).filter(s => s === 'new').length;
+  const contactedLeads = Object.values(leadStatuses).filter(s => s === 'contacted').length;
   const conversionRate = totalLeads ? Math.round((convertedLeads / totalLeads) * 100) : 0;
 
   const stats = [
-    { name: 'Total Revenue', value: `₹${(totalRevenue / 100000).toFixed(1)}L`, change: 'Current', icon: IndianRupee, color: 'green', trend: 'up' },
-    { name: 'Total Leads', value: totalLeads.toString(), change: '+12%', icon: Users, color: 'blue', trend: 'up' },
-    { name: 'WhatsApp Clicks', value: '342', change: '+23%', icon: MessageCircle, color: 'teal', trend: 'up' },
-    { name: 'Package Enquiries', value: '89', change: '+8%', icon: Package, color: 'purple', trend: 'up' },
-    { name: 'Conversion Rate', value: `${conversionRate}%`, change: '+5%', icon: TrendingUp, color: 'orange', trend: 'up' },
+    { name: 'Total Revenue', value: totalRevenue > 0 ? `₹${(totalRevenue / 100000).toFixed(1)}L` : '₹0', change: 'Current', icon: IndianRupee, color: 'green', trend: 'up' },
+    { name: 'Total Leads', value: totalLeads.toString(), change: `${newLeads} new`, icon: Users, color: 'blue', trend: 'up' },
+    { name: 'Contacted', value: contactedLeads.toString(), change: 'In progress', icon: MessageCircle, color: 'teal', trend: 'up' },
+    { name: 'Packages', value: totalPackages.toString(), change: 'Active', icon: Package, color: 'purple', trend: 'up' },
+    { name: 'Conversion', value: `${conversionRate}%`, change: `${convertedLeads} deals`, icon: TrendingUp, color: 'orange', trend: 'up' },
   ];
 
 

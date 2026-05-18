@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useAgent } from '../context/AgentContext';
 
-const faqs = [
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+const defaultFaqs = [
   {
     question: 'How do I book a travel package?',
     answer: 'You can book a package by clicking on the package card, reviewing the details, and clicking the "Book Now" button. Alternatively, you can fill out the Plan Tour Form and our team will contact you.',
@@ -38,6 +41,31 @@ const faqs = [
 
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { subdomain, isTenantMode } = useAgent();
+  const [apiContent, setApiContent] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    if (!isTenantMode || !subdomain) return;
+    fetch(`${API_BASE}/api/public/content/${subdomain}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.data) {
+          const faqItems = data.data.filter((s: any) => s.sectionType === 'custom');
+          if (faqItems.length > 0) setApiContent(faqItems);
+        }
+      })
+      .catch(() => {});
+  }, [subdomain, isTenantMode]);
+
+  const faqs = useMemo(() => {
+    if (apiContent && apiContent.length > 0) {
+      return apiContent.map(s => ({
+        question: s.title,
+        answer: s.content,
+      }));
+    }
+    return defaultFaqs;
+  }, [apiContent]);
 
   return (
     <section className="py-16 bg-gray-50 dark:bg-gray-800">

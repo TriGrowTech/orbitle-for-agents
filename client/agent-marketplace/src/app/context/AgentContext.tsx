@@ -31,10 +31,45 @@ export interface AgentProfile {
   subdomain: string;
 }
 
+export interface SiteConfig {
+  companyName: string;
+  contactEmail: string;
+  contactPhone: string;
+  address: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  defaultWhatsappMessage: string;
+  currency: string;
+  timezone: string;
+  topbarOffer: {
+    text: string;
+    ctaText: string;
+    ctaLink: string;
+    isActive: boolean;
+  };
+  cardOffer: {
+    text: string;
+    bgColor: string;
+    isActive: boolean;
+  };
+}
+
+export interface BannerData {
+  _id: string;
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  linkUrl: string;
+  position: number;
+  bannerType: 'hero_slide' | 'promotional';
+}
+
 interface AgentContextType {
   subdomain: string | null;
   agent: AgentProfile | null;
   packages: AgentPackage[];
+  siteConfig: SiteConfig | null;
+  banners: BannerData[];
   isLoading: boolean;
   error: string | null;
   isTenantMode: boolean; // true = viewing as specific agent, false = default
@@ -65,6 +100,8 @@ const AgentContext = createContext<AgentContextType>({
   subdomain: null,
   agent: null,
   packages: [],
+  siteConfig: null,
+  banners: [],
   isLoading: false,
   error: null,
   isTenantMode: false,
@@ -76,6 +113,8 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
   const [subdomain] = useState<string | null>(detectSubdomain);
   const [agent, setAgent] = useState<AgentProfile | null>(null);
   const [packages, setPackages] = useState<AgentPackage[]>([]);
+  const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null);
+  const [banners, setBanners] = useState<BannerData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,14 +122,27 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
     if (!subdomain) return; // No subdomain → default mode
 
     setIsLoading(true);
-    fetch(`${API_BASE}/api/public/agent/${subdomain}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setAgent(data.agent);
-          setPackages(data.packages || []);
+
+    // Fetch agent data + site config + banners in parallel
+    Promise.all([
+      fetch(`${API_BASE}/api/public/agent/${subdomain}`).then(r => r.json()),
+      fetch(`${API_BASE}/api/public/site-config/${subdomain}`).then(r => r.json()).catch(() => ({ success: false })),
+      fetch(`${API_BASE}/api/public/banners/${subdomain}`).then(r => r.json()).catch(() => ({ success: false })),
+    ])
+      .then(([agentData, configData, bannersData]) => {
+        if (agentData.success) {
+          setAgent(agentData.agent);
+          setPackages(agentData.packages || []);
         } else {
-          setError(data.message || 'Agent not found');
+          setError(agentData.message || 'Agent not found');
+        }
+
+        if (configData.success && configData.data) {
+          setSiteConfig(configData.data);
+        }
+
+        if (bannersData.success && bannersData.data) {
+          setBanners(bannersData.data);
         }
       })
       .catch(() => setError('Failed to connect to server'))
@@ -102,6 +154,8 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
       subdomain,
       agent,
       packages,
+      siteConfig,
+      banners,
       isLoading,
       error,
       isTenantMode: !!subdomain,
@@ -114,3 +168,4 @@ export function AgentProvider({ children }: { children: React.ReactNode }) {
 export function useAgent() {
   return useContext(AgentContext);
 }
+

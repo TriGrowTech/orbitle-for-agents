@@ -100,7 +100,7 @@ export function StatusDropdown({
 }: StatusDropdownProps) {
   const { leadStatuses } = useCRMContext();
   const currentStatus = leadStatuses[lead.id];
-  const c = STATUS_CONFIG[currentStatus];
+  const c = STATUS_CONFIG[currentStatus] || STATUS_CONFIG.pending;
   const SIcon = c.icon;
   const isOpen = openStatusDropdown === lead.id;
 
@@ -178,7 +178,7 @@ export function CardHeader({
 }: CardHeaderProps) {
   const { leadStatuses } = useCRMContext();
   const sh = STATUS_HEADER[leadStatuses[lead.id]] || STATUS_HEADER.pending;
-  const srcCfg = SOURCE_CONFIG[lead.source] || SOURCE_CONFIG["Hero Form"];
+  const srcCfg = SOURCE_CONFIG[lead.source as keyof typeof SOURCE_CONFIG] || SOURCE_CONFIG['hero_form'];
 
   return (
     <div className={`p-2.5 border-b ${sh.headerBg} ${sh.headerBorder}`}>
@@ -198,7 +198,7 @@ export function CardHeader({
                 className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-semibold ring-1 whitespace-nowrap ${srcCfg.bg} ${srcCfg.color} ${srcCfg.ring}`}
               >
                 <srcCfg.icon className="w-2 h-2" />
-                &#8202;{srcLabel}
+                &#8202;{srcCfg.label}
               </span>
               {lead.priority === "high" && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-red-50 text-red-600 ring-1 ring-red-300 whitespace-nowrap">
@@ -432,7 +432,7 @@ export function PopupCard({
       >
         <CardHeader
           lead={lead}
-          srcLabel="Popup"
+        srcLabel={SOURCE_CONFIG['popup']?.label || 'Popup'}
           openStatusDropdown={openStatusDropdown}
           setOpenStatusDropdown={setOpenStatusDropdown}
           onStatusChange={onStatusChange}
@@ -498,7 +498,7 @@ export function FormCard({
       >
         <CardHeader
           lead={lead}
-          srcLabel={lead.source}
+          srcLabel={SOURCE_CONFIG[lead.source as keyof typeof SOURCE_CONFIG]?.label || lead.source}
           openStatusDropdown={openStatusDropdown}
           setOpenStatusDropdown={setOpenStatusDropdown}
           onStatusChange={onStatusChange}
@@ -567,17 +567,17 @@ export function PackageCard({
       >
         <CardHeader
           lead={lead}
-          srcLabel="Package"
+          srcLabel={SOURCE_CONFIG['package_detail']?.label || 'Package Detail'}
           openStatusDropdown={openStatusDropdown}
           setOpenStatusDropdown={setOpenStatusDropdown}
           onStatusChange={onStatusChange}
         />
 
         <div className="p-2.5 space-y-2">
-          <div className="flex items-center gap-1.5 px-3 py-2 bg-violet-50 rounded-lg border border-violet-200">
-            <Package className="w-3.5 h-3.5 text-violet-600 flex-shrink-0" />
-            <p className="text-xs font-bold text-violet-900 truncate">
-              {pkg.packageName}
+          <div className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border ${pkg.packageName ? 'bg-violet-50 border-violet-200' : 'bg-gray-50 border-gray-200'}`}>
+            <Package className={`w-3.5 h-3.5 flex-shrink-0 ${pkg.packageName ? 'text-violet-600' : 'text-gray-400'}`} />
+            <p className={`text-xs font-bold truncate ${pkg.packageName ? 'text-violet-900' : 'text-gray-400 italic'}`}>
+              {pkg.packageName || 'Package name not recorded'}
             </p>
           </div>
 
@@ -610,13 +610,11 @@ export function renderLeadCard(
   sharedProps: Omit<CardProps, "lead">,
 ) {
   const props = { lead, ...sharedProps };
-  if (lead.source === "Popup") return <PopupCard key={lead.id} {...props} />;
-  if (lead.source === "Hero Form") return <FormCard key={lead.id} {...props} />;
-  if (lead.source === "Package Page")
-    return <PackageCard key={lead.id} {...props} />;
-  if (lead.source === "Manual Entry")
-    return <FormCard key={lead.id} {...props} />;
-  if (lead.source === "Marketplace")
-    return <FormCard key={lead.id} {...props} />;
-  return null;
+  if (lead.source === 'popup')          return <PopupCard   key={lead.id} {...props} />;
+  if (lead.source === 'hero_form')      return <FormCard    key={lead.id} {...props} />;
+  if (lead.source === 'plan_tour')      return <FormCard    key={lead.id} {...props} />;
+  if (lead.source === 'package_detail') return <PackageCard key={lead.id} {...props} />;
+  if (lead.source === 'chatbot')        return <PopupCard   key={lead.id} {...props} />;
+  // Fallback: covers 'marketplace', old 'Marketplace' / 'Hero Form' / 'Package Page' etc.
+  return <FormCard key={lead.id} {...props} />;
 }

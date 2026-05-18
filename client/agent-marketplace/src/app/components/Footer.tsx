@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router';
 import { useTheme } from '../context/ThemeContext';
 import { useAgent } from '../context/AgentContext';
@@ -8,13 +8,16 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export function Footer() {
   const { layoutVariant, themeConfig } = useTheme();
-  const { agent, isTenantMode } = useAgent();
+  const { agent, siteConfig, isTenantMode } = useAgent();
 
-  // Dynamic values — agent data in tenant mode, defaults otherwise
-  const displayName   = isTenantMode && agent ? (agent.businessName || agent.name) : 'TG Travels';
+  // Dynamic values — prefer siteConfig branding over agent profile
+  const displayName   = isTenantMode ? (siteConfig?.companyName || (agent ? (agent.businessName || agent.name) : '')) : 'TG Travels';
   const tagline       = isTenantMode && agent?.tagline ? agent.tagline : 'Your trusted partner for unforgettable travel experiences around the world. Creating memories that last a lifetime.';
-  const phone         = isTenantMode && agent?.whatsapp ? agent.whatsapp : '+91 123 456 7890';
-  const email         = isTenantMode && agent?.email ? agent.email : 'info@travelagent.com';
+  const phone         = siteConfig?.contactPhone || '';
+  const email         = siteConfig?.contactEmail || '';
+  const address       = siteConfig?.address || '';
+  const facebookHref  = siteConfig?.facebookUrl  || '#';
+  const instagramHref = siteConfig?.instagramUrl || '#';
   const year          = new Date().getFullYear();
   const agentLogoUrl  = isTenantMode && agent?.logo && agent.logo !== 'no-photo.jpg'
     ? `${API_BASE}/uploads/${agent.logo}`
@@ -36,14 +39,27 @@ export function Footer() {
 
   const ContactBlock = () => (
     <ul className="space-y-3">
-      <li className="flex items-center gap-3">
-        <Phone className="w-5 h-5 text-[var(--theme-accent)] flex-shrink-0" />
-        <a href={`tel:${phone}`} className={`text-sm ${themeConfig.footerAccentClass} transition-colors`}>{phone}</a>
-      </li>
-      <li className="flex items-center gap-3">
-        <Mail className="w-5 h-5 text-[var(--theme-accent)] flex-shrink-0" />
-        <a href={`mailto:${email}`} className={`text-sm ${themeConfig.footerAccentClass} transition-colors`}>{email}</a>
-      </li>
+      {phone && (
+        <li className="flex items-center gap-3">
+          <Phone className="w-5 h-5 text-[var(--theme-accent)] flex-shrink-0" />
+          <a href={`tel:${phone}`} className={`text-sm ${themeConfig.footerAccentClass} transition-colors`}>{phone}</a>
+        </li>
+      )}
+      {email && (
+        <li className="flex items-center gap-3">
+          <Mail className="w-5 h-5 text-[var(--theme-accent)] flex-shrink-0" />
+          <a href={`mailto:${email}`} className={`text-sm ${themeConfig.footerAccentClass} transition-colors`}>{email}</a>
+        </li>
+      )}
+      {address && (
+        <li className="flex items-start gap-3">
+          <MapPin className="w-5 h-5 text-[var(--theme-accent)] flex-shrink-0 mt-0.5" />
+          <span className="text-sm text-gray-400 leading-snug">{address}</span>
+        </li>
+      )}
+      {!phone && !email && !address && (
+        <li className="text-sm text-gray-500 italic">Contact details not set</li>
+      )}
     </ul>
   );
 
@@ -77,11 +93,12 @@ export function Footer() {
               <LogoBlock />
               <p className="text-sm mb-6 text-gray-400 leading-relaxed">{tagline}</p>
               <div className="flex gap-3">
-                {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                  <a key={i} href="#" className={`${socialIconBaseClass} bg-white/5 hover:bg-gradient-to-br hover:from-[var(--theme-primary)] hover:to-[var(--theme-secondary)]`}>
-                    <Icon className="w-5 h-5" />
-                  </a>
-                ))}
+                <a href={facebookHref} target={facebookHref !== '#' ? '_blank' : undefined} rel="noopener noreferrer" className={`${socialIconBaseClass} bg-white/5 hover:bg-gradient-to-br hover:from-[var(--theme-primary)] hover:to-[var(--theme-secondary)]`}>
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href={instagramHref} target={instagramHref !== '#' ? '_blank' : undefined} rel="noopener noreferrer" className={`${socialIconBaseClass} bg-white/5 hover:bg-gradient-to-br hover:from-[var(--theme-primary)] hover:to-[var(--theme-secondary)]`}>
+                  <Instagram className="w-5 h-5" />
+                </a>
               </div>
             </div>
 
@@ -128,11 +145,12 @@ export function Footer() {
               <LogoBlock size="lg" />
               <p className="text-base mb-6 text-gray-300 leading-relaxed max-w-md">{tagline}</p>
               <div className="flex gap-4">
-                {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                  <a key={i} href="#" className="w-11 h-11 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] hover:opacity-90 rounded-xl flex items-center justify-center transition-all shadow-lg transform hover:scale-110">
-                    <Icon className="w-5 h-5" />
-                  </a>
-                ))}
+                <a href={facebookHref} target={facebookHref !== '#' ? '_blank' : undefined} rel="noopener noreferrer" className="w-11 h-11 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] hover:opacity-90 rounded-xl flex items-center justify-center transition-all shadow-lg transform hover:scale-110">
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href={instagramHref} target={instagramHref !== '#' ? '_blank' : undefined} rel="noopener noreferrer" className="w-11 h-11 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] hover:opacity-90 rounded-xl flex items-center justify-center transition-all shadow-lg transform hover:scale-110">
+                  <Instagram className="w-5 h-5" />
+                </a>
               </div>
             </div>
 
@@ -166,11 +184,12 @@ export function Footer() {
             <LogoBlock />
             <p className="text-sm mb-6 text-gray-400 leading-relaxed">{tagline}</p>
             <div className="flex gap-3">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className={`${socialIconBaseClass} bg-gray-800 hover:bg-gradient-to-br hover:from-[var(--theme-primary)] hover:to-[var(--theme-secondary)] rounded-2xl`}>
-                  <Icon className="w-5 h-5" />
-                </a>
-              ))}
+              <a href={facebookHref} target={facebookHref !== '#' ? '_blank' : undefined} rel="noopener noreferrer" className={`${socialIconBaseClass} bg-gray-800 hover:bg-gradient-to-br hover:from-[var(--theme-primary)] hover:to-[var(--theme-secondary)] rounded-2xl`}>
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href={instagramHref} target={instagramHref !== '#' ? '_blank' : undefined} rel="noopener noreferrer" className={`${socialIconBaseClass} bg-gray-800 hover:bg-gradient-to-br hover:from-[var(--theme-primary)] hover:to-[var(--theme-secondary)] rounded-2xl`}>
+                <Instagram className="w-5 h-5" />
+              </a>
             </div>
           </div>
 

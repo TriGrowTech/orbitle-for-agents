@@ -5,6 +5,12 @@ import authRoutes from './routes/authRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import leadRoutes from './routes/leadRoutes.js';
+import bannerRoutes from './routes/bannerRoutes.js';
+import testimonialRoutes from './routes/testimonialRoutes.js';
+import contentSectionRoutes from './routes/contentSectionRoutes.js';
+import seoRoutes from './routes/seoRoutes.js';
+import legalRoutes from './routes/legalRoutes.js';
+import siteConfigRoutes from './routes/siteConfigRoutes.js';
 import connectDB from './config/db.js';
 import cors from 'cors';
 import path from 'path';
@@ -59,6 +65,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/banners', bannerRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/content-sections', contentSectionRoutes);
+app.use('/api/seo', seoRoutes);
+app.use('/api/legal', legalRoutes);
+app.use('/api/site-config', siteConfigRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running and MongoDB is connected (using ES Modules)!');

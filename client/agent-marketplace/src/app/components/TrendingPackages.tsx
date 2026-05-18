@@ -239,7 +239,7 @@ export function TrendingPackages() {
         .filter(p => p.isTrending)
         .map(p => ({
           id: p._id,
-          tag: p.hasOffer ? 'Special Offer' : 'Trending',
+          tag: 'Trending',
           headline: p.title,
           subtitle: p.location + ' — ' + p.duration,
           price: p.discountedPrice ?? p.originalPrice,

@@ -1,7 +1,10 @@
-import { Plus, Save, Trash2, Upload, Globe2, Home, MapPin } from 'lucide-react';
+import { Plus, Save, Trash2, Upload, Globe2, Home, MapPin, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
+import { useGetContentSectionsQuery, useCreateContentSectionMutation, useUpdateContentSectionMutation, useDeleteContentSectionMutation } from '../api/contentSectionApi';
+import type { ContentSectionData } from '../api/contentSectionApi';
+import { toast } from 'sonner';
 
 const tabs = ['Travel Themes', 'Why Choose Us', 'FAQ', 'Destinations'];
 
@@ -508,76 +511,10 @@ export function ContentSections() {
       {activeTab === 'Destinations' && <DestinationsTab />}
 
       {/* Why Choose Us */}
-      {activeTab === 'Why Choose Us' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">Maximum 4 cards to highlight your strengths</p>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium">
-              <Plus className="w-4 h-4" /> Add Card
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { icon: '🏆', title: 'Best Prices',    desc: 'We offer competitive rates with no hidden charges' },
-              { icon: '⚡', title: 'Quick Response', desc: '24/7 customer support for all your queries' },
-              { icon: '✈️', title: 'Expert Planning',desc: 'Professional team with years of experience' },
-              { icon: '🛡️', title: 'Safe & Secure',  desc: 'Your bookings are completely protected' },
-            ].map((card, index) => (
-              <div key={index} className="bg-white rounded-lg border border-gray-200 p-5">
-                <div className="flex gap-4">
-                  <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center text-3xl flex-shrink-0">
-                    {card.icon}
-                  </div>
-                  <div className="flex-1 space-y-3">
-                    <Input type="text" defaultValue={card.title} placeholder="Card title"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto bg-white" />
-                    <Textarea rows={2} defaultValue={card.desc} placeholder="Card description"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white" />
-                    <button className="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm flex items-center gap-1">
-                      <Trash2 className="w-4 h-4" /> Remove
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {activeTab === 'Why Choose Us' && <WhyChooseUsTab />}
 
       {/* FAQ */}
-      {activeTab === 'FAQ' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">Frequently asked questions to help customers</p>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium">
-              <Plus className="w-4 h-4" /> Add Question
-            </button>
-          </div>
-          <div className="space-y-4">
-            {[
-              { q: 'How do I book a package?',          a: 'You can book by contacting us via WhatsApp or filling the enquiry form.' },
-              { q: 'What is your cancellation policy?', a: 'Cancellation charges vary based on the package and timing. Contact us for details.' },
-              { q: 'Do you provide travel insurance?',  a: 'Yes, we offer comprehensive travel insurance with all our packages.' },
-            ].map((faq, index) => (
-              <div key={index} className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Question</label>
-                  <Input type="text" defaultValue={faq.q}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto bg-white" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Answer</label>
-                  <Textarea rows={3} defaultValue={faq.a}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white" />
-                </div>
-                <button className="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm flex items-center gap-1">
-                  <Trash2 className="w-4 h-4" /> Remove Question
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {activeTab === 'FAQ' && <FAQTab />}
 
       {/* Save */}
       <div className="flex justify-end">
@@ -585,6 +522,143 @@ export function ContentSections() {
           <Save className="w-5 h-5" /> Save Changes
         </button>
       </div>
+    </div>
+  );
+}
+
+// ── Why Choose Us Tab (API-wired) ─────────────────────────────────────────────
+
+function WhyChooseUsTab() {
+  const { data, isLoading } = useGetContentSectionsQuery();
+  const [createSection, { isLoading: isCreating }] = useCreateContentSectionMutation();
+  const [updateSection] = useUpdateContentSectionMutation();
+  const [deleteSection] = useDeleteContentSectionMutation();
+
+  const sections = (data?.data || []).filter(s => s.sectionType === 'why_choose_us');
+
+  const handleAdd = async () => {
+    try {
+      await createSection({ sectionType: 'why_choose_us', title: 'New Card', content: 'Describe your strength' }).unwrap();
+      toast.success('Card added!');
+    } catch (err: any) { toast.error(err?.data?.message || 'Failed to add'); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Remove this card?')) return;
+    try { await deleteSection(id).unwrap(); toast.success('Removed!'); }
+    catch (err: any) { toast.error('Failed to remove'); }
+  };
+
+  const handleUpdate = async (id: string, updates: Partial<ContentSectionData>) => {
+    try { await updateSection({ id, data: updates }).unwrap(); }
+    catch (err: any) { toast.error('Failed to save'); }
+  };
+
+  if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 text-blue-600 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-gray-600">Highlight your strengths — shown on marketplace</p>
+        <button onClick={handleAdd} disabled={isCreating}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm font-medium disabled:opacity-50">
+          {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Add Card
+        </button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {sections.map(s => (
+          <div key={s._id} className="bg-white rounded-lg border border-gray-200 p-5">
+            <div className="flex gap-4">
+              <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center text-3xl flex-shrink-0">
+                {s.items?.[0]?.icon || '⭐'}
+              </div>
+              <div className="flex-1 space-y-3">
+                <Input type="text" defaultValue={s.title} placeholder="Card title"
+                  onBlur={e => { if (e.target.value !== s.title) handleUpdate(s._id, { title: e.target.value }); }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto bg-white" />
+                <Textarea rows={2} defaultValue={s.content} placeholder="Card description"
+                  onBlur={(e: any) => { if (e.target.value !== s.content) handleUpdate(s._id, { content: e.target.value }); }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white" />
+                <button onClick={() => handleDelete(s._id)}
+                  className="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm flex items-center gap-1">
+                  <Trash2 className="w-4 h-4" /> Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {sections.length === 0 && (
+        <div className="text-center py-8 text-sm text-gray-400">No cards yet — click <strong>Add Card</strong> to highlight your strengths.</div>
+      )}
+    </div>
+  );
+}
+
+// ── FAQ Tab (API-wired) ──────────────────────────────────────────────────────
+
+function FAQTab() {
+  const { data, isLoading } = useGetContentSectionsQuery();
+  const [createSection, { isLoading: isCreating }] = useCreateContentSectionMutation();
+  const [deleteSection] = useDeleteContentSectionMutation();
+  const [updateSection] = useUpdateContentSectionMutation();
+
+  const faqs = (data?.data || []).filter(s => s.sectionType === 'custom');
+
+  const handleAdd = async () => {
+    try {
+      await createSection({ sectionType: 'custom', title: 'New Question', content: 'Answer goes here...' }).unwrap();
+      toast.success('Question added!');
+    } catch (err: any) { toast.error(err?.data?.message || 'Failed to add'); }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Remove this question?')) return;
+    try { await deleteSection(id).unwrap(); toast.success('Removed!'); }
+    catch (err: any) { toast.error('Failed to remove'); }
+  };
+
+  const handleUpdate = async (id: string, updates: Partial<ContentSectionData>) => {
+    try { await updateSection({ id, data: updates }).unwrap(); }
+    catch (err: any) { toast.error('Failed to save'); }
+  };
+
+  if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 text-blue-600 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-gray-600">Frequently asked questions — shown on marketplace</p>
+        <button onClick={handleAdd} disabled={isCreating}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm font-medium disabled:opacity-50">
+          {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Add Question
+        </button>
+      </div>
+      <div className="space-y-4">
+        {faqs.map(faq => (
+          <div key={faq._id} className="bg-white rounded-lg border border-gray-200 p-5 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Question</label>
+              <Input type="text" defaultValue={faq.title} placeholder="Question"
+                onBlur={e => { if (e.target.value !== faq.title) handleUpdate(faq._id, { title: e.target.value }); }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto bg-white" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Answer</label>
+              <Textarea rows={3} defaultValue={faq.content}
+                onBlur={(e: any) => { if (e.target.value !== faq.content) handleUpdate(faq._id, { content: e.target.value }); }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white" />
+            </div>
+            <button onClick={() => handleDelete(faq._id)}
+              className="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors text-sm flex items-center gap-1">
+              <Trash2 className="w-4 h-4" /> Remove Question
+            </button>
+          </div>
+        ))}
+      </div>
+      {faqs.length === 0 && (
+        <div className="text-center py-8 text-sm text-gray-400">No FAQs yet — click <strong>Add Question</strong>.</div>
+      )}
     </div>
   );
 }

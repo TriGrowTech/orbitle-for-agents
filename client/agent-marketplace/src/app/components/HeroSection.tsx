@@ -1,12 +1,20 @@
 import { Search } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAgent } from '../context/AgentContext';
 import { useState, useEffect } from 'react';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export function HeroSection() {
   const { themeConfig, layoutVariant } = useTheme();
+  const { banners, isTenantMode } = useAgent();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const images = themeConfig.heroImages;
+  // Use hero slides from API if available, otherwise use theme defaults
+  const heroSlides = isTenantMode
+    ? banners.filter(b => b.bannerType === 'hero_slide').map(b => `${API_BASE}/uploads/banners/${b.imageUrl}`)
+    : [];
+  const images = heroSlides.length > 0 ? heroSlides : themeConfig.heroImages;
 
   // Auto-rotate background images
   useEffect(() => {

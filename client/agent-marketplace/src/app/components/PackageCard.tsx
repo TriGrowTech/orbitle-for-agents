@@ -2,6 +2,7 @@ import { Heart, Check, X, Tag } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { Link } from 'react-router';
+import { useAgent } from '../context/AgentContext';
 
 interface PackageCardProps {
   id: string;
@@ -40,6 +41,22 @@ export function PackageCard({
   inclusions = [],
   exclusions = [],
 }: PackageCardProps) {
+  const { siteConfig } = useAgent();
+
+  // Use package-level offer first, then fall back to agent's global card offer
+  const cardOffer = siteConfig?.cardOffer;
+  const effectiveOffer = offer || (cardOffer?.isActive && cardOffer?.text ? cardOffer.text : undefined);
+
+  const cardOfferGradient = (() => {
+    const color = cardOffer?.bgColor || 'red';
+    switch (color) {
+      case 'orange': return 'from-amber-400 via-orange-500 to-orange-600';
+      case 'green': return 'from-emerald-400 via-green-500 to-green-600';
+      case 'blue': return 'from-blue-400 via-blue-500 to-blue-600';
+      default: return 'from-amber-400 via-orange-500 to-red-500';
+    }
+  })();
+
   const handleWhatsAppShare = () => {
     const message = `Check out this amazing travel package: ${title} - ${location}. Price: ₹${price.toLocaleString()}. ${window.location.origin}/package/${id}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -79,9 +96,9 @@ export function PackageCard({
          
            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
           {/* Offer Ribbon */}
-          {offer && (
+          {effectiveOffer && (
             <div className="absolute top-0 right-0 bg-gradient-to-br from-red-600 to-orange-600 text-white px-6 py-2 rounded-bl-2xl shadow-xl">
-              <p className="text-sm font-bold uppercase tracking-wider">{offer}</p>
+              <p className="text-sm font-bold uppercase tracking-wider">{effectiveOffer}</p>
             </div>
           )}
           
@@ -169,11 +186,11 @@ export function PackageCard({
         />
         
         {/* Offer Ribbon */}
-        {offer && (
+        {effectiveOffer && (
           <div className="absolute top-0 right-0 z-10">
             <div className="relative">
               <div className="bg-gradient-to-br from-red-600 to-orange-600 text-white px-4 py-2 rounded-bl-2xl shadow-lg">
-                <p className="text-xs font-bold uppercase tracking-wide">{offer}</p>
+                <p className="text-xs font-bold uppercase tracking-wide">{effectiveOffer}</p>
               </div>
               <div className="absolute top-0 right-0 w-0 h-0 border-t-[8px] border-t-red-800 border-l-[8px] border-l-transparent"></div>
             </div>
@@ -267,12 +284,12 @@ export function PackageCard({
         )}
 
         {/* Slim Offer Ribbon */}
-        {offer && (
+        {effectiveOffer && (
           <div className="-mx-5 mb-3">
-            <div className="bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 py-1.5 px-5">
+            <div className={`bg-gradient-to-r ${cardOfferGradient} py-1.5 px-5`}>
               <div className="flex items-center justify-center gap-2">
                 <Tag className="w-3 h-3 text-white" />
-                <p className="text-xs font-bold text-white uppercase tracking-wider">{offer}</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">{effectiveOffer}</p>
               </div>
             </div>
           </div>

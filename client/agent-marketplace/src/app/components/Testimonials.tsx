@@ -1,90 +1,91 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { useAgent } from '../context/AgentContext';
 
-const testimonials = [
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+const gradientPairs = [
+  { from: 'from-blue-500', to: 'to-cyan-400' },
+  { from: 'from-purple-500', to: 'to-pink-400' },
+  { from: 'from-green-500', to: 'to-emerald-400' },
+  { from: 'from-orange-500', to: 'to-amber-400' },
+  { from: 'from-rose-500', to: 'to-red-400' },
+  { from: 'from-indigo-500', to: 'to-blue-400' },
+  { from: 'from-teal-500', to: 'to-cyan-400' },
+  { from: 'from-sky-500', to: 'to-blue-400' },
+];
+
+const defaultTestimonials = [
   {
-    name: 'Priya Sharma',
-    destination: 'Maldives',
-    rating: 5,
+    name: 'Priya Sharma', destination: 'Maldives', rating: 5,
     review: 'Absolutely magical experience! The water villa was breathtaking, and the team planned every detail perfectly. From sunset cruises to snorkeling — everything was world-class.',
-    date: 'Mar 2026',
-    initials: 'PS',
-    gradientFrom: 'from-blue-500',
-    gradientTo: 'to-cyan-400',
+    date: 'Mar 2026', initials: 'PS', gradientFrom: 'from-blue-500', gradientTo: 'to-cyan-400',
   },
   {
-    name: 'Rahul Mehta',
-    destination: 'Switzerland',
-    rating: 5,
-    review: 'Our honeymoon in Switzerland was a dream come true. The scenic train rides, chocolate factories, and mountain views were unforgettable. Highly recommend TG Travels!',
-    date: 'Feb 2026',
-    initials: 'RM',
-    gradientFrom: 'from-purple-500',
-    gradientTo: 'to-pink-400',
+    name: 'Rahul Mehta', destination: 'Switzerland', rating: 5,
+    review: 'Our honeymoon in Switzerland was a dream come true. The scenic train rides, chocolate factories, and mountain views were unforgettable. Highly recommend!',
+    date: 'Feb 2026', initials: 'RM', gradientFrom: 'from-purple-500', gradientTo: 'to-pink-400',
   },
   {
-    name: 'Anjali Desai',
-    destination: 'Kerala',
-    rating: 5,
+    name: 'Anjali Desai', destination: 'Kerala', rating: 5,
     review: 'The Kerala backwaters tour was pure bliss. Houseboat stay, Ayurvedic spa, and the food — oh the food! Everything was arranged seamlessly. Will book again!',
-    date: 'Jan 2026',
-    initials: 'AD',
-    gradientFrom: 'from-green-500',
-    gradientTo: 'to-emerald-400',
+    date: 'Jan 2026', initials: 'AD', gradientFrom: 'from-green-500', gradientTo: 'to-emerald-400',
   },
   {
-    name: 'Vikram Singh',
-    destination: 'Dubai',
-    rating: 4,
+    name: 'Vikram Singh', destination: 'Dubai', rating: 4,
     review: 'Dubai was spectacular! Desert safari, Burj Khalifa, and the shopping — all perfectly planned. The hotel upgrade was a lovely surprise. Great value for money.',
-    date: 'Dec 2025',
-    initials: 'VS',
-    gradientFrom: 'from-orange-500',
-    gradientTo: 'to-amber-400',
+    date: 'Dec 2025', initials: 'VS', gradientFrom: 'from-orange-500', gradientTo: 'to-amber-400',
   },
   {
-    name: 'Sneha Patel',
-    destination: 'Bali',
-    rating: 5,
-    review: 'Bali exceeded all expectations! The private villa, temple visits, and rice terrace trek were incredible. TG Travels made this the best vacation of my life.',
-    date: 'Nov 2025',
-    initials: 'SP',
-    gradientFrom: 'from-rose-500',
-    gradientTo: 'to-red-400',
+    name: 'Sneha Patel', destination: 'Bali', rating: 5,
+    review: 'Bali exceeded all expectations! The private villa, temple visits, and rice terrace trek were incredible. Best vacation of my life.',
+    date: 'Nov 2025', initials: 'SP', gradientFrom: 'from-rose-500', gradientTo: 'to-red-400',
   },
   {
-    name: 'Arjun Kapoor',
-    destination: 'Ladakh',
-    rating: 5,
+    name: 'Arjun Kapoor', destination: 'Ladakh', rating: 5,
     review: 'Ladakh was an adventure of a lifetime. From Pangong Lake to Nubra Valley, every moment was breathtaking. The team handled all permits and logistics flawlessly.',
-    date: 'Oct 2025',
-    initials: 'AK',
-    gradientFrom: 'from-indigo-500',
-    gradientTo: 'to-blue-400',
-  },
-  {
-    name: 'Meera Joshi',
-    destination: 'Thailand',
-    rating: 5,
-    review: 'Thailand was amazing! The island hopping, street food tours, and temple visits were perfectly curated. Our family had the best time. Thank you TG Travels!',
-    date: 'Sep 2025',
-    initials: 'MJ',
-    gradientFrom: 'from-teal-500',
-    gradientTo: 'to-cyan-400',
-  },
-  {
-    name: 'Karan Malhotra',
-    destination: 'Kashmir',
-    rating: 5,
-    review: 'Kashmir is truly paradise on Earth. The shikara ride on Dal Lake, Gulmarg snow, and Pahalgam valleys were mesmerizing. Impeccable hospitality throughout the trip.',
-    date: 'Aug 2025',
-    initials: 'KM',
-    gradientFrom: 'from-sky-500',
-    gradientTo: 'to-blue-400',
+    date: 'Oct 2025', initials: 'AK', gradientFrom: 'from-indigo-500', gradientTo: 'to-blue-400',
   },
 ];
 
 export function Testimonials() {
+  const { subdomain, isTenantMode } = useAgent();
+  const [apiTestimonials, setApiTestimonials] = useState<any[] | null>(null);
+
+  // Fetch from public API when in tenant mode
+  useEffect(() => {
+    if (!isTenantMode || !subdomain) return;
+    fetch(`${API_BASE}/api/public/testimonials/${subdomain}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.data?.length > 0) {
+          setApiTestimonials(data.data);
+        }
+      })
+      .catch(() => {});
+  }, [subdomain, isTenantMode]);
+
+  // Map API testimonials to display format, or use defaults
+  const testimonials = useMemo(() => {
+    if (apiTestimonials && apiTestimonials.length > 0) {
+      return apiTestimonials.map((t, i) => {
+        const gradient = gradientPairs[i % gradientPairs.length];
+        const initials = t.customerName.split(' ').map((n: string) => n[0]).join('').toUpperCase();
+        return {
+          name: t.customerName,
+          destination: t.destination || '',
+          rating: t.rating || 5,
+          review: t.review,
+          date: new Date(t.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          initials,
+          gradientFrom: gradient.from,
+          gradientTo: gradient.to,
+        };
+      });
+    }
+    return defaultTestimonials;
+  }, [apiTestimonials]);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
@@ -186,7 +187,7 @@ export function Testimonials() {
                       <div>
                         <p className="font-semibold text-gray-900 dark:text-white text-sm">{testimonial.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Travelled to <span className="text-[var(--theme-primary)] font-medium">{testimonial.destination}</span> · {testimonial.date}
+                          {testimonial.destination && <>Travelled to <span className="text-[var(--theme-primary)] font-medium">{testimonial.destination}</span> · </>}{testimonial.date}
                         </p>
                       </div>
                     </div>

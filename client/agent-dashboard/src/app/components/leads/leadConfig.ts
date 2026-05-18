@@ -37,11 +37,12 @@ export const SOURCE_CONFIG: Record<LeadSource, {
   avatarGrad: string;
   icon: any;
 }> = {
-  'Hero Form':    { label: 'Hero Form',    color: 'text-sky-700',    bg: 'bg-sky-50',    ring: 'ring-sky-400/40',    accent: 'bg-sky-500',    avatarGrad: 'from-sky-500 to-cyan-500',      icon: FileText },
-  'Package Page': { label: 'Package Page', color: 'text-violet-700', bg: 'bg-violet-50', ring: 'ring-violet-400/40', accent: 'bg-violet-500', avatarGrad: 'from-violet-500 to-purple-600', icon: Package  },
-  'Popup':        { label: 'Popup',        color: 'text-amber-700',  bg: 'bg-amber-50',  ring: 'ring-amber-400/40',  accent: 'bg-amber-400',  avatarGrad: 'from-amber-500 to-orange-500',  icon: Zap      },
-  'Manual Entry': { label: 'Manual Entry', color: 'text-teal-700',   bg: 'bg-teal-50',   ring: 'ring-teal-400/40',   accent: 'bg-teal-500',   avatarGrad: 'from-teal-500 to-emerald-500',  icon: Plus     },
-  'Marketplace':  { label: 'Marketplace',  color: 'text-indigo-700', bg: 'bg-indigo-50', ring: 'ring-indigo-400/40', accent: 'bg-indigo-500', avatarGrad: 'from-indigo-500 to-blue-600',    icon: Zap      },
+  'hero_form':      { label: 'Hero Form',      color: 'text-sky-700',    bg: 'bg-sky-50',    ring: 'ring-sky-400/40',    accent: 'bg-sky-500',    avatarGrad: 'from-sky-500 to-cyan-500',      icon: FileText },
+  'package_detail': { label: 'Package Detail', color: 'text-violet-700', bg: 'bg-violet-50', ring: 'ring-violet-400/40', accent: 'bg-violet-500', avatarGrad: 'from-violet-500 to-purple-600', icon: Package  },
+  'popup':          { label: 'Popup',          color: 'text-amber-700',  bg: 'bg-amber-50',  ring: 'ring-amber-400/40',  accent: 'bg-amber-400',  avatarGrad: 'from-amber-500 to-orange-500',  icon: Zap      },
+  'plan_tour':      { label: 'Plan Tour',      color: 'text-teal-700',   bg: 'bg-teal-50',   ring: 'ring-teal-400/40',   accent: 'bg-teal-500',   avatarGrad: 'from-teal-500 to-emerald-500',  icon: Plus     },
+  'chatbot':        { label: 'WhatsApp',       color: 'text-green-700',  bg: 'bg-green-50',  ring: 'ring-green-400/40',  accent: 'bg-green-500',  avatarGrad: 'from-green-500 to-emerald-500', icon: MessageSquare },
+  'marketplace':    { label: 'Marketplace',   color: 'text-indigo-700', bg: 'bg-indigo-50', ring: 'ring-indigo-400/40', accent: 'bg-indigo-500', avatarGrad: 'from-indigo-500 to-blue-600',   icon: Zap      },
 };
 
 // ── Card header styles (driven by status) ─────────────────────────────────────

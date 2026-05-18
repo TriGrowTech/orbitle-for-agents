@@ -86,6 +86,8 @@ export interface EnquiryFormProps {
   compact?: boolean;
   /** Hide the hero header section */
   hideHeader?: boolean;
+  /** Lead source tag — e.g. 'hero_form', 'package_detail', 'plan_tour' */
+  source?: 'hero_form' | 'package_detail' | 'plan_tour' | 'marketplace';
 }
 
 const initialFormData: EnquiryFormData = {
@@ -105,8 +107,10 @@ export function EnquiryForm({
   onSubmitSuccess,
   compact = false,
   hideHeader = false,
+  source = 'hero_form',
 }: EnquiryFormProps) {
-  const { subdomain } = useAgent();
+  const { subdomain, siteConfig } = useAgent();
+  const contactPhone = siteConfig?.contactPhone || '+91 123 456 7890';
   const [startTime] = useState(Date.now());
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -133,7 +137,15 @@ export function EnquiryForm({
 
   const validateStep = (step: number): boolean => {
     switch (step) {
-      case 1: return !!(formData.name && formData.email && formData.phone);
+      case 1: {
+        if (!formData.name || !formData.email || !formData.phone) return false;
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+        if (!emailOk) {
+          toast.error('Please enter a valid email address');
+          return false;
+        }
+        return true;
+      }
       case 2: return !!(formData.fromLocation && formData.toLocation && formData.departureDate && formData.numberOfDays);
       case 3: return !!formData.budgetRupees;
       default: return true;
@@ -154,7 +166,9 @@ export function EnquiryForm({
         },
         body: JSON.stringify({
           ...formData,
-          subdomain
+          subdomain,
+          source,
+          ...(prefilledPackageName ? { packageName: prefilledPackageName } : {}),
         }),
       });
 
@@ -408,7 +422,7 @@ export function EnquiryForm({
                       </div>
                       <div>
                         <p className="text-sm font-medium text-orange-900 dark:text-orange-300 mb-1 uppercase tracking-wider">Any problems? contact us</p>
-                        <p className="text-2xl font-black text-gray-900 dark:text-white">+91 123 456 7890</p>
+                         <p className="text-2xl font-black text-gray-900 dark:text-white">{contactPhone}</p>
                       </div>
                     </div>
                   </div>
@@ -523,7 +537,7 @@ export function EnquiryForm({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-orange-900 dark:text-orange-300 mb-1 uppercase tracking-wider">Any problems? contact us</p>
-                      <p className="text-2xl font-black text-gray-900 dark:text-white">+91 123 456 7890</p>
+                      <p className="text-2xl font-black text-gray-900 dark:text-white">{contactPhone}</p>
                     </div>
                   </div>
                 </div>

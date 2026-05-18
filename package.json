@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently --names \"API,DASH,MARKET\" --prefix-colors \"yellow,green,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client/agent-dashboard\" \"npm run dev --prefix client/agent-marketplace\"",
+    "dev:api": "npm run dev --prefix server",
+    "dev:dashboard": "npm run dev --prefix client/agent-dashboard",
+    "dev:marketplace": "npm run dev --prefix client/agent-marketplace",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/TriGrowTech/orbitle-for-agents/issues"
   },
-  "homepage": "https://github.com/TriGrowTech/orbitle-for-agents#readme"
+  "homepage": "https://github.com/TriGrowTech/orbitle-for-agents#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }

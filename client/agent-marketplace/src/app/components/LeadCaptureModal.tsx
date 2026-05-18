@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Phone, X, ChevronDown, BadgeCheck } from 'lucide-react';
+import { Phone, X, ChevronDown, BadgeCheck, Loader2 } from 'lucide-react';
+import { useAgent } from '../context/AgentContext';
+import { toast } from 'sonner';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const AVATARS = [
   { initials: 'RS', bg: 'bg-emerald-100', text: 'text-emerald-700' },
@@ -15,18 +19,22 @@ const STATS = [
 ];
 
 export function LeadCaptureModal() {
-  const [isOpen,    setIsOpen]    = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [formData,  setFormData]  = useState({ name: '', phone: '' });
+  const { subdomain, isTenantMode } = useAgent();
+  const [isOpen,      setIsOpen]      = useState(false);
+  const [submitted,   setSubmitted]   = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData,    setFormData]    = useState({ name: '', phone: '' });
   const nameRef = useRef<HTMLInputElement>(null);
 
+  // Only show in tenant mode (a real agent's marketplace)
   useEffect(() => {
+    if (!isTenantMode) return;
     const hasSeenModal = sessionStorage.getItem('leadCaptureShown');
     if (!hasSeenModal) {
       const timer = setTimeout(() => setIsOpen(true), 7000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isTenantMode]);
 
   useEffect(() => {
     if (isOpen) setTimeout(() => nameRef.current?.focus(), 300);
@@ -37,15 +45,40 @@ export function LeadCaptureModal() {
     sessionStorage.setItem('leadCaptureShown', 'true');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Lead captured:', formData);
-    setSubmitted(true);
-    setTimeout(() => {
-      handleClose();
-      setSubmitted(false);
-      setFormData({ name: '', phone: '' });
-    }, 2800);
+    if (!subdomain) return;
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/public/lead`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subdomain,
+          name: formData.name,
+          phone: formData.phone,
+          source: 'popup',
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSubmitted(true);
+        setTimeout(() => {
+          handleClose();
+          setSubmitted(false);
+          setFormData({ name: '', phone: '' });
+        }, 2800);
+      } else {
+        toast.error(data.message || 'Failed to submit. Please try again.');
+      }
+    } catch {
+      toast.error('Network error. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,11 +205,12 @@ export function LeadCaptureModal() {
               {/* CTA */}
               <button
                 type="submit"
-                className="w-full h-10 flex items-center justify-center gap-2 text-white font-semibold text-sm rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all"
+                disabled={isSubmitting}
+                className="w-full h-10 flex items-center justify-center gap-2 text-white font-semibold text-sm rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all disabled:opacity-70"
                 style={{ background: 'var(--theme-gradient)' }}
               >
-                <Phone size={14} />
-                Get a free callback
+                {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Phone size={14} />}
+                {isSubmitting ? 'Sending...' : 'Get a free callback'}
               </button>
 
               {/* Social proof */}

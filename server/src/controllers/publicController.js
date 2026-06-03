@@ -233,7 +233,7 @@ export const getPublicLegalPage = async (req, res) => {
 };
 
 // GET /api/public/site-config/:subdomain
-// Public — returns site config (topbar offer, card offer) for marketplace
+// Public — returns site config (topbar offer, card offer, aboutUs, destinations) for marketplace
 export const getPublicSiteConfig = async (req, res) => {
     try {
         const agent = await Agent.findOne({ subdomain: req.params.subdomain.toLowerCase() });
@@ -242,7 +242,7 @@ export const getPublicSiteConfig = async (req, res) => {
         }
 
         const config = await SiteConfig.findOne({ agentId: agent._id })
-            .select('companyName contactEmail contactPhone address facebookUrl instagramUrl defaultWhatsappMessage currency timezone topbarOffer cardOffer');
+            .select('companyName contactEmail contactPhone address facebookUrl instagramUrl defaultWhatsappMessage currency timezone topbarOffer cardOffer aboutUs destinations');
 
         return res.status(200).json({ success: true, data: config || {} });
     } catch (err) {

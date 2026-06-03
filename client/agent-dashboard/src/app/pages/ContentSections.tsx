@@ -1,12 +1,14 @@
-import { Plus, Save, Trash2, Upload, Globe2, Home, MapPin, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, Save, Trash2, Upload, Globe2, Home, MapPin, Loader2, Award, ShieldCheck, BarChart3, BookOpen, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { useGetContentSectionsQuery, useCreateContentSectionMutation, useUpdateContentSectionMutation, useDeleteContentSectionMutation } from '../api/contentSectionApi';
 import type { ContentSectionData } from '../api/contentSectionApi';
+import { useGetSiteConfigQuery, useUpdateSiteConfigMutation } from '../api/siteConfigApi';
+import type { AboutUsData, AboutUsStat, AboutUsCredential, AboutUsAward, DestinationData } from '../api/siteConfigApi';
 import { toast } from 'sonner';
 
-const tabs = ['Travel Themes', 'Why Choose Us', 'FAQ', 'Destinations'];
+const tabs = ['Travel Themes', 'Why Choose Us', 'FAQ', 'Destinations', 'About Us'];
 
 // ── Travel Themes ──────────────────────────────────────────────────────────────
 
@@ -243,45 +245,40 @@ function TravelThemesTable() {
   );
 }
 
-// ── Destinations Tab ──────────────────────────────────────────────────────────
+// ── Destinations Tab (API-wired) ──────────────────────────────────────────────
 
 type DestCategory = 'domestic' | 'international';
 
-interface Destination {
-  id: number;
-  name: string;
-  active: boolean;
-  trending: boolean;
-  category: DestCategory;
-}
-
 const MAX_DESTINATIONS = 18;
-
-const initialDestinations: Destination[] = [
-  { id: 1, name: 'Goa',       active: true,  trending: true,  category: 'domestic' },
-  { id: 2, name: 'Manali',    active: true,  trending: false, category: 'domestic' },
-  { id: 3, name: 'Kerala',    active: false, trending: false, category: 'domestic' },
-  { id: 4, name: 'Bali',      active: true,  trending: true,  category: 'international' },
-  { id: 5, name: 'Dubai',     active: true,  trending: false, category: 'international' },
-  { id: 6, name: 'Singapore', active: false, trending: false, category: 'international' },
-];
 
 type DestMode = 'domestic' | 'international' | 'both';
 
 function DestinationsTab() {
+  const { data: configData, isLoading: configLoading } = useGetSiteConfigQuery();
+  const [updateConfig, { isLoading: isSaving }] = useUpdateSiteConfigMutation();
+
   const [mode, setMode]               = useState<DestMode>('both');
-  const [destinations, setDestinations] = useState<Destination[]>(initialDestinations);
+  const [destinations, setDestinations] = useState<DestinationData[]>([]);
   const [addingTo, setAddingTo]       = useState<DestCategory | null>(null);
   const [newName, setNewName]         = useState('');
+  const [hasChanges, setHasChanges]   = useState(false);
+
+  // Load from API
+  useEffect(() => {
+    if (configData?.data?.destinations) {
+      setDestinations(configData.data.destinations);
+      setHasChanges(false);
+    }
+  }, [configData]);
 
   const visibleCategories: DestCategory[] = mode === 'both'
     ? ['domestic', 'international']
     : [mode];
 
   const getCount     = (cat: DestCategory)  => destinations.filter(d => d.category === cat).length;
-  const toggleActive   = (id: number) => setDestinations(prev => prev.map(d => d.id === id ? { ...d, active:   !d.active   } : d));
-  const toggleTrending = (id: number) => setDestinations(prev => prev.map(d => d.id === id ? { ...d, trending: !d.trending } : d));
-  const deleteDest     = (id: number) => setDestinations(prev => prev.filter(d => d.id !== id));
+  const toggleActive   = (idx: number) => { setDestinations(prev => prev.map((d, i) => i === idx ? { ...d, active: !d.active } : d)); setHasChanges(true); };
+  const toggleTrending = (idx: number) => { setDestinations(prev => prev.map((d, i) => i === idx ? { ...d, trending: !d.trending } : d)); setHasChanges(true); };
+  const deleteDest     = (idx: number) => { setDestinations(prev => prev.filter((_, i) => i !== idx)); setHasChanges(true); };
 
   const startAdding = (cat: DestCategory) => { setAddingTo(cat); setNewName(''); };
   const cancelAdd   = ()                  => { setAddingTo(null); setNewName(''); };
@@ -290,10 +287,21 @@ function DestinationsTab() {
     if (!newName.trim() || getCount(cat) >= MAX_DESTINATIONS) return;
     setDestinations(prev => [
       ...prev,
-      { id: Date.now(), name: newName.trim(), active: true, trending: false, category: cat },
+      { name: newName.trim(), active: true, trending: false, category: cat, image: '' },
     ]);
     setAddingTo(null);
     setNewName('');
+    setHasChanges(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateConfig({ destinations } as any).unwrap();
+      toast.success('Destinations saved!');
+      setHasChanges(false);
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to save destinations');
+    }
   };
 
   const modeButtons: { value: DestMode; label: string; icon: any }[] = [
@@ -302,8 +310,10 @@ function DestinationsTab() {
     { value: 'both',          label: 'Both',          icon: MapPin },
   ];
 
-  const CategoryBlock = ({ cat }: { cat: DestCategory }) => {
-    const catDests = destinations.filter(d => d.category === cat);
+  if (configLoading) return <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 text-blue-600 animate-spin" /></div>;
+
+  const renderCategoryBlock = (cat: DestCategory) => {
+    const catDests = destinations.map((d, idx) => ({ ...d, _idx: idx })).filter(d => d.category === cat);
     const count    = catDests.length;
     const isAdding = addingTo === cat;
 
@@ -340,60 +350,84 @@ function DestinationsTab() {
           )}
 
           {/* Rows */}
-          {catDests.map((dest, idx) => (
-            <div
-              key={dest.id}
-              className={`grid grid-cols-[2rem_1fr_5rem_5rem_3rem] gap-3 px-4 py-3 items-center border-b border-gray-100 last:border-0 transition-colors ${
-                !dest.active ? 'bg-gray-50/60 opacity-60' : 'hover:bg-gray-50/40'
-              }`}
-            >
-              <span className="text-xs text-gray-400 font-medium">{idx + 1}</span>
+          {catDests.map((dest, displayIdx) => (
+            <div key={dest._idx} className="border-b border-gray-100 last:border-0">
+              <div
+                className={`grid grid-cols-[2rem_1fr_5rem_5rem_3rem] gap-3 px-4 py-3 items-center transition-colors ${
+                  !dest.active ? 'bg-gray-50/60 opacity-60' : 'hover:bg-gray-50/40'
+                }`}
+              >
+                <span className="text-xs text-gray-400 font-medium">{displayIdx + 1}</span>
 
-              <Input
-                type="text"
-                value={dest.name}
-                onChange={e => setDestinations(prev => prev.map(d => d.id === dest.id ? { ...d, name: e.target.value } : d))}
-                className="w-full px-2 py-1 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
-              />
+                <Input
+                  type="text"
+                  value={dest.name}
+                  onChange={e => { setDestinations(prev => prev.map((d, i) => i === dest._idx ? { ...d, name: e.target.value } : d)); setHasChanges(true); }}
+                  className="w-full px-2 py-1 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent h-auto"
+                />
 
-              {/* Trending toggle */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => toggleTrending(dest.id)}
-                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-                    dest.trending ? 'bg-orange-400' : 'bg-gray-200'
-                  }`}
-                  role="switch" aria-checked={dest.trending}
-                >
-                  <span className="sr-only">Mark as Trending</span>
-                  <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${dest.trending ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
-                <span className="text-sm leading-none">{dest.trending ? '🔥' : ''}</span>
+                {/* Trending toggle */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => toggleTrending(dest._idx)}
+                    className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+                      dest.trending ? 'bg-orange-400' : 'bg-gray-200'
+                    }`}
+                    role="switch" aria-checked={dest.trending}
+                  >
+                    <span className="sr-only">Mark as Trending</span>
+                    <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${dest.trending ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </button>
+                  <span className="text-sm leading-none">{dest.trending ? '🔥' : ''}</span>
+                </div>
+
+                {/* Active toggle */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => toggleActive(dest._idx)}
+                    className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+                      dest.active ? 'bg-blue-500' : 'bg-gray-200'
+                    }`}
+                    role="switch" aria-checked={dest.active}
+                  >
+                    <span className="sr-only">Toggle Active</span>
+                    <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${dest.active ? 'translate-x-4' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                {/* Delete */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => deleteDest(dest._idx)}
+                    className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
 
-              {/* Active toggle */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => toggleActive(dest.id)}
-                  className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
-                    dest.active ? 'bg-blue-500' : 'bg-gray-200'
-                  }`}
-                  role="switch" aria-checked={dest.active}
-                >
-                  <span className="sr-only">Toggle Active</span>
-                  <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ${dest.active ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
-              </div>
-
-              {/* Delete */}
-              <div className="flex justify-end">
-                <button
-                  onClick={() => deleteDest(dest.id)}
-                  className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+              {/* Image URL — only visible when trending is ON */}
+              {dest.trending && (
+                <div className="px-4 pb-3 pt-0">
+                  <div className="flex items-center gap-3 bg-orange-50 rounded-lg px-3 py-2.5 border border-orange-100">
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="text-xs">🖼️</span>
+                      <span className="text-[10px] font-semibold text-orange-600 uppercase tracking-wide">Cover Image</span>
+                    </div>
+                    <Input
+                      type="text"
+                      value={dest.image}
+                      onChange={e => { setDestinations(prev => prev.map((d, i) => i === dest._idx ? { ...d, image: e.target.value } : d)); setHasChanges(true); }}
+                      placeholder="Paste image URL for carousel (e.g. https://images.unsplash.com/...)"
+                      className="flex-1 px-2.5 py-1.5 border border-orange-200 rounded-md text-xs focus:ring-2 focus:ring-orange-400 focus:border-transparent h-auto bg-white placeholder:text-gray-400"
+                    />
+                    {dest.image && (
+                      <img src={dest.image} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0 border border-orange-200" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    )}
+                  </div>
+                  <p className="text-[10px] text-orange-400 mt-1 ml-1">This image will appear in the "Trending Destinations" carousel on your marketplace homepage</p>
+                </div>
+              )}
             </div>
           ))}
 
@@ -465,9 +499,326 @@ function DestinationsTab() {
       {/* Side by side on desktop, stacked on mobile */}
       <div className={mode === 'both' ? 'grid grid-cols-1 lg:grid-cols-2 gap-6' : ''}>
         {visibleCategories.map(cat => (
-          <CategoryBlock key={cat} cat={cat} />
+          <div key={cat}>{renderCategoryBlock(cat)}</div>
         ))}
       </div>
+
+      {/* Save Button */}
+      {hasChanges && (
+        <div className="flex justify-end">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+            Save Destinations
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── About Us Tab (API-wired) ──────────────────────────────────────────────────
+
+const emptyAboutUs: AboutUsData = {
+  heroTitle: '',
+  heroSubtitle: '',
+  heroBackgroundImage: '',
+  stats: [],
+  storyTitle: '',
+  storyParagraph1: '',
+  storyParagraph2: '',
+  storyBullets: [],
+  storyImage1: '',
+  storyImage2: '',
+  yearsBadgeText: '',
+  credentials: [],
+  awards: [],
+};
+
+function AboutUsTab() {
+  const { data: configData, isLoading } = useGetSiteConfigQuery();
+  const [updateConfig, { isLoading: isSaving }] = useUpdateSiteConfigMutation();
+
+  const [aboutUs, setAboutUs] = useState<AboutUsData>(emptyAboutUs);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  useEffect(() => {
+    if (configData?.data?.aboutUs) {
+      setAboutUs({ ...emptyAboutUs, ...configData.data.aboutUs });
+      setHasChanges(false);
+    }
+  }, [configData]);
+
+  const update = (partial: Partial<AboutUsData>) => {
+    setAboutUs(prev => ({ ...prev, ...partial }));
+    setHasChanges(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      await updateConfig({ aboutUs } as any).unwrap();
+      toast.success('About Us saved!');
+      setHasChanges(false);
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to save');
+    }
+  };
+
+  // ── Stats helpers
+  const addStat = () => { if (aboutUs.stats.length >= 6) return; update({ stats: [...aboutUs.stats, { value: '', label: '' }] }); };
+  const removeStat = (idx: number) => update({ stats: aboutUs.stats.filter((_, i) => i !== idx) });
+  const updateStat = (idx: number, field: keyof AboutUsStat, val: string) =>
+    update({ stats: aboutUs.stats.map((s, i) => i === idx ? { ...s, [field]: val } : s) });
+
+  // ── Bullet helpers
+  const addBullet = () => { if (aboutUs.storyBullets.length >= 6) return; update({ storyBullets: [...aboutUs.storyBullets, ''] }); };
+  const removeBullet = (idx: number) => update({ storyBullets: aboutUs.storyBullets.filter((_, i) => i !== idx) });
+  const updateBullet = (idx: number, val: string) =>
+    update({ storyBullets: aboutUs.storyBullets.map((b, i) => i === idx ? val : b) });
+
+  // ── Credential helpers
+  const addCredential = () => {
+    if (aboutUs.credentials.length >= 4) return;
+    update({ credentials: [...aboutUs.credentials, { label: '', number: '', description: '', color: 'blue' }] });
+  };
+  const removeCredential = (idx: number) => update({ credentials: aboutUs.credentials.filter((_, i) => i !== idx) });
+  const updateCredential = (idx: number, field: keyof AboutUsCredential, val: string) =>
+    update({ credentials: aboutUs.credentials.map((c, i) => i === idx ? { ...c, [field]: val } : c) });
+
+  // ── Award helpers
+  const addAward = () => { if (aboutUs.awards.length >= 8) return; update({ awards: [...aboutUs.awards, { year: '', title: '', org: '' }] }); };
+  const removeAward = (idx: number) => update({ awards: aboutUs.awards.filter((_, i) => i !== idx) });
+  const updateAward = (idx: number, field: keyof AboutUsAward, val: string) =>
+    update({ awards: aboutUs.awards.map((a, i) => i === idx ? { ...a, [field]: val } : a) });
+
+  if (isLoading) return <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 text-blue-600 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-8">
+      {/* ── Hero Section ────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+        <div className="flex items-center gap-2 text-gray-900">
+          <Info className="w-5 h-5 text-blue-600" />
+          <h3 className="text-base font-semibold">Hero Banner</h3>
+        </div>
+        <p className="text-sm text-gray-500">The top section of your About Us page</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Hero Title</label>
+            <Input
+              value={aboutUs.heroTitle}
+              onChange={e => update({ heroTitle: e.target.value })}
+              placeholder="e.g. Crafting Unforgettable Indian Journeys Since 2012"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Background Image URL</label>
+            <Input
+              value={aboutUs.heroBackgroundImage}
+              onChange={e => update({ heroBackgroundImage: e.target.value })}
+              placeholder="https://images.unsplash.com/..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Hero Subtitle</label>
+          <Textarea
+            rows={2}
+            value={aboutUs.heroSubtitle}
+            onChange={(e: any) => update({ heroSubtitle: e.target.value })}
+            placeholder="Brief description shown below the title..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+          />
+        </div>
+      </div>
+
+      {/* ── Stats Row ───────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-gray-900">
+            <BarChart3 className="w-5 h-5 text-blue-600" />
+            <h3 className="text-base font-semibold">Stats</h3>
+            <span className="text-xs text-gray-400 ml-2">{aboutUs.stats.length}/6</span>
+          </div>
+          <button onClick={addStat} disabled={aboutUs.stats.length >= 6}
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1">
+            <Plus className="w-3.5 h-3.5" /> Add Stat
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {aboutUs.stats.map((stat, idx) => (
+            <div key={idx} className="flex items-center gap-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
+              <Input value={stat.value} onChange={e => updateStat(idx, 'value', e.target.value)}
+                placeholder="15,000+" className="w-24 px-2 py-1.5 border border-gray-200 rounded-md text-sm h-auto font-semibold" />
+              <Input value={stat.label} onChange={e => updateStat(idx, 'label', e.target.value)}
+                placeholder="Happy Travellers" className="flex-1 px-2 py-1.5 border border-gray-200 rounded-md text-sm h-auto" />
+              <button onClick={() => removeStat(idx)} className="p-1 text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
+          ))}
+        </div>
+        {aboutUs.stats.length === 0 && <p className="text-sm text-gray-400 text-center py-3">No stats yet</p>}
+      </div>
+
+      {/* ── Our Story ───────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+        <div className="flex items-center gap-2 text-gray-900">
+          <BookOpen className="w-5 h-5 text-blue-600" />
+          <h3 className="text-base font-semibold">Our Story</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Story Title</label>
+            <Input value={aboutUs.storyTitle} onChange={e => update({ storyTitle: e.target.value })}
+              placeholder="e.g. Born in Mumbai, Trusted Across India"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Years Badge Text</label>
+            <Input value={aboutUs.yearsBadgeText} onChange={e => update({ yearsBadgeText: e.target.value })}
+              placeholder="e.g. 12+ Years of Excellence"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Paragraph 1</label>
+          <Textarea rows={3} value={aboutUs.storyParagraph1}
+            onChange={(e: any) => update({ storyParagraph1: e.target.value })}
+            placeholder="Your founding story..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Paragraph 2</label>
+          <Textarea rows={3} value={aboutUs.storyParagraph2}
+            onChange={(e: any) => update({ storyParagraph2: e.target.value })}
+            placeholder="Growth and achievements..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Story Image 1 URL</label>
+            <Input value={aboutUs.storyImage1} onChange={e => update({ storyImage1: e.target.value })}
+              placeholder="https://..." className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Story Image 2 URL</label>
+            <Input value={aboutUs.storyImage2} onChange={e => update({ storyImage2: e.target.value })}
+              placeholder="https://..." className="w-full px-3 py-2 border border-gray-300 rounded-lg h-auto" />
+          </div>
+        </div>
+
+        {/* Bullet highlights */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-700">Key Highlights</label>
+            <button onClick={addBullet} disabled={aboutUs.storyBullets.length >= 6}
+              className="px-2.5 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1">
+              <Plus className="w-3 h-3" /> Add
+            </button>
+          </div>
+          <div className="space-y-2">
+            {aboutUs.storyBullets.map((bullet, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <span className="text-green-500 text-sm">✓</span>
+                <Input value={bullet} onChange={e => updateBullet(idx, e.target.value)}
+                  placeholder="e.g. In-house visa assistance for 50+ countries"
+                  className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-md text-sm h-auto" />
+                <button onClick={() => removeBullet(idx)} className="p-1 text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Credentials ─────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-gray-900">
+            <ShieldCheck className="w-5 h-5 text-blue-600" />
+            <h3 className="text-base font-semibold">Credentials & Registrations</h3>
+            <span className="text-xs text-gray-400 ml-2">{aboutUs.credentials.length}/4</span>
+          </div>
+          <button onClick={addCredential} disabled={aboutUs.credentials.length >= 4}
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1">
+            <Plus className="w-3.5 h-3.5" /> Add Credential
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {aboutUs.credentials.map((cred, idx) => (
+            <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <select
+                  value={cred.color}
+                  onChange={e => updateCredential(idx, 'color', e.target.value)}
+                  className="px-2 py-1 border border-gray-200 rounded-md text-xs font-medium bg-white"
+                >
+                  <option value="blue">🔵 Blue</option>
+                  <option value="green">🟢 Green</option>
+                  <option value="amber">🟡 Amber</option>
+                  <option value="purple">🟣 Purple</option>
+                </select>
+                <button onClick={() => removeCredential(idx)} className="p-1 text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
+              <Input value={cred.label} onChange={e => updateCredential(idx, 'label', e.target.value)}
+                placeholder="e.g. IATA Accreditation" className="w-full px-2.5 py-1.5 border border-gray-200 rounded-md text-sm h-auto font-semibold" />
+              <Input value={cred.number} onChange={e => updateCredential(idx, 'number', e.target.value)}
+                placeholder="e.g. IATA: 14-3-1234" className="w-full px-2.5 py-1.5 border border-gray-200 rounded-md text-sm h-auto font-mono" />
+              <Textarea rows={2} value={cred.description}
+                onChange={(e: any) => updateCredential(idx, 'description', e.target.value)}
+                placeholder="Brief description of this credential..."
+                className="w-full px-2.5 py-1.5 border border-gray-200 rounded-md text-sm" />
+            </div>
+          ))}
+        </div>
+        {aboutUs.credentials.length === 0 && <p className="text-sm text-gray-400 text-center py-3">No credentials yet</p>}
+      </div>
+
+      {/* ── Awards ───────────────────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-gray-900">
+            <Award className="w-5 h-5 text-blue-600" />
+            <h3 className="text-base font-semibold">Awards & Accolades</h3>
+            <span className="text-xs text-gray-400 ml-2">{aboutUs.awards.length}/8</span>
+          </div>
+          <button onClick={addAward} disabled={aboutUs.awards.length >= 8}
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1">
+            <Plus className="w-3.5 h-3.5" /> Add Award
+          </button>
+        </div>
+        <div className="space-y-3">
+          {aboutUs.awards.map((award, idx) => (
+            <div key={idx} className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-100">
+              <Input value={award.year} onChange={e => updateAward(idx, 'year', e.target.value)}
+                placeholder="2024" className="w-20 px-2 py-1.5 border border-gray-200 rounded-md text-sm h-auto font-bold text-center" />
+              <Input value={award.title} onChange={e => updateAward(idx, 'title', e.target.value)}
+                placeholder="Award title" className="flex-1 px-2 py-1.5 border border-gray-200 rounded-md text-sm h-auto" />
+              <Input value={award.org} onChange={e => updateAward(idx, 'org', e.target.value)}
+                placeholder="Awarding organization" className="flex-1 px-2 py-1.5 border border-gray-200 rounded-md text-sm h-auto" />
+              <button onClick={() => removeAward(idx)} className="p-1 text-gray-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+            </div>
+          ))}
+        </div>
+        {aboutUs.awards.length === 0 && <p className="text-sm text-gray-400 text-center py-3">No awards yet</p>}
+      </div>
+
+      {/* Save */}
+      {hasChanges && (
+        <div className="flex justify-end">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+            Save About Us
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -516,12 +867,17 @@ export function ContentSections() {
       {/* FAQ */}
       {activeTab === 'FAQ' && <FAQTab />}
 
-      {/* Save */}
-      <div className="flex justify-end">
-        <button className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-          <Save className="w-5 h-5" /> Save Changes
-        </button>
-      </div>
+      {/* About Us */}
+      {activeTab === 'About Us' && <AboutUsTab />}
+
+      {/* Save — only for non-API tabs */}
+      {(activeTab === 'Travel Themes') && (
+        <div className="flex justify-end">
+          <button className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <Save className="w-5 h-5" /> Save Changes
+          </button>
+        </div>
+      )}
     </div>
   );
 }

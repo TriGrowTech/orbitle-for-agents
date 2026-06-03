@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAgent } from '../context/AgentContext';
 
-const DESTINATIONS = [
+const FALLBACK_DESTINATIONS = [
   { name: 'Ladakh', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRILyx8yJX-DzIM35QGZnvvv8ozIs_13ShnaA&s' },
   { name: 'Kashmir', image: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2FzaG1pcnxlbnwwfHwwfHx8MA%3D%3D' },
   { name: 'Manali', image: 'https://images.unsplash.com/photo-1588083949404-c4f1ed1323b3?w=400&q=80' },
@@ -21,6 +22,20 @@ const GAP = 20; // px — must match gap in flex container
 export function DestinationsCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { siteConfig, isTenantMode } = useAgent();
+
+  // Use agent destinations (active ones, prefer trending first) or fallback
+  const allDests = siteConfig?.destinations || [];
+  const hasAgentDests = allDests.length > 0;
+
+  const destinations = hasAgentDests
+    ? allDests
+        .filter(d => d.active && d.trending)
+        .map(d => ({ name: d.name, image: d.image || '' }))
+    : (isTenantMode ? [] : FALLBACK_DESTINATIONS);
+
+  // Don't render if no trending destinations
+  if (destinations.length === 0) return null;
 
   const getItemWidth = () => {
     if (!containerRef.current) return 130;
@@ -92,7 +107,7 @@ export function DestinationsCarousel() {
             msOverflowStyle: 'none',
           }}
         >
-          {DESTINATIONS.map((dest) => (
+          {destinations.map((dest) => (
             <a
               key={dest.name}
               href="#packages"
@@ -112,11 +127,17 @@ export function DestinationsCarousel() {
                   boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
                 }}
               >
-                <img
-                  src={dest.image}
-                  alt={dest.name}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
+                {dest.image ? (
+                  <img
+                    src={dest.image}
+                    alt={dest.name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="absolute inset-0 w-full h-full flex items-center justify-center text-4xl" style={{ background: 'var(--theme-gradient)' }}>
+                    📍
+                  </div>
+                )}
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 

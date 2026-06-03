@@ -1,13 +1,15 @@
 import { MapPin, Globe, Home as HomeIcon } from 'lucide-react';
+import { useAgent } from '../context/AgentContext';
 
-const INTERNATIONAL = [
+// Fallback destinations when no agent config exists
+const FALLBACK_INTERNATIONAL = [
   'Maldives', 'Dubai', 'Thailand', 'Bali', 'Singapore',
   'Malaysia', 'Sri Lanka', 'Vietnam', 'Turkey', 'Greece',
   'Switzerland', 'Paris', 'London', 'Japan', 'Australia',
   'Africa', 'Mauritius', 'Egypt',
 ];
 
-const DOMESTIC = [
+const FALLBACK_DOMESTIC = [
   'Goa', 'Manali', 'Kashmir', 'Shimla', 'Jaipur',
   'Udaipur', 'Kerala', 'Ladakh', 'Rishikesh', 'Andaman',
   'Darjeeling', 'Meghalaya', 'Varanasi', 'Ooty', 'Coorg',
@@ -15,6 +17,26 @@ const DOMESTIC = [
 ];
 
 export function DestinationsStrip() {
+  const { siteConfig, isTenantMode } = useAgent();
+
+  // Use agent destinations if available, otherwise fallback
+  const allDests = siteConfig?.destinations || [];
+  const hasAgentDests = allDests.length > 0;
+
+  const internationalDests = hasAgentDests
+    ? allDests.filter(d => d.category === 'international' && d.active).map(d => d.name)
+    : (isTenantMode ? [] : FALLBACK_INTERNATIONAL);
+
+  const domesticDests = hasAgentDests
+    ? allDests.filter(d => d.category === 'domestic' && d.active).map(d => d.name)
+    : (isTenantMode ? [] : FALLBACK_DOMESTIC);
+
+  const hasInternational = internationalDests.length > 0;
+  const hasDomestic = domesticDests.length > 0;
+
+  // Don't render at all if no destinations
+  if (!hasInternational && !hasDomestic) return null;
+
   return (
     <section className="py-14 bg-gray-50 dark:bg-gray-800/40 border-t border-gray-100 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4">
@@ -34,8 +56,9 @@ export function DestinationsStrip() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className={`grid grid-cols-1 ${hasInternational && hasDomestic ? 'md:grid-cols-2' : ''} gap-10`}>
           {/* International */}
+          {hasInternational && (
           <div>
             <div className="flex items-center gap-2 mb-5">
               <div
@@ -49,7 +72,7 @@ export function DestinationsStrip() {
               </h3>
             </div>
             <div className="flex flex-wrap gap-2">
-              {INTERNATIONAL.map((dest) => (
+              {internationalDests.map((dest) => (
                 <a
                   key={dest}
                   href="#packages"
@@ -70,8 +93,10 @@ export function DestinationsStrip() {
               ))}
             </div>
           </div>
+          )}
 
           {/* Domestic */}
+          {hasDomestic && (
           <div>
             <div className="flex items-center gap-2 mb-5">
               <div
@@ -85,7 +110,7 @@ export function DestinationsStrip() {
               </h3>
             </div>
             <div className="flex flex-wrap gap-2">
-              {DOMESTIC.map((dest) => (
+              {domesticDests.map((dest) => (
                 <a
                   key={dest}
                   href="#packages"
@@ -105,6 +130,7 @@ export function DestinationsStrip() {
               ))}
             </div>
           </div>
+          )}
         </div>
 
       </div>

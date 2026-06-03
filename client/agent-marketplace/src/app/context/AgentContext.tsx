@@ -52,6 +52,37 @@ export interface SiteConfig {
     bgColor: string;
     isActive: boolean;
   };
+  aboutUs?: {
+    heroTitle: string;
+    heroSubtitle: string;
+    heroBackgroundImage: string;
+    stats: { value: string; label: string }[];
+    storyTitle: string;
+    storyParagraph1: string;
+    storyParagraph2: string;
+    storyBullets: string[];
+    storyImage1: string;
+    storyImage2: string;
+    yearsBadgeText: string;
+    credentials: {
+      label: string;
+      number: string;
+      description: string;
+      color: 'blue' | 'green' | 'amber' | 'purple';
+    }[];
+    awards: {
+      year: string;
+      title: string;
+      org: string;
+    }[];
+  };
+  destinations?: {
+    name: string;
+    category: 'domestic' | 'international';
+    active: boolean;
+    trending: boolean;
+    image: string;
+  }[];
 }
 
 export interface BannerData {

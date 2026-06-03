@@ -1,5 +1,47 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+export interface AboutUsStat {
+  value: string;
+  label: string;
+}
+
+export interface AboutUsCredential {
+  label: string;
+  number: string;
+  description: string;
+  color: 'blue' | 'green' | 'amber' | 'purple';
+}
+
+export interface AboutUsAward {
+  year: string;
+  title: string;
+  org: string;
+}
+
+export interface AboutUsData {
+  heroTitle: string;
+  heroSubtitle: string;
+  heroBackgroundImage: string;
+  stats: AboutUsStat[];
+  storyTitle: string;
+  storyParagraph1: string;
+  storyParagraph2: string;
+  storyBullets: string[];
+  storyImage1: string;
+  storyImage2: string;
+  yearsBadgeText: string;
+  credentials: AboutUsCredential[];
+  awards: AboutUsAward[];
+}
+
+export interface DestinationData {
+  name: string;
+  category: 'domestic' | 'international';
+  active: boolean;
+  trending: boolean;
+  image: string;
+}
+
 export interface SiteConfigData {
   _id: string;
   agentId: string;
@@ -23,6 +65,8 @@ export interface SiteConfigData {
     bgColor: string;
     isActive: boolean;
   };
+  aboutUs: AboutUsData;
+  destinations: DestinationData[];
   createdAt: string;
   updatedAt: string;
 }

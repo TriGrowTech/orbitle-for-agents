@@ -23,7 +23,8 @@ export const updateSiteConfig = async (req, res) => {
             companyName, contactEmail, contactPhone, address,
             facebookUrl, instagramUrl, defaultWhatsappMessage,
             currency, timezone,
-            topbarOffer, cardOffer
+            topbarOffer, cardOffer,
+            aboutUs, destinations
         } = req.body;
 
         let config = await SiteConfig.findOne({ agentId: req.agent.id });
@@ -49,6 +50,16 @@ export const updateSiteConfig = async (req, res) => {
         }
         if (cardOffer !== undefined) {
             config.cardOffer = { ...config.cardOffer.toObject(), ...cardOffer };
+        }
+
+        // About Us — full replace
+        if (aboutUs !== undefined) {
+            config.aboutUs = aboutUs;
+        }
+
+        // Destinations — full replace
+        if (destinations !== undefined) {
+            config.destinations = destinations;
         }
 
         await config.save();

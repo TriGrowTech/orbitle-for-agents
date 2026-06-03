@@ -8,19 +8,6 @@ import logo from "../../assets/tgt-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-const internationalDestinations = [
-  'Maldives', 'Dubai', 'Thailand', 'Bali', 'Singapore',
-  'Malaysia', 'Sri Lanka', 'Vietnam', 'Turkey', 'Greece',
-  'Switzerland', 'Paris', 'London', 'Japan', 'Australia',
-  'Africa', 'Mauritius', 'Egypt',
-];
-
-const domesticDestinations = [
-  'Goa', 'Manali', 'Kashmir', 'Shimla', 'Jaipur',
-  'Udaipur', 'Kerala', 'Ladakh', 'Rishikesh', 'Andaman',
-  'Darjeeling', 'Meghalaya', 'Varanasi', 'Ooty', 'Coorg',
-  'Hampi', 'Leh', 'Munnar',
-];
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +16,16 @@ export function Navbar() {
   const [mobileDestOpen, setMobileDestOpen] = useState(false);
   const [showPlanTourModal, setShowPlanTourModal] = useState(false);
   const { mode, toggleMode, setThemeColor, allThemes, color } = useTheme();
-  const { agent, isTenantMode } = useAgent();
+  const { agent, isTenantMode, siteConfig } = useAgent();
+
+  // Derive destinations from siteConfig (agent dashboard) with fallbacks
+  const allDestinations = siteConfig?.destinations || [];
+  const internationalDestinations = allDestinations.filter(d => d.category === 'international' && d.active).map(d => d.name);
+  const domesticDestinations = allDestinations.filter(d => d.category === 'domestic' && d.active).map(d => d.name);
+  const hasInternational = internationalDestinations.length > 0;
+  const hasDomestic = domesticDestinations.length > 0;
+  const hasDestinations = hasInternational || hasDomestic;
+  const hasBothCategories = hasInternational && hasDomestic;
   const destRef = useRef<HTMLDivElement>(null);
   const destTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -81,7 +77,8 @@ export function Navbar() {
               Packages
             </a>
 
-            {/* Destinations Dropdown */}
+            {/* Destinations Dropdown — only shown if agent has destinations */}
+            {hasDestinations && (
             <div
               ref={destRef}
               className="relative"
@@ -97,9 +94,10 @@ export function Navbar() {
               </button>
 
               {showDestinations && (
-                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-[640px] bg-white dark:bg-gray-800 rounded-sm shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="grid grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700">
+                <div className={`absolute left-1/2 -translate-x-1/2 mt-2 ${hasBothCategories ? 'w-[640px]' : 'w-[340px]'} bg-white dark:bg-gray-800 rounded-sm shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200`}>
+                  <div className={`grid ${hasBothCategories ? 'grid-cols-2 divide-x divide-gray-200 dark:divide-gray-700' : 'grid-cols-1'}`}>
                     {/* International */}
+                    {hasInternational && (
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-4">
                         <div className="w-8 h-8 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] rounded-lg flex items-center justify-center">
@@ -121,8 +119,10 @@ export function Navbar() {
                         ))}
                       </div>
                     </div>
+                    )}
 
                     {/* Domestic */}
+                    {hasDomestic && (
                     <div className="p-5">
                       <div className="flex items-center gap-2 mb-4">
                         <div className="w-8 h-8 bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] rounded-lg flex items-center justify-center">
@@ -144,10 +144,12 @@ export function Navbar() {
                         ))}
                       </div>
                     </div>
+                    )}
                   </div>
                 </div>
               )}
             </div>
+            )}
 
             <Link to="/about" className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all font-medium">
               About
@@ -227,7 +229,8 @@ export function Navbar() {
                 Packages
               </a>
               
-              {/* Mobile Destinations Accordion */}
+              {/* Mobile Destinations Accordion — only if agent has destinations */}
+              {hasDestinations && (
               <div>
                 <button
                   onClick={() => setMobileDestOpen(!mobileDestOpen)}
@@ -239,6 +242,7 @@ export function Navbar() {
                 {mobileDestOpen && (
                   <div className="mt-1 ml-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700 space-y-3">
                     {/* International */}
+                    {hasInternational && (
                     <div>
                       <div className="flex items-center gap-2 px-2 py-1.5">
                         <Globe className="w-4 h-4 text-[var(--theme-primary)]" />
@@ -257,7 +261,9 @@ export function Navbar() {
                         ))}
                       </div>
                     </div>
+                    )}
                     {/* Domestic */}
+                    {hasDomestic && (
                     <div>
                       <div className="flex items-center gap-2 px-2 py-1.5">
                         <HomeIcon className="w-4 h-4 text-[var(--theme-primary)]" />
@@ -276,9 +282,11 @@ export function Navbar() {
                         ))}
                       </div>
                     </div>
+                    )}
                   </div>
                 )}
               </div>
+              )}
 
               <Link to="/about" onClick={() => setIsOpen(false)} className="px-4 py-2 text-gray-700 dark:text-gray-200 hover:text-[var(--theme-primary)] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium">
                 About

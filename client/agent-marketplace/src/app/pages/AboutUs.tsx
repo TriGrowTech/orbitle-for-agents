@@ -10,10 +10,11 @@ import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { ChatbotButton } from '../components/ChatbotButton';
 import { PlanTourModal } from '../components/PlanTourModal';
+import { useAgent } from '../context/AgentContext';
 
-// ─── Data ──────────────────────────────────────────────────────────────────
+// ─── Fallback / default data ────────────────────────────────────────────────
 
-const CREDENTIALS = [
+const DEFAULT_CREDENTIALS = [
   {
     label: 'IATA Accreditation',
     number: 'IATA: 14-3-1234',
@@ -44,7 +45,7 @@ const CREDENTIALS = [
   },
 ];
 
-const STATS = [
+const DEFAULT_STATS = [
   { value: '15,000+', label: 'Happy Travellers', icon: Users },
   { value: '12+', label: 'Years of Experience', icon: CalendarDays },
   { value: '4.9★', label: 'Average Rating', icon: Star },
@@ -53,36 +54,21 @@ const STATS = [
   { value: '98%', label: 'Client Satisfaction', icon: TrendingUp },
 ];
 
-const TEAM = [
-  {
-    name: 'Rajesh Kumar Sharma',
-    role: 'Founder & Managing Director',
-    exp: '22 years in travel industry',
-    badge: 'IATA Certified',
-    img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop&crop=face',
-  },
-  {
-    name: 'Priya Mehta',
-    role: 'Head of International Tours',
-    exp: '14 years specialising in Europe & SE Asia',
-    badge: 'Star Performer 2024',
-    img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=300&h=300&fit=crop&crop=face',
-  },
-  {
-    name: 'Arun Patel',
-    role: 'Domestic Packages Lead',
-    exp: '10 years across India circuits',
-    badge: 'Top Consultant',
-    img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
-  },
-];
-
-const AWARDS = [
+const DEFAULT_AWARDS = [
   { year: '2024', title: 'Best Travel Agency – Maharashtra', org: 'TAAI State Awards' },
   { year: '2023', title: 'Excellence in Customer Service', org: 'Indian Tourism Congress' },
   { year: '2022', title: 'Top Performing Agent', org: 'IndiGo Airline Partner Awards' },
   { year: '2021', title: 'Trusted Tour Operator', org: 'Tourism Ministry, Govt. of India' },
 ];
+
+const STAT_ICONS = [Users, CalendarDays, Star, Globe, IndianRupee, TrendingUp];
+
+const CREDENTIAL_ICONS: Record<string, any> = {
+  blue: Globe,
+  green: Landmark,
+  amber: Medal,
+  purple: FileText,
+};
 
 const WHY_US = [
   {
@@ -115,6 +101,13 @@ const WHY_US = [
     title: 'Corporate & Group Travel',
     desc: 'Specialised teams for MICE, incentive tours, family groups, and destination weddings.',
   },
+];
+
+const DEFAULT_BULLETS = [
+  'Dedicated B2B desk for travel agents & sub-agents across India',
+  'In-house visa assistance for 50+ countries',
+  'Tailor-made packages — from budget homestays to luxury villas',
+  'Largest group tour operator for Char Dham Yatra in western India',
 ];
 
 // ─── Colour helpers ─────────────────────────────────────────────────────────
@@ -150,6 +143,40 @@ const colorMap: Record<string, { bg: string; text: string; border: string; icon:
 
 export default function AboutUs() {
   const [showPlanTourModal, setShowPlanTourModal] = useState(false);
+  const { siteConfig, agent, isTenantMode } = useAgent();
+
+  const aboutUs = siteConfig?.aboutUs;
+  const hasAboutUs = aboutUs && (aboutUs.heroTitle || aboutUs.stats?.length || aboutUs.storyTitle || aboutUs.credentials?.length || aboutUs.awards?.length);
+
+  // ── Derived data — use agent-entered data if available, else defaults
+  const heroTitle = aboutUs?.heroTitle || 'Crafting Unforgettable Indian Journeys Since 2012';
+  const heroSubtitle = aboutUs?.heroSubtitle || `${agent?.businessName || 'TG Travels'} is a Ministry-of-Tourism registered, IATA-accredited travel company headquartered in Mumbai, serving 15,000+ satisfied travellers across India and beyond.`;
+  const heroBg = aboutUs?.heroBackgroundImage || 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=80';
+
+  const stats = (aboutUs?.stats?.length ? aboutUs.stats : DEFAULT_STATS.map(s => ({ value: s.value, label: s.label })))
+    .map((s, i) => ({ ...s, icon: STAT_ICONS[i % STAT_ICONS.length] }));
+
+  const storyTitle = aboutUs?.storyTitle || 'Born in Mumbai, Trusted Across India';
+  const storyParagraph1 = aboutUs?.storyParagraph1 || `Founded in 2012 by travel enthusiast Rajesh Kumar Sharma, ${agent?.businessName || 'TG Travels'} began as a boutique agency with a single mission — to deliver authentic, hassle-free travel experiences to Indian families and corporates alike.`;
+  const storyParagraph2 = aboutUs?.storyParagraph2 || `Over 12 years we have grown into one of Maharashtra's most trusted travel operators, with offices in Mumbai and Pune, a team of 45+ certified travel professionals, and partnerships with 500+ hotels, airlines, and cruise lines worldwide.`;
+  const storyBullets = aboutUs?.storyBullets?.length ? aboutUs.storyBullets : DEFAULT_BULLETS;
+  const storyImage1 = aboutUs?.storyImage1 || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=700&q=80';
+  const storyImage2 = aboutUs?.storyImage2 || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80';
+  const yearsBadgeText = aboutUs?.yearsBadgeText || '12+ Years of Excellence';
+
+  const credentials = aboutUs?.credentials?.length
+    ? aboutUs.credentials.map(c => ({
+        label: c.label,
+        number: c.number,
+        description: c.description,
+        color: c.color,
+        icon: CREDENTIAL_ICONS[c.color] || Globe,
+      }))
+    : DEFAULT_CREDENTIALS;
+
+  const awards = aboutUs?.awards?.length ? aboutUs.awards : DEFAULT_AWARDS;
+
+  const displayName = agent?.businessName || agent?.name || 'TG Travels';
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
@@ -162,8 +189,7 @@ export default function AboutUs() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=80')",
+            backgroundImage: `url('${heroBg}')`,
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-gray-900/50" />
@@ -186,19 +212,29 @@ export default function AboutUs() {
             className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
-            Crafting Unforgettable<br />
-            <span
-              className="text-transparent bg-clip-text"
-              style={{ backgroundImage: 'var(--theme-gradient)' }}
-            >
-              Indian Journeys
-            </span>{' '}
-            Since 2012
+            {heroTitle.includes('\n') ? (
+              heroTitle.split('\n').map((line, i) => (
+                <span key={i}>
+                  {i === 1 ? (
+                    <span
+                      className="text-transparent bg-clip-text"
+                      style={{ backgroundImage: 'var(--theme-gradient)' }}
+                    >
+                      {line}
+                    </span>
+                  ) : (
+                    line
+                  )}
+                  {i < heroTitle.split('\n').length - 1 && <br />}
+                </span>
+              ))
+            ) : (
+              <span>{heroTitle}</span>
+            )}
           </h1>
 
           <p className="text-lg md:text-xl text-gray-300 max-w-2xl mb-10 leading-relaxed">
-            TG Travels is a Ministry-of-Tourism registered, IATA-accredited travel company
-            headquartered in Mumbai, serving 15,000+ satisfied travellers across India and beyond.
+            {heroSubtitle}
           </p>
 
           <button
@@ -215,10 +251,11 @@ export default function AboutUs() {
       </section>
 
       {/* ── Stats Row ──────────────────────────────────────────────── */}
+      {stats.length > 0 && (
       <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {STATS.map(({ value, label, icon: Icon }) => (
+          <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-${Math.min(stats.length, 6)} gap-6`}>
+            {stats.map(({ value, label, icon: Icon }) => (
               <div key={label} className="text-center group">
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3 transition-transform group-hover:scale-110"
@@ -233,6 +270,7 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── Our Story ──────────────────────────────────────────────── */}
       <section className="py-20 bg-gray-50 dark:bg-gray-800/50">
@@ -241,23 +279,26 @@ export default function AboutUs() {
             {/* Image collage */}
             <div className="relative h-[480px]">
               <img
-                src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=700&q=80"
+                src={storyImage1}
                 alt="Our team on tour"
                 className="absolute top-0 left-0 w-3/4 h-3/4 object-cover rounded-2xl shadow-2xl"
               />
               <img
-                src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80"
+                src={storyImage2}
                 alt="Beautiful destination"
                 className="absolute bottom-0 right-0 w-1/2 h-1/2 object-cover rounded-2xl shadow-2xl border-4 border-white dark:border-gray-900"
               />
               {/* Years badge */}
+              {yearsBadgeText && (
               <div
                 className="absolute top-1/2 right-0 -translate-y-1/2 w-28 h-28 rounded-2xl flex flex-col items-center justify-center text-white shadow-xl"
                 style={{ background: 'var(--theme-gradient)' }}
               >
-                <span className="text-3xl font-black leading-none">12+</span>
-                <span className="text-xs font-semibold text-center mt-1 leading-tight">Years of<br />Excellence</span>
+                <span className="text-sm font-semibold text-center leading-tight px-2">
+                  {yearsBadgeText}
+                </span>
               </div>
+              )}
             </div>
 
             {/* Content */}
@@ -273,45 +314,33 @@ export default function AboutUs() {
                 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6 leading-snug"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
-                Born in Mumbai, Trusted{' '}
-                <span
-                  className="text-transparent bg-clip-text"
-                  style={{ backgroundImage: 'var(--theme-gradient)' }}
-                >
-                  Across India
-                </span>
+                {storyTitle}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                Founded in 2012 by travel enthusiast Rajesh Kumar Sharma, TG Travels began as a
-                boutique agency with a single mission — to deliver authentic, hassle-free travel
-                experiences to Indian families and corporates alike.
+                {storyParagraph1}
               </p>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
-                Over 12 years we have grown into one of Maharashtra's most trusted travel operators,
-                with offices in Mumbai and Pune, a team of 45+ certified travel professionals, and
-                partnerships with 500+ hotels, airlines, and cruise lines worldwide.
+                {storyParagraph2}
               </p>
 
               {/* Bullet highlights */}
+              {storyBullets.length > 0 && (
               <ul className="space-y-3">
-                {[
-                  'Dedicated B2B desk for travel agents & sub-agents across India',
-                  'In-house visa assistance for 50+ countries',
-                  'Tailor-made packages — from budget homestays to luxury villas',
-                  'Largest group tour operator for Char Dham Yatra in western India',
-                ].map((point) => (
+                {storyBullets.map((point) => (
                   <li key={point} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--theme-primary)' }} />
                     <span className="text-gray-700 dark:text-gray-300 text-sm">{point}</span>
                   </li>
                 ))}
               </ul>
+              )}
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Credentials & Registrations ────────────────────────────── */}
+      {credentials.length > 0 && (
       <section className="py-20 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
@@ -334,9 +363,9 @@ export default function AboutUs() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {CREDENTIALS.map(({ label, number, icon: Icon, color, description }) => {
-              const c = colorMap[color];
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${Math.min(credentials.length, 4)} gap-6`}>
+            {credentials.map(({ label, number, icon: Icon, color, description }) => {
+              const c = colorMap[color] || colorMap.blue;
               return (
                 <div
                   key={label}
@@ -365,6 +394,7 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── Why Choose Us ──────────────────────────────────────────── */}
       <section className="py-20 bg-gray-50 dark:bg-gray-800/50">
@@ -375,13 +405,13 @@ export default function AboutUs() {
               style={{ background: 'var(--theme-gradient)' }}
             >
               <Star className="w-4 h-4" />
-              Why TG Travels
+              Why {displayName}
             </div>
             <h2
               className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              The TG Travels Difference
+              The {displayName} Difference
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mt-3 max-w-xl mx-auto">
               Six pillars that set us apart from every other travel agency in India.
@@ -411,6 +441,7 @@ export default function AboutUs() {
      
 
       {/* ── Awards ─────────────────────────────────────────────────── */}
+      {awards.length > 0 && (
       <section className="py-20 bg-gray-50 dark:bg-gray-800/50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
@@ -430,7 +461,7 @@ export default function AboutUs() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {AWARDS.map(({ year, title, org }) => (
+            {awards.map(({ year, title, org }) => (
               <div
                 key={title}
                 className="flex items-start gap-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-md border border-gray-100 dark:border-gray-700"
@@ -450,6 +481,7 @@ export default function AboutUs() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── Contact Info ───────────────────────────────────────────── */}
       <section className="py-20 bg-white dark:bg-gray-900">
@@ -471,22 +503,22 @@ export default function AboutUs() {
               {
                 icon: Phone,
                 label: 'Call / WhatsApp',
-                value: '+91 98765 43210',
+                value: siteConfig?.contactPhone || agent?.whatsapp || '+91 98765 43210',
                 sub: 'Mon – Sat, 9 AM – 8 PM',
-                href: 'tel:+919876543210',
+                href: `tel:${siteConfig?.contactPhone || agent?.whatsapp || '+919876543210'}`,
               },
               {
                 icon: Mail,
                 label: 'Email Us',
-                value: 'tours@tgtravels.in',
+                value: siteConfig?.contactEmail || 'tours@tgtravels.in',
                 sub: 'Response within 2 hours',
-                href: 'mailto:tours@tgtravels.in',
+                href: `mailto:${siteConfig?.contactEmail || 'tours@tgtravels.in'}`,
               },
               {
                 icon: MapPin,
                 label: 'Visit Our Office',
-                value: '304, Andheri West, Mumbai – 400058',
-                sub: 'Near Andheri Metro Station',
+                value: siteConfig?.address || '304, Andheri West, Mumbai – 400058',
+                sub: '',
                 href: '#',
               },
             ].map(({ icon: Icon, label, value, sub, href }) => (
@@ -504,7 +536,7 @@ export default function AboutUs() {
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold uppercase tracking-wider mb-1">{label}</p>
                   <p className="font-bold text-gray-900 dark:text-white text-sm">{value}</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sub}</p>
+                  {sub && <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sub}</p>}
                 </div>
               </a>
             ))}

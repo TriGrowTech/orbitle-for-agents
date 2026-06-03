@@ -36,7 +36,45 @@ const siteConfigSchema = new mongoose.Schema(
             text: { type: String, default: '' },
             bgColor: { type: String, default: 'red' },
             isActive: { type: Boolean, default: false }
-        }
+        },
+
+        // ── About Us page content ──────────────────────────────
+        aboutUs: {
+            heroTitle: { type: String, default: '' },
+            heroSubtitle: { type: String, default: '' },
+            heroBackgroundImage: { type: String, default: '' },
+            stats: [{
+                value: { type: String, default: '' },
+                label: { type: String, default: '' }
+            }],
+            storyTitle: { type: String, default: '' },
+            storyParagraph1: { type: String, default: '' },
+            storyParagraph2: { type: String, default: '' },
+            storyBullets: [{ type: String }],
+            storyImage1: { type: String, default: '' },
+            storyImage2: { type: String, default: '' },
+            yearsBadgeText: { type: String, default: '' },
+            credentials: [{
+                label: { type: String, default: '' },
+                number: { type: String, default: '' },
+                description: { type: String, default: '' },
+                color: { type: String, enum: ['blue', 'green', 'amber', 'purple'], default: 'blue' }
+            }],
+            awards: [{
+                year: { type: String, default: '' },
+                title: { type: String, default: '' },
+                org: { type: String, default: '' }
+            }]
+        },
+
+        // ── Destinations ────────────────────────────────────────
+        destinations: [{
+            name: { type: String, required: true },
+            category: { type: String, enum: ['domestic', 'international'], required: true },
+            active: { type: Boolean, default: true },
+            trending: { type: Boolean, default: false },
+            image: { type: String, default: '' }
+        }]
     },
     { timestamps: true }
 );

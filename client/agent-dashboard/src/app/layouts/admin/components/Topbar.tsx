@@ -3,6 +3,10 @@ import { Link } from 'react-router';
 import { Menu, Crown, Bell } from 'lucide-react';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserDropdown } from './UserDropdown';
+import { useGetUnreadCountQuery } from '../../../api/notificationApi';
+import { useSocket } from '../../../hooks/useSocket';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
 
 interface TopbarProps {
   onOpenSidebar: () => void;
@@ -11,6 +15,13 @@ interface TopbarProps {
 export function Topbar({ onOpenSidebar }: TopbarProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { data: unreadData } = useGetUnreadCountQuery(undefined, { pollingInterval: 60000 });
+  const unreadCount = unreadData?.count ?? 0;
+
+  // Connect to Socket.io for real-time notification updates
+  useSocket(isAuthenticated);
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm h-[65px]">
@@ -42,7 +53,11 @@ export function Topbar({ onOpenSidebar }: TopbarProps) {
                 className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors relative"
               >
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </button>
 
               <NotificationsDropdown isOpen={notifOpen} onClose={() => setNotifOpen(false)} />

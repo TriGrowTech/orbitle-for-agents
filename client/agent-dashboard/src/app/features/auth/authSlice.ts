@@ -11,6 +11,7 @@ interface User {
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  token: string | null;
 }
 
 const initialState: AuthState = {
@@ -18,6 +19,7 @@ const initialState: AuthState = {
     ? JSON.parse(localStorage.getItem('orbitle_user')!) 
     : null,
   isAuthenticated: !!localStorage.getItem('orbitle_user'),
+  token: localStorage.getItem('orbitle_token') || null,
 };
 
 const authSlice = createSlice({
@@ -33,6 +35,14 @@ const authSlice = createSlice({
         localStorage.removeItem('orbitle_user');
       }
     },
+    setToken(state, action: PayloadAction<string | null>) {
+      state.token = action.payload;
+      if (action.payload) {
+        localStorage.setItem('orbitle_token', action.payload);
+      } else {
+        localStorage.removeItem('orbitle_token');
+      }
+    },
     updateOnboardingStatus(state, action: PayloadAction<boolean>) {
       if (state.user) {
         state.user.isOnboarded = action.payload;
@@ -42,10 +52,12 @@ const authSlice = createSlice({
     clearAuth(state) {
       state.user = null;
       state.isAuthenticated = false;
+      state.token = null;
       localStorage.removeItem('orbitle_user');
+      localStorage.removeItem('orbitle_token');
     },
   },
 });
 
-export const { setUser, updateOnboardingStatus, clearAuth } = authSlice.actions;
+export const { setUser, setToken, updateOnboardingStatus, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

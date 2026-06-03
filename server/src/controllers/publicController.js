@@ -7,6 +7,8 @@ import ContentSection from '../models/ContentSection.model.js';
 import SEOSettings from '../models/SEOSettings.model.js';
 import LegalPage from '../models/LegalPage.model.js';
 import SiteConfig from '../models/SiteConfig.model.js';
+import Notification from '../models/Notification.model.js';
+import { getIO } from '../utils/socket.js';
 
 // GET /api/public/agent/:subdomain
 // Public — no auth required
@@ -115,6 +117,24 @@ export const submitLead = async (req, res) => {
             packageName,
             source: leadSource
         });
+
+        // ── Auto-create "new_lead" notification ──────────────────────────
+        try {
+            const notification = await Notification.create({
+                agentId: agent._id,
+                type: 'new_lead',
+                title: 'New Lead Received!',
+                message: `${name} enquired${packageName ? ` about ${packageName}` : ''}. Phone: ${phone}`
+            });
+
+            const io = getIO();
+            if (io) {
+                io.to(agent._id.toString()).emit('notification', notification);
+            }
+        } catch (notifErr) {
+            // Don't fail the lead submission if notification fails
+            console.error('[LEAD NOTIFICATION ERROR]', notifErr);
+        }
 
         return res.status(201).json({
             success: true,

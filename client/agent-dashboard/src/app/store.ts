@@ -10,6 +10,8 @@ import { contentSectionApi } from './api/contentSectionApi';
 import { seoApi } from './api/seoApi';
 import { legalApi } from './api/legalApi';
 import { siteConfigApi } from './api/siteConfigApi';
+import { notificationApi } from './api/notificationApi';
+import { supportApi } from './api/supportApi';
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +24,8 @@ export const store = configureStore({
     [seoApi.reducerPath]: seoApi.reducer,
     [legalApi.reducerPath]: legalApi.reducer,
     [siteConfigApi.reducerPath]: siteConfigApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
+    [supportApi.reducerPath]: supportApi.reducer,
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -34,7 +38,9 @@ export const store = configureStore({
       .concat(contentSectionApi.middleware)
       .concat(seoApi.middleware)
       .concat(legalApi.middleware)
-      .concat(siteConfigApi.middleware),
+      .concat(siteConfigApi.middleware)
+      .concat(notificationApi.middleware)
+      .concat(supportApi.middleware),
 });
 
 setupListeners(store.dispatch);

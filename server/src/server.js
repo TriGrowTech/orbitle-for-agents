@@ -40,9 +40,11 @@ app.use(cookieParser());
 const isAllowedOrigin = (origin) => {
     if (!origin) return true; // allow server-to-server
     if (process.env.NODE_ENV === 'production') {
-        // Allow main domain + all agent subdomains
-        if (origin === 'https://orbitle.in') return true;
-        if (origin.endsWith('.orbitle.in')) return true;
+        // Allow main domain + all agent subdomains dynamically via COOKIE_DOMAIN
+        const domain = process.env.COOKIE_DOMAIN || '.orbitle.in';
+        const cleanDomain = domain.startsWith('.') ? domain.substring(1) : domain;
+        if (origin === `https://${cleanDomain}`) return true;
+        if (origin.endsWith(`.${cleanDomain}`)) return true;
         return false;
     } else {
         // Dev: allow localhost on any port + any *.localhost subdomain
@@ -149,11 +151,30 @@ io.on('connection', (socket) => {
     });
 });
 
+// Centralized Express Error Handler
+app.use((err, req, res, next) => {
+    console.error(`[EXPRESS ERROR]`, err.stack || err);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Internal Server Error'
+    });
+});
+
 // ── Start Server + Cron ───────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 5000;
 
-httpServer.listen(PORT, () => {
+const serverInstance = httpServer.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
     startCronJobs();
+});
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (err) => {
+    console.error(`[UNHANDLED REJECTION] Unhandled promise rejection:`, err);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+    console.error(`[UNCAUGHT EXCEPTION] Uncaught exception:`, err);
 });

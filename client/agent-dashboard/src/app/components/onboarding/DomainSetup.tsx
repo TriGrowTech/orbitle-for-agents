@@ -8,9 +8,10 @@ interface DomainSetupProps {
   brandData?: any;
   setBrandData?: any;
   errors?: Record<string, string>;
+  setErrors?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
-export function DomainSetup({ onNext, onSkip, brandData, setBrandData, errors = {} }: DomainSetupProps) {
+export function DomainSetup({ onNext, onSkip, brandData, setBrandData, errors = {}, setErrors }: DomainSetupProps) {
 
   const [debouncedSubdomain, setDebouncedSubdomain] = useState(brandData?.subdomain || '');
 
@@ -90,13 +91,23 @@ export function DomainSetup({ onNext, onSkip, brandData, setBrandData, errors = 
               <input
                 type="text"
                 value={brandData?.subdomain || ''}
-                onChange={(e) => setBrandData({...brandData, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')})}
+                onChange={(e) => {
+                  const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                  setBrandData({...brandData, subdomain: val});
+                  if (errors.subdomain) {
+                    setErrors?.(prev => {
+                      const updated = { ...prev };
+                      delete updated.subdomain;
+                      return updated;
+                    });
+                  }
+                }}
                 placeholder="saratravels"
                 className={`flex-1 px-4 py-3 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-semibold ${
                   (errors.subdomain || isTaken) ? 'border-red-400 bg-red-50' : 'border-gray-200'
                 }`}
               />
-              <span className="text-gray-600 font-semibold">.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}</span>
+              <span className="text-gray-600 font-semibold">.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}</span>
             </div>
             
             {/* Status checking / Errors */}
@@ -137,7 +148,7 @@ export function DomainSetup({ onNext, onSkip, brandData, setBrandData, errors = 
                     <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                   </div>
                   <div className="mx-auto bg-white rounded-md px-3 py-1 text-xs text-center text-gray-500 shadow-sm border border-gray-200 w-2/3 truncate">
-                    https://{brandData.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}
+                    https://{brandData.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}
                   </div>
                 </div>
                 {/* Iframe Preview */}

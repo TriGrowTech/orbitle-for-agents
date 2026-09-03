@@ -33,7 +33,7 @@ const agentSchema = new mongoose.Schema({
     },
     whatsapp: {
         type: String,
-        match: [/^[0-9+]{10,15}$/, 'Please add a valid WhatsApp number']
+        match: [/^\+?[\d\s\-()]{7,20}$/, 'Please add a valid WhatsApp number']
     },
     logo: {
         type: String,

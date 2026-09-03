@@ -1,13 +1,23 @@
 {
-  "name": "orbitle-for-agents",
+  "name": "orbitle",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Orbitle - Unified SaaS Platform for Travel Industry",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client/agent-dashboard",
+    "client/agent-marketplace",
+    "client/superadmin"
+  ],
   "scripts": {
-    "dev": "concurrently --names \"API,DASH,MARKET\" --prefix-colors \"yellow,green,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client/agent-dashboard\" \"npm run dev --prefix client/agent-marketplace\"",
-    "dev:api": "npm run dev --prefix server",
-    "dev:dashboard": "npm run dev --prefix client/agent-dashboard",
-    "dev:marketplace": "npm run dev --prefix client/agent-marketplace",
+    "dev": "concurrently --names \"API,DASH,MARKET,ADMIN\" --prefix-colors \"yellow,green,magenta,cyan\" \"npm run dev:api\" \"npm run dev:dash\" \"npm run dev:market\" \"npm run dev:admin\"",
+    "dev:api": "npm run dev --workspace=server",
+    "dev:dash": "npm run dev --workspace=@orbitle/agent-dashboard",
+    "dev:market": "npm run dev --workspace=@orbitle/agent-marketplace",
+    "dev:admin": "npm run dev --workspace=@orbitle/superadmin",
+    "build:dash": "npm run build --workspace=@orbitle/agent-dashboard",
+    "build:market": "npm run build --workspace=@orbitle/agent-marketplace",
+    "build:admin": "npm run build --workspace=@orbitle/superadmin",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

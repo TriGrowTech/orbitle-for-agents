@@ -190,7 +190,7 @@ export function OnboardingWizard({ isOpen, onComplete, isSubmitting = false }: O
 
         {/* Step content — scrollable only if needed */}
         <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(14px, 2.5vh, 24px) clamp(16px, 3vw, 28px)' }}>
-          <CurrentStepComponent onNext={handleNext} onSkip={handleSkip} brandData={brandData} setBrandData={setBrandData} errors={errors} />
+          <CurrentStepComponent onNext={handleNext} onSkip={handleSkip} brandData={brandData} setBrandData={setBrandData} errors={errors} setErrors={setErrors} />
         </div>
 
         {/* Footer */}

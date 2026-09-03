@@ -64,7 +64,7 @@ export function ThemeManagement() {
   };
 
   const marketplaceUrl = agent?.subdomain
-    ? `http://${agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}`
+    ? `http://${agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}`
     : null;
 
   return (
@@ -157,7 +157,7 @@ export function ThemeManagement() {
           <p className="text-xs text-gray-400 mt-4 text-center">
             Changes reflect instantly on{' '}
             <a href={marketplaceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline font-medium">
-              {agent?.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}
+              {agent?.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}
             </a>
           </p>
         )}

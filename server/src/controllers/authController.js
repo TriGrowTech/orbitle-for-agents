@@ -1,6 +1,7 @@
 import Agent from '../models/Agent.model.js';
 import Package from '../models/Package.model.js';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import sendEmail from '../utils/sendEmail.js';
 import { getOtpEmailTemplate, getSignupOtpEmailTemplate } from '../utils/emailTemplate.js';
 
@@ -415,7 +416,7 @@ const sendTokenResponse = (agent, statusCode, res) => {
 
     const options = {
         expires: new Date(
-            Date.now() + (process.env.JWT_COOKIE_EXPIRE || 30) * 24 * 60 * 60 * 1000
+            Date.now() + (parseInt(process.env.JWT_COOKIE_EXPIRE, 10) || 30) * 24 * 60 * 60 * 1000
         ),
         httpOnly: true,
         domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined,
@@ -437,4 +438,159 @@ const sendTokenResponse = (agent, statusCode, res) => {
                 isOnboarded: agent.isOnboarded
             }
         });
+};
+
+// Google OAuth URL Generator / Redirector
+export const googleAuth = async (req, res) => {
+    const client_id = process.env.GOOGLE_CLIENT_ID;
+    const redirect_uri = process.env.GOOGLE_CALLBACK_URL;
+    
+    if (!client_id || !redirect_uri) {
+        return res.status(500).json({ success: false, message: 'Google OAuth is not configured on the server.' });
+    }
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${encodeURIComponent(client_id)}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=email%20profile&prompt=select_account`;
+
+    // Check if AJAX request (expects JSON) or direct browser navigation
+    if (req.headers.accept?.includes('application/json')) {
+        return res.status(200).json({ success: true, url: authUrl });
+    } else {
+        return res.redirect(authUrl);
+    }
+};
+
+// Google OAuth Callback
+export const googleAuthCallback = async (req, res) => {
+    try {
+        const { code } = req.query;
+        if (!code) {
+            return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=no_code`);
+        }
+
+        const client_id = process.env.GOOGLE_CLIENT_ID;
+        const client_secret = process.env.GOOGLE_CLIENT_SECRET;
+        const redirect_uri = process.env.GOOGLE_CALLBACK_URL;
+
+        // Exchange code for tokens
+        const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                code,
+                client_id,
+                client_secret,
+                redirect_uri,
+                grant_type: 'authorization_code'
+            })
+        });
+
+        const tokenData = await tokenRes.json();
+        if (!tokenData.access_token) {
+            console.error('[GOOGLE OAUTH ERROR] Failed to exchange token:', tokenData);
+            return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=token_exchange_failed`);
+        }
+
+        // Get user info
+        const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${tokenData.access_token}` }
+        });
+
+        const userData = await userRes.json();
+        if (!userData.email) {
+            console.error('[GOOGLE OAUTH ERROR] Failed to get user info:', userData);
+            return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=user_info_failed`);
+        }
+
+        const email = userData.email.toLowerCase();
+        const name = userData.name || '';
+
+        // Check if agent already exists
+        let agent = await Agent.findOne({ email });
+
+        if (agent) {
+            // Already registered - Log in
+            const token = agent.getSignedJwtToken();
+            const cookieOptions = {
+                expires: new Date(
+                    Date.now() + (parseInt(process.env.JWT_COOKIE_EXPIRE, 10) || 30) * 24 * 60 * 60 * 1000
+                ),
+                httpOnly: true,
+                domain: process.env.NODE_ENV === 'production' ? process.env.COOKIE_DOMAIN : undefined,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax'
+            };
+
+            const dashboardUrl = process.env.DASHBOARD_URL || 'http://localhost:5174';
+            const redirectPath = agent.isOnboarded ? '/dashboard' : '/onboarding';
+
+            return res
+                .cookie('token', token, cookieOptions)
+                .redirect(`${dashboardUrl}${redirectPath}`);
+        } else {
+            // New user - redirect to signup/callback with temporary session token
+            // Sign a temporary token that expires in 15 minutes
+            const tempToken = jwt.sign(
+                { email, name, isGooglePending: true },
+                process.env.JWT_SECRET,
+                { expiresIn: '15m' }
+            );
+
+            const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
+            return res.redirect(`${clientUrl}/signup/callback?session=${encodeURIComponent(tempToken)}`);
+        }
+    } catch (err) {
+        console.error('[GOOGLE CALLBACK ERROR]', err);
+        return res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/login?error=server_error`);
+    }
+};
+
+// Complete Google Registration
+export const googleCompleteRegister = async (req, res) => {
+    try {
+        const { sessionToken, role, phone, businessName } = req.body;
+
+        if (!sessionToken || !role || !phone || !businessName) {
+            return res.status(400).json({ success: false, message: 'All fields are required.' });
+        }
+
+        // Verify temporary token
+        let decoded;
+        try {
+            decoded = jwt.verify(sessionToken, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired session. Please sign up again.' });
+        }
+
+        if (!decoded.isGooglePending || !decoded.email) {
+            return res.status(400).json({ success: false, message: 'Invalid session structure.' });
+        }
+
+        const email = decoded.email.toLowerCase();
+
+        // Prevent duplicate registration
+        const exists = await Agent.findOne({ email });
+        if (exists) {
+            return res.status(400).json({ success: false, message: 'An account with this email already exists.' });
+        }
+
+        // Generate a random secure password for Google users since it's required by schema but not used
+        const randomPassword = crypto.randomBytes(16).toString('hex');
+
+        const agent = await Agent.create({
+            name: decoded.name,
+            email,
+            password: randomPassword,
+            businessName,
+            whatsapp: phone,
+            planType: 'trial',
+            trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        });
+
+        sendTokenResponse(agent, 201, res);
+    } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({ success: false, message: 'This email or phone is already registered.' });
+        }
+        res.status(500).json({ success: false, message: err.message });
+    }
 };

@@ -4,7 +4,8 @@ import {
     completeOnboarding, checkSubdomain, 
     updateProfile, updatePassword, 
     forgotPassword, resetPassword,
-    sendSignupOtp, verifySignupOtp
+    sendSignupOtp, verifySignupOtp,
+    googleAuth, googleAuthCallback, googleCompleteRegister
 } from '../controllers/authController.js';
 import { isAuthenticated } from '../middleware/auth.js';
 import upload from '../middleware/upload.js';
@@ -25,5 +26,10 @@ router.put('/profile', isAuthenticated, updateProfile);
 router.put('/password', isAuthenticated, updatePassword);
 router.post('/forgotpassword', forgotPassword);
 router.put('/resetpassword', resetPassword);
+
+// Google OAuth
+router.get('/google', googleAuth);
+router.get('/google/callback', googleAuthCallback);
+router.post('/google/complete-register', googleCompleteRegister);
 
 export default router;

@@ -26,7 +26,7 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
   };
 
   const handlePreview = () => {
-    const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
+    const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173';
     const url = agent?.subdomain ? `http://${agent.subdomain}.${marketplaceDomain}` : `http://${marketplaceDomain}`;
     window.open(url, '_blank');
   };

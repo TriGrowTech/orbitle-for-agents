@@ -7,9 +7,10 @@ interface BrandSetupProps {
   brandData?: any;
   setBrandData?: any;
   errors?: Record<string, string>;
+  setErrors?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
-export function BrandSetup({ brandData, setBrandData, errors = {} }: BrandSetupProps) {
+export function BrandSetup({ brandData, setBrandData, errors = {}, setErrors }: BrandSetupProps) {
   const themes = [
     { id: 'navy', name: 'Navy Blue', color: '#1e3a8a' },
     { id: 'red', name: 'Deep Red', color: '#b91c1c' },
@@ -45,7 +46,16 @@ export function BrandSetup({ brandData, setBrandData, errors = {} }: BrandSetupP
           <input
             type="text"
             value={brandData?.name || ''}
-            onChange={e => setBrandData({ ...brandData, name: e.target.value })}
+            onChange={e => {
+              setBrandData({ ...brandData, name: e.target.value });
+              if (errors.name) {
+                setErrors?.(prev => {
+                  const updated = { ...prev };
+                  delete updated.name;
+                  return updated;
+                });
+              }
+            }}
             placeholder="e.g., Sara Travels"
             className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
               errors.name ? 'border-red-400 bg-red-50' : 'border-gray-200'

@@ -12,11 +12,11 @@ export const leadsApi = createApi({
       query: () => '/leads',
       providesTags: ['Lead'],
     }),
-    updateLeadStatus: builder.mutation<{ success: boolean; data: any }, { id: string; status: string }>({
-      query: ({ id, status }) => ({
+    updateLeadStatus: builder.mutation<{ success: boolean; data: any }, { id: string; status: string; dealAmount?: number }>({
+      query: ({ id, status, dealAmount }) => ({
         url: `/leads/${id}`,
         method: 'PUT',
-        body: { status },
+        body: { status, dealAmount },
       }),
       invalidatesTags: ['Lead'],
     }),

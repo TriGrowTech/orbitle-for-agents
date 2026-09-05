@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Trash2, Upload, Eye, EyeOff, ImageIcon, Loader2, Tag, Percent } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Trash2, Upload, Eye, EyeOff, ImageIcon, Loader2, Tag, Percent, Sparkles } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -22,22 +22,32 @@ export function Banners() {
   const config = configData?.data;
   const [topbarText, setTopbarText] = useState('');
   const [topbarCta, setTopbarCta] = useState('');
-  const [topbarInit, setTopbarInit] = useState(false);
+  const [topbarIsActive, setTopbarIsActive] = useState(false);
+
   const [cardText, setCardText] = useState('');
   const [cardColor, setCardColor] = useState('red');
-  const [cardInit, setCardInit] = useState(false);
+  const [cardIsActive, setCardIsActive] = useState(false);
 
-  // Populate topbar/card from API once
-  if (config && !topbarInit) {
-    setTopbarText(config.topbarOffer?.text || '');
-    setTopbarCta(config.topbarOffer?.ctaText || '');
-    setTopbarInit(true);
-  }
-  if (config && !cardInit) {
-    setCardText(config.cardOffer?.text || '');
-    setCardColor(config.cardOffer?.bgColor || 'red');
-    setCardInit(true);
-  }
+  const [heroTitle, setHeroTitle] = useState('');
+  const [heroSubtitle, setHeroSubtitle] = useState('');
+
+  // Populate topbar/card/hero from API when config loads
+  useEffect(() => {
+    if (config?.topbarOffer) {
+      setTopbarText(config.topbarOffer.text || '');
+      setTopbarCta(config.topbarOffer.ctaText || '');
+      setTopbarIsActive(config.topbarOffer.isActive ?? false);
+    }
+    if (config?.cardOffer) {
+      setCardText(config.cardOffer.text || '');
+      setCardColor(config.cardOffer.bgColor || 'red');
+      setCardIsActive(config.cardOffer.isActive ?? false);
+    }
+    if (config) {
+      setHeroTitle(config.heroTitle || '');
+      setHeroSubtitle(config.heroSubtitle || '');
+    }
+  }, [config]);
 
   // Banner state
   const [showAdd, setShowAdd] = useState(false);
@@ -98,31 +108,45 @@ export function Banners() {
     catch (err: any) { toast.error('Failed to delete'); }
   };
 
-  const saveTopbar = async (toggleActive?: boolean) => {
+  const saveTopbar = async (overrideActive?: boolean) => {
+    const nextActive = overrideActive !== undefined ? overrideActive : topbarIsActive;
+    setTopbarIsActive(nextActive);
     try {
       await updateConfig({
         topbarOffer: {
           text: topbarText,
           ctaText: topbarCta,
           ctaLink: '',
-          isActive: toggleActive !== undefined ? toggleActive : (config?.topbarOffer?.isActive ?? false),
+          isActive: nextActive,
         }
       }).unwrap();
-      toast.success('Topbar offer saved!');
+      toast.success(nextActive ? 'Topbar offer activated!' : 'Topbar offer deactivated!');
     } catch (err: any) { toast.error('Failed to save'); }
   };
 
-  const saveCard = async (toggleActive?: boolean) => {
+  const saveCard = async (overrideActive?: boolean) => {
+    const nextActive = overrideActive !== undefined ? overrideActive : cardIsActive;
+    setCardIsActive(nextActive);
     try {
       await updateConfig({
         cardOffer: {
           text: cardText,
           bgColor: cardColor,
-          isActive: toggleActive !== undefined ? toggleActive : (config?.cardOffer?.isActive ?? false),
+          isActive: nextActive,
         }
       }).unwrap();
-      toast.success('Card offer saved!');
+      toast.success(nextActive ? 'Card offer activated!' : 'Card offer deactivated!');
     } catch (err: any) { toast.error('Failed to save'); }
+  };
+
+  const saveHeroText = async () => {
+    try {
+      await updateConfig({
+        heroTitle,
+        heroSubtitle,
+      }).unwrap();
+      toast.success('Hero headline saved!');
+    } catch (err: any) { toast.error('Failed to save hero headline'); }
   };
 
   if (isLoading) {
@@ -268,6 +292,50 @@ export function Banners() {
         </div>
       </div>
 
+      {/* ─── Homepage Hero Headline ────────────────────────────────────── */}
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-md">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Homepage Hero Headline</h2>
+            <p className="text-xs text-gray-600">Customize the main heading &amp; subheading text shown on your website hero section</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1.5">Hero Main Title</label>
+            <Input
+              type="text"
+              value={heroTitle}
+              onChange={e => setHeroTitle(e.target.value)}
+              placeholder="Book India & International Holiday Tour Packages"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg h-auto bg-white font-medium"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1.5">Hero Subtitle</label>
+            <Input
+              type="text"
+              value={heroSubtitle}
+              onChange={e => setHeroSubtitle(e.target.value)}
+              placeholder="Explore the world with our curated travel experiences"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg h-auto bg-white"
+            />
+          </div>
+        </div>
+        <div className="flex items-center justify-end mt-3 pt-3 border-t border-gray-200">
+          <Button
+            onClick={saveHeroText}
+            disabled={isSavingConfig}
+            className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold h-auto"
+          >
+            {isSavingConfig ? 'Saving...' : 'Save Headline'}
+          </Button>
+        </div>
+      </div>
+
       {/* ─── Topbar Offer ─────────────────────────────────────────────── */}
       <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-sm p-4">
         <div className="flex items-center gap-3 mb-3">
@@ -294,11 +362,11 @@ export function Banners() {
           </div>
         </div>
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
-          <Button onClick={() => saveTopbar(!config?.topbarOffer?.isActive)}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-medium transition-colors h-auto border-none shadow-none ${
-              config?.topbarOffer?.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          <Button onClick={() => saveTopbar(!topbarIsActive)}
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-semibold transition-all h-auto border-none shadow-none cursor-pointer ${
+              topbarIsActive ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}>
-            {config?.topbarOffer?.isActive ? <><Eye className="w-3 h-3" />Active</> : <><EyeOff className="w-3 h-3" />Inactive</>}
+            {topbarIsActive ? <><Eye className="w-3.5 h-3.5" />Active</> : <><EyeOff className="w-3.5 h-3.5" />Inactive</>}
           </Button>
           <Button onClick={() => saveTopbar()} disabled={isSavingConfig}
             className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs h-auto">
@@ -341,11 +409,11 @@ export function Banners() {
           </div>
         </div>
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
-          <Button onClick={() => saveCard(!config?.cardOffer?.isActive)}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-medium transition-colors h-auto border-none shadow-none ${
-              config?.cardOffer?.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          <Button onClick={() => saveCard(!cardIsActive)}
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-2 text-xs font-semibold transition-all h-auto border-none shadow-none cursor-pointer ${
+              cardIsActive ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}>
-            {config?.cardOffer?.isActive ? <><Eye className="w-3 h-3" />Active</> : <><EyeOff className="w-3 h-3" />Inactive</>}
+            {cardIsActive ? <><Eye className="w-3.5 h-3.5" />Active</> : <><EyeOff className="w-3.5 h-3.5" />Inactive</>}
           </Button>
           <Button onClick={() => saveCard()} disabled={isSavingConfig}
             className="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs h-auto">

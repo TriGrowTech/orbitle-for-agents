@@ -19,19 +19,32 @@ const FALLBACK_DESTINATIONS = [
 
 const GAP = 20; // px — must match gap in flex container
 
+const getFallbackImage = (name: string) => {
+  const lower = (name || '').toLowerCase();
+  if (lower.includes('delhi')) return 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=400&q=80';
+  if (lower.includes('ladakh') || lower.includes('leh')) return 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRILyx8yJX-DzIM35QGZnvvv8ozIs_13ShnaA&s';
+  if (lower.includes('kashmir') || lower.includes('srinagar')) return 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?w=400&q=80';
+  if (lower.includes('manali')) return 'https://images.unsplash.com/photo-1588083949404-c4f1ed1323b3?w=400&q=80';
+  if (lower.includes('kerala')) return 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=400&q=80';
+  if (lower.includes('rajasthan') || lower.includes('jaipur')) return 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=400&q=80';
+  if (lower.includes('goa')) return 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=400&q=80';
+  return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80';
+};
+
 export function DestinationsCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { siteConfig, isTenantMode } = useAgent();
 
-  // Use agent destinations (active ones, prefer trending first) or fallback
+  // Show only destinations where active === true && trending === true
   const allDests = siteConfig?.destinations || [];
-  const hasAgentDests = allDests.length > 0;
+  const trendingDests = allDests.filter(d => d.active && d.trending);
 
-  const destinations = hasAgentDests
-    ? allDests
-        .filter(d => d.active && d.trending)
-        .map(d => ({ name: d.name, image: d.image || '' }))
+  const destinations = trendingDests.length > 0
+    ? trendingDests.map(d => ({
+        name: d.name,
+        image: d.image || getFallbackImage(d.name)
+      }))
     : (isTenantMode ? [] : FALLBACK_DESTINATIONS);
 
   // Don't render if no trending destinations

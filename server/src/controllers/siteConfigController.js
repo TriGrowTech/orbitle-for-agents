@@ -23,6 +23,7 @@ export const updateSiteConfig = async (req, res) => {
             companyName, contactEmail, contactPhone, address,
             facebookUrl, instagramUrl, defaultWhatsappMessage,
             currency, timezone,
+            heroTitle, heroSubtitle,
             topbarOffer, cardOffer,
             aboutUs, destinations
         } = req.body;
@@ -33,7 +34,7 @@ export const updateSiteConfig = async (req, res) => {
             config = await SiteConfig.create({ agentId: req.agent.id });
         }
 
-        // Branding fields — direct set
+        // Branding & Hero fields — direct set
         if (companyName !== undefined) config.companyName = companyName;
         if (contactEmail !== undefined) config.contactEmail = contactEmail;
         if (contactPhone !== undefined) config.contactPhone = contactPhone;
@@ -43,6 +44,8 @@ export const updateSiteConfig = async (req, res) => {
         if (defaultWhatsappMessage !== undefined) config.defaultWhatsappMessage = defaultWhatsappMessage;
         if (currency !== undefined) config.currency = currency;
         if (timezone !== undefined) config.timezone = timezone;
+        if (heroTitle !== undefined) config.heroTitle = heroTitle;
+        if (heroSubtitle !== undefined) config.heroSubtitle = heroSubtitle;
 
         // Nested objects — merge
         if (topbarOffer !== undefined) {

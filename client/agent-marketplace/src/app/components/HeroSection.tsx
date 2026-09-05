@@ -7,8 +7,11 @@ const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export function HeroSection() {
   const { themeConfig, layoutVariant } = useTheme();
-  const { banners, isTenantMode } = useAgent();
+  const { banners, siteConfig, isTenantMode } = useAgent();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const titleText = siteConfig?.heroTitle?.trim() || 'Book India & International Holiday Tour Packages';
+  const subtitleText = siteConfig?.heroSubtitle?.trim() || 'Explore the world with our curated travel experiences';
 
   // Use hero slides from API if available, otherwise use theme defaults
   const heroSlides = isTenantMode
@@ -28,6 +31,7 @@ export function HeroSection() {
   if (layoutVariant === 'centered') {
     return (
       <section className="relative h-[700px] flex items-center justify-center overflow-hidden">
+        {/* Carousel Background Images */}
         {images.map((image, index) => (
           <div
             key={index}
@@ -42,11 +46,10 @@ export function HeroSection() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center w-full">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-white mb-4 leading-tight tracking-tight">
-            Book India & International
-            <span className="block text-blue-300 mt-2">Holiday Tour Packages</span>
+            {titleText}
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Explore the world with our curated travel experiences
+            {subtitleText}
           </p>
 
           {/* Fine-Tuned Glassmorphism Search Bar */}
@@ -93,12 +96,11 @@ export function HeroSection() {
               <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
               <span className="text-white text-sm font-semibold tracking-wider uppercase">Experience the Soul of</span>
             </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-semibold text-white mb-6 leading-none">
-              Paradise
-              <span className="block text-transparent bg-gradient-to-r from-orange-300 via-red-300 to-pink-300 bg-clip-text">Destinations</span>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-semibold text-white mb-6 leading-tight">
+              {titleText}
             </h1>
             <p className="text-xl md:text-2xl text-orange-100 mb-10 leading-relaxed font-light">
-              Rich culture, vibrant beauty, and breathtaking adventures await
+              {subtitleText}
             </p>
 
             {/* Fine-Tuned Glassmorphism Search Bar */}
@@ -136,12 +138,11 @@ export function HeroSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div>
-          <h1 className="text-5xl md:text-7xl font-semibold text-gray-900 dark:text-white mb-6 leading-tight">
-            Tour Packages
-            <span className="block text-transparent bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text mt-2">From Your City!</span>
+          <h1 className="text-5xl md:text-6xl font-semibold text-gray-900 dark:text-white mb-6 leading-tight">
+            {titleText}
           </h1>
           <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-            Air Inclusive travel packages departing from Your City!
+            {subtitleText}
           </p>
 
           {/* Fine-Tuned Glassmorphism Search Bar */}

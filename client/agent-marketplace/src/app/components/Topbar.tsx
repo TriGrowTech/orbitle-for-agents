@@ -8,9 +8,15 @@ export function Topbar() {
   const phone = siteConfig?.contactPhone || '+91 123 456 7890';
   const email = siteConfig?.contactEmail || 'info@travelmarket.com';
 
-  // Topbar offer text
+  // Topbar offer text & active status
   const topbarOffer = siteConfig?.topbarOffer;
-  const offerText = topbarOffer?.isActive && topbarOffer?.text
+
+  // If topbar offer is turned off (Inactive), hide the ENTIRE top bar strip completely!
+  if (topbarOffer && topbarOffer.isActive === false) {
+    return null;
+  }
+
+  const offerText = (topbarOffer?.text?.trim())
     ? topbarOffer.text
     : '⚡ Best Price Guarantee - Book Now!';
 
@@ -27,9 +33,11 @@ export function Topbar() {
 
         {/* Middle — Offer */}
         <div className="flex-1 flex items-center justify-center">
-          <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-            <span className="font-semibold text-xs sm:text-sm tracking-wide">{offerText}</span>
-          </div>
+          {offerText && (
+            <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+              <span className="font-semibold text-xs sm:text-sm tracking-wide">{offerText}</span>
+            </div>
+          )}
         </div>
 
         {/* Right — Email */}

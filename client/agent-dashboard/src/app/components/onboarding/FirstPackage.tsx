@@ -1,21 +1,42 @@
-import { useState } from 'react';
-import { Upload, MapPin, Clock, IndianRupee, Sparkles, Eye, Check } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Upload, MapPin, Clock, IndianRupee, Sparkles, Eye, Check, X } from 'lucide-react';
 import { useGetMeQuery } from '../../api/authApi';
 
 interface FirstPackageProps {
   onNext: () => void;
   onSkip: () => void;
+  brandData?: any;
 }
 
-export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
+export function FirstPackage({ onNext, onSkip, brandData }: FirstPackageProps) {
   const [destination, setDestination] = useState('Goa');
   const [duration, setDuration] = useState('3 Nights / 4 Days');
   const [price, setPrice] = useState('15,999');
   const [highlights, setHighlights] = useState(['Beach resort stay', 'Water sports', 'North & South Goa tour']);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: userData } = useGetMeQuery();
   const agent = userData?.agent;
+
+  const handleFileSelect = (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be under 5MB');
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setImagePreview(url);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    handleFileSelect(file);
+  };
 
   const handlePublish = () => {
     setIsPublishing(true);
@@ -26,8 +47,9 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
   };
 
   const handlePreview = () => {
-    const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173';
-    const url = agent?.subdomain ? `http://${agent.subdomain}.${marketplaceDomain}` : `http://${marketplaceDomain}`;
+    const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
+    const sub = brandData?.subdomain || agent?.subdomain;
+    const url = sub ? `http://${sub}.${marketplaceDomain}?subdomain=${sub}` : `http://${marketplaceDomain}`;
     window.open(url, '_blank');
   };
 
@@ -38,7 +60,6 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
   };
 
   return (
-
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-full mb-3">
@@ -127,10 +148,45 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Package Image
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-sm text-gray-600 mb-1">Click to upload or drag and drop</p>
-                <p className="text-xs text-gray-500">JPG, PNG up to 5MB</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileSelect(e.target.files?.[0])}
+              />
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer relative overflow-hidden ${
+                  isDragging
+                    ? 'border-blue-500 bg-blue-50'
+                    : imagePreview
+                    ? 'border-green-400 bg-green-50/50 hover:bg-green-50'
+                    : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+              >
+                {imagePreview ? (
+                  <div className="relative group">
+                    <img
+                      src={imagePreview}
+                      alt="Package preview"
+                      className="max-h-40 mx-auto rounded-lg object-cover shadow-sm"
+                    />
+                    <div className="mt-2 flex items-center justify-center gap-2 text-xs font-semibold text-green-700">
+                      <Check className="w-4 h-4 text-green-600" />
+                      Image selected (click or drag to change)
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-gray-700 mb-1">Click to upload or drag and drop</p>
+                    <p className="text-xs text-gray-500">JPG, PNG, WebP up to 5MB</p>
+                  </>
+                )}
               </div>
             </div>
 
@@ -162,9 +218,13 @@ export function FirstPackage({ onNext, onSkip }: FirstPackageProps) {
             </div>
 
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              {/* Image placeholder */}
-              <div className="h-48 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 flex items-center justify-center">
-                <Upload className="w-16 h-16 text-white/50" />
+              {/* Image preview */}
+              <div className="h-48 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 flex items-center justify-center overflow-hidden relative">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Live preview" className="w-full h-full object-cover" />
+                ) : (
+                  <Upload className="w-16 h-16 text-white/50" />
+                )}
               </div>
 
               {/* Package details */}

@@ -107,7 +107,7 @@ export function DomainSetup({ onNext, onSkip, brandData, setBrandData, errors = 
                   (errors.subdomain || isTaken) ? 'border-red-400 bg-red-50' : 'border-gray-200'
                 }`}
               />
-              <span className="text-gray-600 font-semibold">.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}</span>
+              <span className="text-gray-600 font-semibold">.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}</span>
             </div>
             
             {/* Status checking / Errors */}
@@ -148,7 +148,7 @@ export function DomainSetup({ onNext, onSkip, brandData, setBrandData, errors = 
                     <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                   </div>
                   <div className="mx-auto bg-white rounded-md px-3 py-1 text-xs text-center text-gray-500 shadow-sm border border-gray-200 w-2/3 truncate">
-                    https://{brandData.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}
+                    https://{brandData.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}
                   </div>
                 </div>
                 {/* Iframe Preview */}

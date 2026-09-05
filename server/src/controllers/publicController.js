@@ -34,7 +34,7 @@ export const getPublicAgentData = async (req, res) => {
         }
 
         const packages = await Package.find({ agentId: agent._id, isActive: true })
-            .select('title description location duration category packageType imageUrl1 imageUrl2 originalPrice discountedPrice isTrending hasOffer badges inclusions')
+            .select('title description location duration category packageType imageUrl1 imageUrl2 originalPrice discountedPrice isTrending hasOffer badges inclusions exclusions')
             .sort({ isTrending: -1, createdAt: -1 });
 
         return res.status(200).json({
@@ -262,7 +262,7 @@ export const getPublicSiteConfig = async (req, res) => {
         }
 
         const config = await SiteConfig.findOne({ agentId: agent._id })
-            .select('companyName contactEmail contactPhone address facebookUrl instagramUrl defaultWhatsappMessage currency timezone topbarOffer cardOffer aboutUs destinations');
+            .select('companyName contactEmail contactPhone address facebookUrl instagramUrl defaultWhatsappMessage currency timezone heroTitle heroSubtitle topbarOffer cardOffer aboutUs destinations');
 
         return res.status(200).json({ success: true, data: config || {} });
     } catch (err) {

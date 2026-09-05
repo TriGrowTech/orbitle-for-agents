@@ -97,6 +97,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
           source: (l.source as LeadSource) || 'marketplace',
           status: (l.status as LeadStatus) || 'pending',
           priority: 'medium',
+          dealValue: l.dealAmount || 0,
           fromCity: l.fromLocation || '',
           startDate: l.departureDate?.split('T')[0],
           duration: l.numberOfDays ? `${l.numberOfDays} days` : '',

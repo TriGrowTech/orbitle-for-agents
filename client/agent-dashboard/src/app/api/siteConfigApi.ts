@@ -54,6 +54,8 @@ export interface SiteConfigData {
   defaultWhatsappMessage: string;
   currency: string;
   timezone: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
   topbarOffer: {
     text: string;
     ctaText: string;

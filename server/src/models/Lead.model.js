@@ -72,6 +72,13 @@ const LeadSchema = new mongoose.Schema({
         enum: ['pending', 'contacted', 'follow_up', 'quoted', 'converted', 'cancelled'],
         default: 'pending'
     },
+    dealAmount: {
+        type: Number,
+        default: 0
+    },
+    convertedAt: {
+        type: Date
+    },
     source: {
         type: String,
         enum: ['popup', 'hero_form', 'package_detail', 'plan_tour', 'chatbot', 'marketplace'],

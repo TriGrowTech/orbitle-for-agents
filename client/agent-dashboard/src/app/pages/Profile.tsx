@@ -80,7 +80,7 @@ export function Profile() {
       const formData = new FormData();
       formData.append('subdomain', subdomainInput);
       await completeOnboarding(formData).unwrap();
-      const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173';
+      const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
       toast.success(`Marketplace URL set! Visit: ${subdomainInput}.${marketplaceDomain}`);
     } catch (err: any) {
       toast.error(err?.data?.message || 'Failed to save subdomain.');
@@ -309,13 +309,13 @@ export function Profile() {
                   {/* Current URL display */}
                   {agent?.subdomain && (
                     <a
-                      href={`http://${agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}`}
+                      href={`http://${agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 font-medium text-sm hover:bg-green-100 transition-colors"
                     >
                       <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                      {agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}
+                      {agent.subdomain}.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}
                     </a>
                   )}
 
@@ -341,7 +341,7 @@ export function Profile() {
                           </div>
                         )}
                       </div>
-                      <span className="text-gray-400 text-sm whitespace-nowrap">.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173'}</span>
+                      <span className="text-gray-400 text-sm whitespace-nowrap">.${(import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174'}</span>
                     </div>
                     <p className="text-xs text-gray-400 mt-1.5 pl-1">Only lowercase letters, numbers, and hyphens allowed</p>
                   </div>

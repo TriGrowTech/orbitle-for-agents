@@ -106,7 +106,7 @@ export function Leads() {
     // Update backend if it's a real lead (string ID)
     if (typeof leadId === 'string') {
       try {
-        await updateStatus({ id: leadId, status: 'converted' }).unwrap();
+        await updateStatus({ id: leadId, status: 'converted', dealAmount: amount }).unwrap();
       } catch (error) {
         console.error('Failed to update status:', error);
       }

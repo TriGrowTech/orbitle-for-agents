@@ -520,7 +520,7 @@ export const googleAuthCallback = async (req, res) => {
                 sameSite: 'lax'
             };
 
-            const dashboardUrl = process.env.DASHBOARD_URL || 'http://localhost:5174';
+            const dashboardUrl = process.env.DASHBOARD_URL || 'http://localhost:5173';
             const redirectPath = agent.isOnboarded ? '/dashboard' : '/onboarding';
 
             return res

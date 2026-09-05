@@ -30,7 +30,7 @@ export function Dashboard() {
 
   const [copied, setCopied] = useState(false);
 
-  const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5173';
+  const marketplaceDomain = (import.meta as any).env.VITE_MARKETPLACE_DOMAIN || 'localhost:5174';
   const subdomainLink = agent?.subdomain 
     ? `${agent.subdomain}.${marketplaceDomain}` 
     : "loading...";

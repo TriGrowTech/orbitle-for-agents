@@ -41,6 +41,8 @@ export interface SiteConfig {
   defaultWhatsappMessage: string;
   currency: string;
   timezone: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
   topbarOffer: {
     text: string;
     ctaText: string;
@@ -108,6 +110,10 @@ interface AgentContextType {
 
 /* ── Subdomain Detection ────────────────────────────────────────── */
 function detectSubdomain(): string | null {
+  // Check URL query parameter first (e.g. localhost:5174?subdomain=saratravels)
+  const querySub = new URLSearchParams(window.location.search).get('subdomain');
+  if (querySub) return querySub.toLowerCase();
+
   const host = window.location.hostname; // e.g. "trigrowtech.localhost" or "trigrowtech.orbitle.in"
 
   // Local dev: trigrowtech.localhost

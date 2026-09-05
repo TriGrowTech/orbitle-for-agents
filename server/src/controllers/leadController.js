@@ -23,7 +23,7 @@ export const getLeads = async (req, res) => {
 // @access  Private (Agent)
 export const updateLeadStatus = async (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, dealAmount } = req.body;
 
         if (!status) {
             return res.status(400).json({ success: false, message: 'Please provide a status' });
@@ -40,7 +40,15 @@ export const updateLeadStatus = async (req, res) => {
             return res.status(401).json({ success: false, message: 'Not authorized to update this lead' });
         }
 
-        lead = await Lead.findByIdAndUpdate(req.params.id, { status }, {
+        const updateFields = { status };
+        if (dealAmount !== undefined) {
+            updateFields.dealAmount = dealAmount;
+        }
+        if (status === 'converted' && !lead.convertedAt) {
+            updateFields.convertedAt = new Date();
+        }
+
+        lead = await Lead.findByIdAndUpdate(req.params.id, updateFields, {
             new: true,
             runValidators: true
         });

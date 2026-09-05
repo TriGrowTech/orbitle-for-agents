@@ -23,6 +23,10 @@ const siteConfigSchema = new mongoose.Schema(
         currency: { type: String, default: 'INR' },
         timezone: { type: String, default: 'IST' },
 
+        // ── Homepage Hero Header Text ────────────────────────────
+        heroTitle: { type: String, default: '' },
+        heroSubtitle: { type: String, default: '' },
+
         // ── Topbar offer banner ─────────────────────────────────
         topbarOffer: {
             text: { type: String, default: '' },

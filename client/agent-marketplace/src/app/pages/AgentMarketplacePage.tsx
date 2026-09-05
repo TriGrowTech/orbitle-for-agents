@@ -96,12 +96,23 @@ function PackageCard({ pkg, theme, agentWhatsapp }: {
         </p>
 
         {pkg.inclusions?.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
             {pkg.inclusions.slice(0, 3).map((inc, i) => (
               <span key={i} style={{ background: '#f0fdf4', color: '#16a34a', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 600 }}>✓ {inc}</span>
             ))}
             {pkg.inclusions.length > 3 && (
               <span style={{ color: '#94a3b8', fontSize: 11 }}>+{pkg.inclusions.length - 3} more</span>
+            )}
+          </div>
+        )}
+
+        {pkg.exclusions?.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+            {pkg.exclusions.slice(0, 2).map((exc, i) => (
+              <span key={i} style={{ background: '#fef2f2', color: '#dc2626', borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 600 }}>✕ {exc}</span>
+            ))}
+            {pkg.exclusions.length > 2 && (
+              <span style={{ color: '#94a3b8', fontSize: 11 }}>+{pkg.exclusions.length - 2} more</span>
             )}
           </div>
         )}
